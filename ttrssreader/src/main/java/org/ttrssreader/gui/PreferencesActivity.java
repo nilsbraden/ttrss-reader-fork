@@ -126,15 +126,13 @@ public class PreferencesActivity extends PreferenceActivity implements Toolbar.O
 	@Override
 	protected void onPause() {
 		super.onPause();
-		PreferenceManager.getDefaultSharedPreferences(this)
-				.unregisterOnSharedPreferenceChangeListener(Controller.getInstance());
+		PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(Controller.getInstance());
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		PreferenceManager.getDefaultSharedPreferences(this)
-				.registerOnSharedPreferenceChangeListener(Controller.getInstance());
+		PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(Controller.getInstance());
 	}
 
 	@Override
@@ -218,7 +216,8 @@ public class PreferencesActivity extends PreferenceActivity implements Toolbar.O
 		doReset |= (id == R.id.Preferences_Menu_ResetCache);
 		doReset |= (id == R.id.Preferences_Menu_ResetDatabase);
 
-		if (doReset) new ResetTask(this).execute(menuItem.getItemId());
+		if (doReset)
+			new ResetTask(this).execute(menuItem.getItemId());
 
 		return doReset;
 	}

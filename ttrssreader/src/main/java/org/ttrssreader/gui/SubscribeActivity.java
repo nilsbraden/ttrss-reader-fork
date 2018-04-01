@@ -164,23 +164,22 @@ public class SubscribeActivity extends MenuActivity {
 				SubscriptionResponse ret = Data.getInstance().feedSubscribe(urlValue, category.id);
 				String message = "\n\n(" + ret.message + ")";
 
-				if (ret.code == 0) showErrorDialog(getResources().getString(R.string.SubscribeActivity_invalidUrl));
-				if (ret.code == 1) finish();
+				if (ret.code == 0)
+					showErrorDialog(getResources().getString(R.string.SubscribeActivity_invalidUrl));
+				if (ret.code == 1)
+					finish();
 				else if (Controller.getInstance().getConnector().hasLastError())
 					showErrorDialog(Controller.getInstance().getConnector().pullLastError());
 				else if (ret.code == 2)
 					showErrorDialog(getResources().getString(R.string.SubscribeActivity_invalidUrl) + " " + message);
 				else if (ret.code == 3)
-					showErrorDialog(getResources().getString(R.string.SubscribeActivity_contentIsHTML) + " " +
-							message);
+					showErrorDialog(getResources().getString(R.string.SubscribeActivity_contentIsHTML) + " " + message);
 				else if (ret.code == 4)
-					showErrorDialog(getResources().getString(R.string.SubscribeActivity_multipleFeeds) + " " +
-							message);
-				else if (ret.code == 5) showErrorDialog(
-						getResources().getString(R.string.SubscribeActivity_cannotDownload) + " " + message);
-				else showErrorDialog(
-							String.format(getResources().getString(R.string.SubscribeActivity_errorCode), ret.code)
-									+ " " + message);
+					showErrorDialog(getResources().getString(R.string.SubscribeActivity_multipleFeeds) + " " + message);
+				else if (ret.code == 5)
+					showErrorDialog(getResources().getString(R.string.SubscribeActivity_cannotDownload) + " " + message);
+				else
+					showErrorDialog(String.format(getResources().getString(R.string.SubscribeActivity_errorCode), ret.code) + " " + message);
 
 			} catch (Exception e) {
 				showErrorDialog(e.getMessage());
@@ -243,7 +242,8 @@ public class SubscribeActivity extends MenuActivity {
 
 		@Override
 		protected void onProgressUpdate(Integer... values) {
-			if (catList != null && !catList.isEmpty()) categoriesAdapter.addAll(catList);
+			if (catList != null && !catList.isEmpty())
+				categoriesAdapter.addAll(catList);
 
 			ProgressBarManager.getInstance().removeProgress(activity);
 		}

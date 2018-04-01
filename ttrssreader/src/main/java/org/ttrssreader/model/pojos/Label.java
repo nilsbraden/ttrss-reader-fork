@@ -18,7 +18,6 @@
 package org.ttrssreader.model.pojos;
 
 
-
 public class Label implements Comparable<Label> {
 
 	public Integer id;

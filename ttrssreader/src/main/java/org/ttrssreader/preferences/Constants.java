@@ -173,7 +173,7 @@ public class Constants {
 
 	/*
 	 * Resets all preferences to their default values. Only preferences which are mentioned in this class are reset,
-	  * old
+	 * old
 	 * or unsused values don't get reset.
 	 */
 	public static void resetPreferences(SharedPreferences prefs) {
@@ -183,7 +183,8 @@ public class Constants {
 		for (Field field : Constants.class.getDeclaredFields()) {
 
 			// Continue on "_DEFAULT"-Fields, these hold only the default values for a preference
-			if (field.getName().endsWith(APPENDED_DEFAULT)) continue;
+			if (field.getName().endsWith(APPENDED_DEFAULT))
+				continue;
 
 			try {
 				// Get the default value

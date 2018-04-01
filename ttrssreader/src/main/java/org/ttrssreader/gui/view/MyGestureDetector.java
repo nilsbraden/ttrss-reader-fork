@@ -39,13 +39,17 @@ public class MyGestureDetector extends GestureDetector.SimpleOnGestureListener {
 
 	@Override
 	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-		if (!hideActionbar) return false;
+		if (!hideActionbar)
+			return false;
 
-		if (Controller.isTablet) return false;
+		if (Controller.isTablet)
+			return false;
 
-		if (System.currentTimeMillis() - lastShow < 700) return false;
+		if (System.currentTimeMillis() - lastShow < 700)
+			return false;
 
-		if (Math.abs(distanceX) > Math.abs(distanceY)) return false;
+		if (Math.abs(distanceX) > Math.abs(distanceY))
+			return false;
 
 		if (distanceY < -10) {
 			actionBar.show();

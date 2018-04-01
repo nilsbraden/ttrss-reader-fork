@@ -56,7 +56,8 @@ public class WifiPreferencesActivity extends PreferenceActivity implements OnSha
 		mDamageReport.initialize();
 		setResult(Constants.ACTIVITY_SHOW_PREFERENCES);
 
-		if (needResource) addPreferencesFromResource(R.xml.prefs_main_top);
+		if (needResource)
+			addPreferencesFromResource(R.xml.prefs_main_top);
 	}
 
 	@Override
@@ -69,7 +70,8 @@ public class WifiPreferencesActivity extends PreferenceActivity implements OnSha
 			setTitle(getString(R.string.ConnectionWifiPrefSelectionTitle, m_SSID));
 			loadHeadersFromResource(R.xml.prefs_headers_wifibased, _headers);
 			for (Header header : _headers) {
-				if (header.fragmentArguments != null) header.fragmentArguments.putString(KEY_SSID, m_SSID);
+				if (header.fragmentArguments != null)
+					header.fragmentArguments.putString(KEY_SSID, m_SSID);
 			}
 		}
 	}
@@ -86,15 +88,13 @@ public class WifiPreferencesActivity extends PreferenceActivity implements OnSha
 	@Override
 	protected void onPause() {
 		super.onPause();
-		PreferenceManager.getDefaultSharedPreferences(this)
-				.unregisterOnSharedPreferenceChangeListener(Controller.getInstance());
+		PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(Controller.getInstance());
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		PreferenceManager.getDefaultSharedPreferences(this)
-				.registerOnSharedPreferenceChangeListener(Controller.getInstance());
+		PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(Controller.getInstance());
 	}
 
 	@Override
@@ -127,7 +127,8 @@ public class WifiPreferencesActivity extends PreferenceActivity implements OnSha
 
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (m_SSID == null) return;
+		if (m_SSID == null)
+			return;
 
 		if (key.equals(m_SSID + Constants.ENABLE_WIFI_BASED_SUFFIX)) {
 			// TODO: WTF?

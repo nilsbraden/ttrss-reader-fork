@@ -55,19 +55,16 @@ public class AboutActivity extends Activity {
 		TextView versionText = (TextView) this.findViewById(R.id.AboutActivity_VersionText);
 		versionText.setText(this.getString(R.string.AboutActivity_VersionText) + " " + Utils.getAppVersionName(this));
 		TextView versionCodeText = (TextView) this.findViewById(R.id.AboutActivity_VersionCodeText);
-		versionCodeText
-				.setText(this.getString(R.string.AboutActivity_VersionCodeText) + " " + Utils.getAppVersionCode(this));
+		versionCodeText.setText(this.getString(R.string.AboutActivity_VersionCodeText) + " " + Utils.getAppVersionCode(this));
 
 		TextView licenseText = (TextView) this.findViewById(R.id.AboutActivity_LicenseText);
-		licenseText.setText(this.getString(R.string.AboutActivity_LicenseText) + " " + this
-				.getString(R.string.AboutActivity_LicenseTextValue));
+		licenseText.setText(this.getString(R.string.AboutActivity_LicenseText) + " " + this.getString(R.string.AboutActivity_LicenseTextValue));
 
 		TextView urlText = (TextView) this.findViewById(R.id.AboutActivity_UrlText);
 		urlText.setText(this.getString(R.string.ProjectUrl));
 
 		TextView lastSyncText = (TextView) this.findViewById(R.id.AboutActivity_LastSyncText);
-		lastSyncText.setText(this.getString(R.string.AboutActivity_LastSyncText) + " " + new Date(
-				Controller.getInstance().getLastSync()));
+		lastSyncText.setText(this.getString(R.string.AboutActivity_LastSyncText) + " " + new Date(Controller.getInstance().getLastSync()));
 
 		TextView thanksText = (TextView) this.findViewById(R.id.AboutActivity_ThanksText);
 		thanksText.setText(this.getString(R.string.AboutActivity_ThanksTextValue));

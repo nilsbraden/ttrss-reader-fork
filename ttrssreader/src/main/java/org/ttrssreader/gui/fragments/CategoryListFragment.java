@@ -66,7 +66,8 @@ public class CategoryListFragment extends MainListFragment {
 
 	@Override
 	public void onCreate(Bundle instance) {
-		if (!Controller.isTablet) Controller.getInstance().lastOpenedFeeds.clear();
+		if (!Controller.isTablet)
+			Controller.getInstance().lastOpenedFeeds.clear();
 		Controller.getInstance().lastOpenedArticles.clear();
 		setHasOptionsMenu(true);
 		super.onCreate(instance);
@@ -85,31 +86,38 @@ public class CategoryListFragment extends MainListFragment {
 		menu.add(MARK_GROUP, MARK_READ, Menu.NONE, R.string.Commons_MarkRead);
 		if (Controller.getInstance().invertBrowsing())
 			menu.add(MARK_GROUP, SELECT_FEEDS, Menu.NONE, R.string.Commons_SelectFeeds);
-		else menu.add(MARK_GROUP, SELECT_ARTICLES, Menu.NONE, R.string.Commons_SelectArticles);
+		else
+			menu.add(MARK_GROUP, SELECT_ARTICLES, Menu.NONE, R.string.Commons_SelectArticles);
 
 	}
 
 	@Override
 	public boolean onContextItemSelected(android.view.MenuItem item) {
 		AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
-		if (cmi == null) return false;
+		if (cmi == null)
+			return false;
 
 		int id = adapter.getId(cmi.position);
 		switch (item.getItemId()) {
 			case MARK_READ:
 				IUpdatable updater;
-				if (id < -10) updater = new ReadStateUpdater(id, 42);
-				else updater = new ReadStateUpdater(id);
+				if (id < -10)
+					updater = new ReadStateUpdater(id, 42);
+				else
+					updater = new ReadStateUpdater(id);
 				ReadStateDialog.getInstance(updater).show(getFragmentManager());
 				return true;
 			case SELECT_ARTICLES:
-				if (id < 0) return false;
+				if (id < 0)
+					return false;
 				if (getActivity() instanceof CategoryActivity)
 					((CategoryActivity) getActivity()).displayHeadlines(FeedHeadlineActivity.FEED_NO_ID, id, true);
 				return true;
 			case SELECT_FEEDS:
-				if (id < 0) return false;
-				if (getActivity() instanceof CategoryActivity) ((CategoryActivity) getActivity()).displayFeed(id);
+				if (id < 0)
+					return false;
+				if (getActivity() instanceof CategoryActivity)
+					((CategoryActivity) getActivity()).displayFeed(id);
 				return true;
 		}
 		return false;
@@ -117,14 +125,17 @@ public class CategoryListFragment extends MainListFragment {
 
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
-		if (!Controller.isTablet && selectedId != Integer.MIN_VALUE) menu.removeItem(R.id.Menu_MarkAllRead);
-		if (selectedId == Integer.MIN_VALUE) menu.removeItem(R.id.Menu_MarkFeedsRead);
+		if (!Controller.isTablet && selectedId != Integer.MIN_VALUE)
+			menu.removeItem(R.id.Menu_MarkAllRead);
+		if (selectedId == Integer.MIN_VALUE)
+			menu.removeItem(R.id.Menu_MarkFeedsRead);
 		super.onPrepareOptionsMenu(menu);
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		if (super.onOptionsItemSelected(item)) return true;
+		if (super.onOptionsItemSelected(item))
+			return true;
 
 		boolean backAfterUpdate = Controller.getInstance().goBackAfterMarkAllRead();
 		switch (item.getItemId()) {
@@ -160,14 +171,16 @@ public class CategoryListFragment extends MainListFragment {
 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-		if (loader.getId() == TYPE_CAT_ID) adapter.changeCursor(data);
+		if (loader.getId() == TYPE_CAT_ID)
+			adapter.changeCursor(data);
 		super.onLoadFinished(loader, data);
 		((CategoryActivity) getActivity()).setTitleAndUnread();
 	}
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
-		if (loader.getId() == TYPE_CAT_ID) adapter.changeCursor(null);
+		if (loader.getId() == TYPE_CAT_ID)
+			adapter.changeCursor(null);
 	}
 
 	@Override
@@ -180,7 +193,8 @@ public class CategoryListFragment extends MainListFragment {
 	@Override
 	public void doRefresh() {
 		Activity activity = getActivity();
-		if (activity != null && categoryUri != null) activity.getContentResolver().notifyChange(categoryUri, null);
+		if (activity != null && categoryUri != null)
+			activity.getContentResolver().notifyChange(categoryUri, null);
 		super.doRefresh();
 	}
 

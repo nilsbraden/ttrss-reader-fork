@@ -60,7 +60,8 @@ public class IdUnreadArticleOmitter implements IArticleOmitter {
 		boolean ret = false;
 		switch (field) {
 			case unread:
-				if (a.isUnread) ret = true;
+				if (a.isUnread)
+					ret = true;
 				break;
 			case updated:
 				if (a.updated != null) {

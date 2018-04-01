@@ -95,7 +95,8 @@ public class ImageCache {
 		File[] files = folder.listFiles();
 
 		Log.d(TAG, "Image cache before fillMemoryCacheFromDisk: " + cache.size());
-		if (files == null) return;
+		if (files == null)
+			return;
 
 		for (File file : files) {
 			try {
@@ -131,7 +132,8 @@ public class ImageCache {
 
 	public File getCacheFile(String key) {
 		File f = new File(diskCacheDir);
-		if (!f.exists() && !f.mkdirs()) Log.w(TAG, "Couldn't create File: " + f.getAbsolutePath());
+		if (!f.exists() && !f.mkdirs())
+			Log.w(TAG, "Couldn't create File: " + f.getAbsolutePath());
 
 		return getFileForKey(key);
 	}
@@ -160,7 +162,8 @@ public class ImageCache {
 				return;
 			}
 			for (File f : cachedFiles) {
-				if (!f.delete()) Log.e(TAG, "File couldn't be deleted: " + f.getAbsolutePath());
+				if (!f.delete())
+					Log.e(TAG, "File couldn't be deleted: " + f.getAbsolutePath());
 			}
 		}
 	}

@@ -17,7 +17,6 @@
 package org.ttrssreader.utils;
 
 
-
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -60,8 +59,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
 	/**
 	 * An {@link Executor} that can be used to execute tasks in parallel.
 	 */
-	public static final Executor THREAD_POOL_EXECUTOR = new ThreadPoolExecutor(CORE_POOL_SIZE, MAXIMUM_POOL_SIZE,
-			KEEP_ALIVE, TimeUnit.SECONDS, sPoolWorkQueue, sThreadFactory);
+	public static final Executor THREAD_POOL_EXECUTOR = new ThreadPoolExecutor(CORE_POOL_SIZE, MAXIMUM_POOL_SIZE, KEEP_ALIVE, TimeUnit.SECONDS, sPoolWorkQueue, sThreadFactory);
 
 	/**
 	 * An {@link Executor} that executes tasks one at a time in serial
@@ -117,12 +115,10 @@ public abstract class AsyncTask<Params, Progress, Result> {
 		/**
 		 * Indicates that the task has not been executed yet.
 		 */
-		PENDING,
-		/**
+		PENDING, /**
 		 * Indicates that the task is running.
 		 */
-		RUNNING,
-		/**
+		RUNNING, /**
 		 * Indicates that {@link AsyncTask#onPostExecute} has finished.
 		 */
 		FINISHED,
@@ -180,8 +176,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
 	}
 
 	private Result postResult(Result result) {
-		@SuppressWarnings("unchecked") Message message = getHandler()
-				.obtainMessage(MESSAGE_POST_RESULT, new AsyncTaskResult<>(this, result));
+		@SuppressWarnings("unchecked") Message message = getHandler().obtainMessage(MESSAGE_POST_RESULT, new AsyncTaskResult<>(this, result));
 		message.sendToTarget();
 		return result;
 	}
@@ -199,7 +194,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
 	 * Override this method to perform a computation on a background thread. The
 	 * specified parameters are the parameters passed to {@link #execute}
 	 * by the caller of this task.
-	 *
+	 * <p>
 	 * This method can call {@link #publishProgress} to publish updates
 	 * on the UI thread.
 	 *
@@ -223,7 +218,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
 	/**
 	 * <p>Runs on the UI thread after {@link #doInBackground}. The
 	 * specified result is the value returned by {@link #doInBackground}.</p>
-	 *
+	 * <p>
 	 * <p>This method won't be invoked if the task was cancelled.</p>
 	 *
 	 * @param result The result of the operation computed by {@link #doInBackground}.
@@ -250,7 +245,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
 	/**
 	 * <p>Runs on the UI thread after {@link #cancel(boolean)} is invoked and
 	 * {@link #doInBackground(Object[])} has finished.</p>
-	 *
+	 * <p>
 	 * <p>The default implementation simply invokes {@link #onCancelled()} and
 	 * ignores the result. If you write your own implementation, do not call
 	 * <code>super.onCancelled(result)</code>.</p>
@@ -269,7 +264,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
 	 * <p>Applications should preferably override {@link #onCancelled(Object)}.
 	 * This method is invoked by the default implementation of
 	 * {@link #onCancelled(Object)}.</p>
-	 *
+	 * <p>
 	 * <p>Runs on the UI thread after {@link #cancel(boolean)} is invoked and
 	 * {@link #doInBackground(Object[])} has finished.</p>
 	 *
@@ -302,7 +297,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
 	 * then the <tt>mayInterruptIfRunning</tt> parameter determines
 	 * whether the thread executing this task should be interrupted in
 	 * an attempt to stop the task.</p>
-	 *
+	 * <p>
 	 * <p>Calling this method will result in {@link #onCancelled(Object)} being
 	 * invoked on the UI thread after {@link #doInBackground(Object[])}
 	 * returns. Calling this method guarantees that {@link #onPostExecute(Object)}
@@ -352,15 +347,14 @@ public abstract class AsyncTask<Params, Progress, Result> {
 	 *                               while waiting.
 	 * @throws TimeoutException      If the wait timed out.
 	 */
-	public final Result get(long timeout, TimeUnit unit)
-			throws InterruptedException, ExecutionException, TimeoutException {
+	public final Result get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
 		return mFuture.get(timeout, unit);
 	}
 
 	/**
 	 * Executes the task with the specified parameters. The task returns
 	 * itself (this) so that the caller can keep a reference to it.
-	 *
+	 * <p>
 	 * <p>Note: this function schedules the task on a queue for a single background
 	 * thread or pool of threads depending on the platform version.  When first
 	 * introduced, AsyncTasks were executed serially on a single background thread.
@@ -372,7 +366,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
 	 * the {@link #executeOnExecutor} version of this method
 	 * with {@link #THREAD_POOL_EXECUTOR}; however, see commentary there for warnings
 	 * on its use.
-	 *
+	 * <p>
 	 * <p>This method must be invoked on the UI thread.
 	 *
 	 * @param params The parameters of the task.
@@ -389,12 +383,12 @@ public abstract class AsyncTask<Params, Progress, Result> {
 	/**
 	 * Executes the task with the specified parameters. The task returns
 	 * itself (this) so that the caller can keep a reference to it.
-	 *
+	 * <p>
 	 * <p>This method is typically used with {@link #THREAD_POOL_EXECUTOR} to
 	 * allow multiple tasks to run in parallel on a pool of threads managed by
 	 * AsyncTask, however you can also use your own {@link Executor} for custom
 	 * behavior.
-	 *
+	 * <p>
 	 * <p><em>Warning:</em> Allowing multiple tasks to run in parallel from
 	 * a thread pool is generally <em>not</em> what one wants, because the order
 	 * of their operation is not defined.  For example, if these tasks are used
@@ -404,7 +398,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
 	 * of the data to be over-written by an older one, leading to obscure data
 	 * loss and stability issues.  Such changes are best
 	 * executed in serial.
-	 *
+	 * <p>
 	 * <p>This method must be invoked on the UI thread.
 	 *
 	 * @param exec   The executor to use.  {@link #THREAD_POOL_EXECUTOR} is available as a
@@ -421,8 +415,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
 				case RUNNING:
 					throw new IllegalStateException("Cannot execute task:" + " the task is already running.");
 				case FINISHED:
-					throw new IllegalStateException("Cannot execute task:" + " the task has already been executed "
-							+ "(a task can be executed only once)");
+					throw new IllegalStateException("Cannot execute task:" + " the task has already been executed " + "(a task can be executed only once)");
 			}
 		}
 
@@ -453,7 +446,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
 	 * publish updates on the UI thread while the background computation is
 	 * still running. Each call to this method will trigger the execution of
 	 * {@link #onProgressUpdate} on the UI thread.
-	 *
+	 * <p>
 	 * {@link #onProgressUpdate} will not be called if the task has been
 	 * canceled.
 	 *

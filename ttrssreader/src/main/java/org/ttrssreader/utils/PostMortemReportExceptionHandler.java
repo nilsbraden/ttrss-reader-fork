@@ -47,9 +47,9 @@ import java.util.Locale;
  * permission to access the Internet.
  *
  * @author Ryan Fischbach <br>
- *         Blackmoon Info Tech Services<br>
- *
- *         Source has been released to the public as is and without any warranty.
+ * Blackmoon Info Tech Services<br>
+ * <p>
+ * Source has been released to the public as is and without any warranty.
  */
 @SuppressWarnings("StringConcatenationInsideStringBufferAppend")
 public class PostMortemReportExceptionHandler implements UncaughtExceptionHandler, Runnable {
@@ -64,8 +64,7 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
 	// email will be sent to this account the following may be something you wish to consider localizing
 	private static final String MSG_SENDTO = "ttrss@nilsbraden.de";
 
-	private static final String MSG_BODY = "Please help by sending this email. "
-			+ "No personal information is being sent (you can check by reading the rest of the email).";
+	private static final String MSG_BODY = "Please help by sending this email. " + "No personal information is being sent (you can check by reading the rest of the email).";
 
 	private Thread.UncaughtExceptionHandler mDefaultUEH;
 	private Activity mAct = null;
@@ -79,7 +78,8 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
 	 * Call this method after creation to start protecting all code thereafter.
 	 */
 	public void initialize() {
-		if (mAct == null) throw new NullPointerException();
+		if (mAct == null)
+			throw new NullPointerException();
 
 		// Ignore reports if
 		// - app is not signed with the key of Nils Braden
@@ -143,7 +143,8 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
 			}
 		}
 
-		if (handleException) submit(e);
+		if (handleException)
+			submit(e);
 
 		// do not forget to pass this exception through up the chain
 		bubbleUncaughtException(t, e);
@@ -159,7 +160,8 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
 		if (mDefaultUEH != null) {
 			if (mDefaultUEH instanceof PostMortemReportExceptionHandler)
 				((PostMortemReportExceptionHandler) mDefaultUEH).bubbleUncaughtException(t, e);
-			else mDefaultUEH.uncaughtException(t, e);
+			else
+				mDefaultUEH.uncaughtException(t, e);
 		}
 	}
 
@@ -241,7 +243,8 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
 	 * @return Returns the list of Activities in the handler chain.
 	 */
 	private LinkedList<CharSequence> getActivityTrace(LinkedList<CharSequence> aTrace) {
-		if (aTrace == null) aTrace = new LinkedList<>();
+		if (aTrace == null)
+			aTrace = new LinkedList<>();
 		aTrace.add(mAct.getLocalClassName() + " (" + mAct.getTitle() + ")");
 		if (mAct.getCallingActivity() != null)
 			aTrace.add(mAct.getCallingActivity().toString() + " (" + mAct.getIntent().toString() + ")");
@@ -300,7 +303,7 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
 		}
 
 		theErrReport.append("END REPORT.");
-		return new String[] {theErrReport.toString(), exceptionHash};
+		return new String[]{theErrReport.toString(), exceptionHash};
 	}
 
 	/**
@@ -327,8 +330,7 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
 		String theLine;
 		String theTrace = "";
 		try {
-			BufferedReader theReader = new BufferedReader(
-					new InputStreamReader(mAct.openFileInput(EXCEPTION_REPORT_FILENAME)));
+			BufferedReader theReader = new BufferedReader(new InputStreamReader(mAct.openFileInput(EXCEPTION_REPORT_FILENAME)));
 			while ((theLine = theReader.readLine()) != null) {
 				theTrace += theLine + "\n";
 			}
@@ -351,7 +353,7 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
 			Intent theIntent = new Intent(Intent.ACTION_SEND);
 			String theSubject = getAppName() + " " + MSG_SUBJECT_TAG;
 			String theBody = "\n" + MSG_BODY + "\n\n" + aReport + "\n\n";
-			theIntent.putExtra(Intent.EXTRA_EMAIL, new String[] {MSG_SENDTO});
+			theIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{MSG_SENDTO});
 			theIntent.putExtra(Intent.EXTRA_TEXT, theBody);
 			theIntent.putExtra(Intent.EXTRA_SUBJECT, theSubject);
 			theIntent.setType("message/rfc822");
@@ -394,8 +396,7 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
 	private void setReportHasBeenSent(String hash) {
 		try {
 			// Store file with name postmortem.exclude.xyz to indicate that this report has been sent already
-			FileOutputStream sentReport = mAct
-					.openFileOutput(EXCEPTION_REPORT_EXCLUDE_PREFIX + hash, Context.MODE_PRIVATE);
+			FileOutputStream sentReport = mAct.openFileOutput(EXCEPTION_REPORT_EXCLUDE_PREFIX + hash, Context.MODE_PRIVATE);
 			sentReport.write("1".getBytes());
 			sentReport.close();
 		} catch (IOException e) {

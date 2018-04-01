@@ -43,7 +43,8 @@ public class CategoryAdapter extends MainAdapter {
 	public Object getItem(int position) {
 		Category ret = new Category();
 		Cursor cur = getCursor();
-		if (cur == null) return ret;
+		if (cur == null)
+			return ret;
 
 		if (cur.getCount() >= position) {
 			if (cur.moveToPosition(position)) {

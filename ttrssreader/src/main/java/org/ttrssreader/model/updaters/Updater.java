@@ -57,7 +57,8 @@ public class Updater extends AsyncTask<Void, Void, Void> {
 	@Override
 	protected Void doInBackground(Void... params) {
 		updatable.update();
-		if (handler != null) handler.sendEmptyMessage(0);
+		if (handler != null)
+			handler.sendEmptyMessage(0);
 		return null;
 	}
 

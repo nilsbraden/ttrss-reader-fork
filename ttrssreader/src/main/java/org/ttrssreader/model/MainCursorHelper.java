@@ -54,7 +54,8 @@ abstract class MainCursorHelper {
 					if (Controller.getInstance().onlyUnread() && !checkUnread(cursor)) {
 
 						// Close old cursor safely
-						if (cursor != null && !cursor.isClosed()) cursor.close();
+						if (cursor != null && !cursor.isClosed())
+							cursor.close();
 
 						// Override unread if query was empty
 						cursor = createCursor(db, true, false);
@@ -65,7 +66,8 @@ abstract class MainCursorHelper {
 
 		} catch (Exception e) {
 			// Close old cursor safely
-			if (cursor != null && !cursor.isClosed()) cursor.close();
+			if (cursor != null && !cursor.isClosed())
+				cursor.close();
 			// Fail-safe-query
 			cursor = createCursor(db, false, true);
 		}
@@ -79,9 +81,11 @@ abstract class MainCursorHelper {
 	 * @return true if there are unread articles in the dataset, else false.
 	 */
 	private static boolean checkUnread(Cursor cursor) {
-		if (cursor == null || cursor.isClosed()) return false; // Check null or closed
+		if (cursor == null || cursor.isClosed())
+			return false; // Check null or closed
 
-		if (!cursor.moveToFirst()) return false; // Check empty
+		if (!cursor.moveToFirst())
+			return false; // Check empty
 
 		do {
 			if (cursor.getInt(cursor.getColumnIndex("unread")) > 0)

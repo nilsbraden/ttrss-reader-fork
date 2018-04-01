@@ -29,7 +29,9 @@ import android.util.Log;
 
 import org.ttrssreader.controllers.Controller;
 
-/** Preference that uses the Android certificate selection dialog to select and authorize a cert */
+/**
+ * Preference that uses the Android certificate selection dialog to select and authorize a cert
+ */
 public class CertificatePreference extends Preference {
 	private static final String TAG = CertificatePreference.class.getSimpleName();
 
@@ -41,7 +43,9 @@ public class CertificatePreference extends Preference {
 		super(context, attrs);
 	}
 
-	public CertificatePreference(Context context, AttributeSet attrs, int defStyle) { super(context, attrs, defStyle); }
+	public CertificatePreference(Context context, AttributeSet attrs, int defStyle) {
+		super(context, attrs, defStyle);
+	}
 
 	@Override
 	protected void onClick() {
@@ -59,18 +63,20 @@ public class CertificatePreference extends Preference {
 
 		// show the dialog
 		KeyChainAliasCallbackImpl response = new KeyChainAliasCallbackImpl();
-		KeyChain.choosePrivateKeyAlias(
-			getActivity(getContext()), response,
-			null, null, connectionUri, preselectCert);
+		KeyChain.choosePrivateKeyAlias(getActivity(getContext()), response, null, null, connectionUri, preselectCert);
 	}
 
 	private static Activity getActivity(Context context) {
-		if (context instanceof Activity) return (Activity) context;
-		if (context instanceof ContextWrapper) return getActivity(((ContextWrapper)context).getBaseContext());
+		if (context instanceof Activity)
+			return (Activity) context;
+		if (context instanceof ContextWrapper)
+			return getActivity(((ContextWrapper) context).getBaseContext());
 		return null;
 	}
 
-	/** Callback from the Android cert selection dialog, to inform us of what has been selected */
+	/**
+	 * Callback from the Android cert selection dialog, to inform us of what has been selected
+	 */
 	class KeyChainAliasCallbackImpl implements KeyChainAliasCallback {
 		@Override
 		public void alias(String alias) {

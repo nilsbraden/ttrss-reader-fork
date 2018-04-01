@@ -86,13 +86,15 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
 	@SuppressWarnings("deprecation")
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
-		int[] attrs = new int[] {android.R.attr.windowBackground};
+		int[] attrs = new int[]{android.R.attr.windowBackground};
 		TypedArray ta = getActivity().obtainStyledAttributes(attrs);
 		Drawable drawableFromTheme = ta.getDrawable(0);
 		ta.recycle();
 
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) view.setBackgroundDrawable(drawableFromTheme);
-		else view.setBackground(drawableFromTheme);
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)
+			view.setBackgroundDrawable(drawableFromTheme);
+		else
+			view.setBackground(drawableFromTheme);
 
 		super.onViewCreated(view, savedInstanceState);
 	}
@@ -115,8 +117,7 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
 
 		ActionBar actionBar = ((MenuActivity) getActivity()).getSupportActionBar();
 
-		gestureDetector = new GestureDetector(getActivity(),
-				new MyGestureDetector(actionBar, Controller.getInstance().hideActionbar()), null);
+		gestureDetector = new GestureDetector(getActivity(), new MyGestureDetector(actionBar, Controller.getInstance().hideActionbar()), null);
 		gestureListener = new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event) {
 				return gestureDetector.onTouchEvent(event) || v.performClick();
@@ -167,7 +168,8 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
 
 	private void setChecked(int id) {
 		// Return if data hasn't been retrieved or content view has not been created yet
-		if (adapter == null || getView() == null || getListView() == null) return;
+		if (adapter == null || getView() == null || getListView() == null)
+			return;
 
 		int pos = -1;
 		for (int item : adapter.getIds()) {
@@ -183,7 +185,8 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
 	}
 
 	public void doRefresh() {
-		if (adapter != null) adapter.notifyDataSetChanged();
+		if (adapter != null)
+			adapter.notifyDataSetChanged();
 	}
 
 	public String getTitle() {
@@ -191,7 +194,8 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
 	}
 
 	public int getUnread() {
-		if (unreadCount > 0) return unreadCount;
+		if (unreadCount > 0)
+			return unreadCount;
 		return 0;
 	}
 
@@ -240,7 +244,8 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
 			Animator a;
 			if (Controller.sFragmentAnimationDirection > 0)
 				a = AnimatorInflater.loadAnimator(getActivity(), R.animator.slide_out_left);
-			else a = AnimatorInflater.loadAnimator(getActivity(), R.animator.slide_out_right);
+			else
+				a = AnimatorInflater.loadAnimator(getActivity(), R.animator.slide_out_right);
 
 			// Reset:
 			Controller.sFragmentAnimationDirection = 0;

@@ -47,8 +47,7 @@ public class FileUtils {
 	/**
 	 * Supported extensions of videofiles, see http://developer.android.com/guide/appendix/media-formats.html
 	 */
-	public static final String[] VIDEO_EXTENSIONS = {"3gp", "mp4", "m4a", "aac", "ts", "webm", "mkv", "mpg", "mpeg",
-			"avi", "flv"};
+	public static final String[] VIDEO_EXTENSIONS = {"3gp", "mp4", "m4a", "aac", "ts", "webm", "mkv", "mpg", "mpeg", "avi", "flv"};
 	public static final String VIDEO_MIME = "video/*";
 
 	/**
@@ -61,16 +60,20 @@ public class FileUtils {
 	 */
 	public static String getMimeType(String fileName) {
 		String ret = "";
-		if (fileName == null || fileName.length() == 0) return ret;
+		if (fileName == null || fileName.length() == 0)
+			return ret;
 
 		for (String ext : IMAGE_EXTENSIONS) {
-			if (fileName.endsWith(ext)) return IMAGE_MIME;
+			if (fileName.endsWith(ext))
+				return IMAGE_MIME;
 		}
 		for (String ext : AUDIO_EXTENSIONS) {
-			if (fileName.endsWith(ext)) return AUDIO_MIME;
+			if (fileName.endsWith(ext))
+				return AUDIO_MIME;
 		}
 		for (String ext : VIDEO_EXTENSIONS) {
-			if (fileName.endsWith(ext)) return VIDEO_MIME;
+			if (fileName.endsWith(ext))
+				return VIDEO_MIME;
 		}
 
 		return ret;

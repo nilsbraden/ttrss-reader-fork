@@ -108,7 +108,8 @@ public class Data {
 	 */
 	public void cacheArticles(boolean overrideOffline, boolean overrideDelay) {
 		int limit = 400;
-		if (Controller.getInstance().isLowMemory()) limit = limit / 2;
+		if (Controller.getInstance().isLowMemory())
+			limit = limit / 2;
 
 		if (!overrideDelay && (time > (System.currentTimeMillis() - Utils.UPDATE_TIME))) {
 			return;
@@ -122,16 +123,14 @@ public class Data {
 		long timeStart = System.currentTimeMillis();
 		IArticleOmitter filter = new IdUpdatedArticleOmitter("isUnread>0", 0);
 
-		Controller.getInstance().getConnector()
-				.getHeadlines(articles, VCAT_ALL, limit, VIEW_UNREAD, true, 0, null, filter);
+		Controller.getInstance().getConnector().getHeadlines(articles, VCAT_ALL, limit, VIEW_UNREAD, true, 0, null, filter);
 
 		final Article newestCachedArticle = DBHelper.getInstance().getArticle(sinceId);
 		IArticleOmitter updatedFilter = null;
 		if (newestCachedArticle != null)
 			updatedFilter = new IdUnreadArticleOmitter(newestCachedArticle.updated);
 
-		Controller.getInstance().getConnector()
-				.getHeadlines(articles, VCAT_ALL, limit, VIEW_ALL, true, sinceId, null, updatedFilter);
+		Controller.getInstance().getConnector().getHeadlines(articles, VCAT_ALL, limit, VIEW_ALL, true, sinceId, null, updatedFilter);
 
 		handleInsertArticles(articles, true);
 
@@ -148,7 +147,8 @@ public class Data {
 			Set<Integer> articleUnreadIds = new HashSet<>();
 			articleUnreadIds.addAll(filter.getOmittedArticles());
 			for (Article a : articles) {
-				if (a.isUnread) articleUnreadIds.add(a.id);
+				if (a.isUnread)
+					articleUnreadIds.add(a.id);
 			}
 
 			Log.d(TAG, "Amount of unread articles: " + articleUnreadIds.size());
@@ -190,13 +190,13 @@ public class Data {
 	 * @param overrideOffline   should the "work offline" state be ignored?
 	 * @param overrideDelay     should the last update time be ignored?
 	 */
-	public void updateArticles(int feedId, boolean displayOnlyUnread, boolean isCat, boolean overrideOffline,
-	                           boolean overrideDelay) {
+	public void updateArticles(int feedId, boolean displayOnlyUnread, boolean isCat, boolean overrideOffline, boolean overrideDelay) {
 		Long time = articlesChanged.get(feedId);
 		if (isCat) // Category-Ids are in feedsChanged
 			time = feedsChanged.get(feedId);
 
-		if (time == null) time = 0L;
+		if (time == null)
+			time = 0L;
 
 		if (articlesCached > time && !(feedId == VCAT_PUB || feedId == VCAT_STAR))
 			time = articlesCached;
@@ -222,22 +222,22 @@ public class Data {
 
 		// Calculate an appropriate upper limit for the number of articles
 		int limit = calculateLimit(feedId, isCat);
-		if (Controller.getInstance().isLowMemory()) limit = limit / 2;
+		if (Controller.getInstance().isLowMemory())
+			limit = limit / 2;
 
 		Log.d(TAG, "UPDATE limit: " + limit);
 		Set<Article> articles = new HashSet<>();
 
 		if (!displayOnlyUnread) {
 			// If not displaying only unread articles: Refresh unread articles to get them too.
-			Controller.getInstance().getConnector()
-					.getHeadlines(articles, feedId, limit, VIEW_UNREAD, isCat, 0, null, null);
+			Controller.getInstance().getConnector().getHeadlines(articles, feedId, limit, VIEW_UNREAD, isCat, 0, null, null);
 		}
 
 		String viewMode = (displayOnlyUnread ? VIEW_UNREAD : VIEW_ALL);
-		Controller.getInstance().getConnector()
-				.getHeadlines(articles, feedId, limit, viewMode, isCat, sinceId, null, filter);
+		Controller.getInstance().getConnector().getHeadlines(articles, feedId, limit, viewMode, isCat, sinceId, null, filter);
 
-		if (isVcat) handlePurgeMarked(articles, feedId);
+		if (isVcat)
+			handlePurgeMarked(articles, feedId);
 
 		handleInsertArticles(articles, false);
 
@@ -286,15 +286,19 @@ public class Data {
 		int minId = Integer.MAX_VALUE;
 		Set<String> idSet = new HashSet<>();
 		for (Article article : articles) {
-			if (article.id < minId) minId = article.id;
+			if (article.id < minId)
+				minId = article.id;
 			idSet.add(article.id + "");
 		}
 
 		String idList = Utils.separateItems(idSet, ",");
 		String vcat;
-		if (feedId == VCAT_STAR) vcat = "isStarred";
-		else if (feedId == VCAT_PUB) vcat = "isPublished";
-		else return;
+		if (feedId == VCAT_STAR)
+			vcat = "isStarred";
+		else if (feedId == VCAT_PUB)
+			vcat = "isPublished";
+		else
+			return;
 
 		DBHelper.getInstance().handlePurgeMarked(idList, minId, vcat);
 	}
@@ -310,8 +314,10 @@ public class Data {
 			int minId = Integer.MAX_VALUE;
 			int maxId = Integer.MIN_VALUE;
 			for (Article article : articles) {
-				if (article.id > maxId) maxId = article.id;
-				if (article.id < minId) minId = article.id;
+				if (article.id > maxId)
+					maxId = article.id;
+				if (article.id < minId)
+					minId = article.id;
 			}
 
 			DBHelper.getInstance().purgeLastArticles(articles.size());
@@ -337,7 +343,8 @@ public class Data {
 	public Set<Feed> updateFeeds(int categoryId, boolean overrideOffline) {
 
 		Long time = feedsChanged.get(categoryId);
-		if (time == null) time = 0L;
+		if (time == null)
+			time = 0L;
 
 		if (time > System.currentTimeMillis() - Utils.UPDATE_TIME) {
 			return null;
@@ -348,7 +355,8 @@ public class Data {
 			// Only delete feeds if we got new feeds...
 			if (!feeds.isEmpty()) {
 				for (Feed f : feeds) {
-					if (categoryId == VCAT_ALL || f.categoryId == categoryId) ret.add(f);
+					if (categoryId == VCAT_ALL || f.categoryId == categoryId)
+						ret.add(f);
 
 					feedsChanged.put(f.categoryId, System.currentTimeMillis());
 
@@ -376,7 +384,8 @@ public class Data {
 	// *** CATEGORIES *******************************************************************
 
 	public Set<Category> updateVirtualCategories(final Context context) {
-		if (virtCategoriesChanged > System.currentTimeMillis() - Utils.UPDATE_TIME) return null;
+		if (virtCategoriesChanged > System.currentTimeMillis() - Utils.UPDATE_TIME)
+			return null;
 
 		String vCatAll;
 		String vCatFresh;
@@ -434,7 +443,8 @@ public class Data {
 		boolean erg = false;
 		if (Utils.isConnected(cm))
 			erg = Controller.getInstance().getConnector().setArticleRead(ids, status);
-		if (!erg) DBHelper.getInstance().markUnsynchronizedStates(ids, DBHelper.MARK_READ, status);
+		if (!erg)
+			DBHelper.getInstance().markUnsynchronizedStates(ids, DBHelper.MARK_READ, status);
 	}
 
 	public void setArticleStarred(int articleId, int status) {
@@ -444,7 +454,8 @@ public class Data {
 
 		if (Utils.isConnected(cm))
 			erg = Controller.getInstance().getConnector().setArticleStarred(ids, status);
-		if (!erg) DBHelper.getInstance().markUnsynchronizedStates(ids, DBHelper.MARK_STAR, status);
+		if (!erg)
+			DBHelper.getInstance().markUnsynchronizedStates(ids, DBHelper.MARK_STAR, status);
 	}
 
 	public void setArticlePublished(int articleId, int status) {
@@ -465,7 +476,8 @@ public class Data {
 
 		if (Utils.isConnected(cm))
 			erg = Controller.getInstance().getConnector().setArticleNote(ids);
-		if (!erg) DBHelper.getInstance().markUnsynchronizedNotes(ids);
+		if (!erg)
+			DBHelper.getInstance().markUnsynchronizedNotes(ids);
 	}
 
 	/**
@@ -502,7 +514,8 @@ public class Data {
 	}
 
 	String getPref(String pref) {
-		if (Utils.isConnected(cm)) return Controller.getInstance().getConnector().getPref(pref);
+		if (Utils.isConnected(cm))
+			return Controller.getInstance().getConnector().getPref(pref);
 		return null;
 	}
 
@@ -533,7 +546,8 @@ public class Data {
 	 * syncronize read, starred, published articles and notes with server
 	 */
 	public void synchronizeStatus() {
-		if (!Utils.isConnected(cm)) return;
+		if (!Utils.isConnected(cm))
+			return;
 		long time = System.currentTimeMillis();
 
 		// Try to send all marked articles to the server, every synced status is removed from the DB afterwards

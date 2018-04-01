@@ -33,7 +33,8 @@ public class StringSupport {
 	 */
 	public static <T> Set<String> convertListToString(Collection<T> values, int maxCount) {
 		Set<String> ret = new HashSet<>();
-		if (values == null || values.isEmpty()) return ret;
+		if (values == null || values.isEmpty())
+			return ret;
 
 		StringBuilder sb = new StringBuilder();
 		int count = 0;
@@ -51,7 +52,8 @@ public class StringSupport {
 			}
 		}
 
-		if (sb.length() > 0) ret.add(sb.substring(0, sb.length() - 1));
+		if (sb.length() > 0)
+			ret.add(sb.substring(0, sb.length() - 1));
 
 		return ret;
 	}

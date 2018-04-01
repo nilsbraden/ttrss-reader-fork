@@ -83,14 +83,12 @@ public final class PluginBundleManager {
 		 * missing, rather than just a message that there is the wrong number).
 		 */
 		if (3 != bundle.keySet().size()) {
-			Log.e(TAG, String.format("bundle must contain 3 keys, but currently contains %d keys: %s",
-					bundle.keySet().size(), bundle.keySet())); //$NON-NLS-1$
+			Log.e(TAG, String.format("bundle must contain 3 keys, but currently contains %d keys: %s", bundle.keySet().size(), bundle.keySet())); //$NON-NLS-1$
 			return false;
 		}
 
 		if (bundle.getInt(BUNDLE_EXTRA_INT_VERSION_CODE, 0) != bundle.getInt(BUNDLE_EXTRA_INT_VERSION_CODE, 1)) {
-			Log.e(TAG, String.format("bundle extra %s appears to be the wrong type.  It must be an int",
-					BUNDLE_EXTRA_INT_VERSION_CODE)); //$NON-NLS-1$
+			Log.e(TAG, String.format("bundle extra %s appears to be the wrong type.  It must be an int", BUNDLE_EXTRA_INT_VERSION_CODE)); //$NON-NLS-1$
 			return false;
 		}
 
@@ -101,8 +99,7 @@ public final class PluginBundleManager {
 	 * @param context Application context.
 	 * @return A plug-in bundle.
 	 */
-	public static Bundle generateBundle(final Context context, final boolean fetchImages,
-			final boolean showNotification) {
+	public static Bundle generateBundle(final Context context, final boolean fetchImages, final boolean showNotification) {
 		final Bundle result = new Bundle();
 		result.putInt(BUNDLE_EXTRA_INT_VERSION_CODE, Utils.getAppVersionCode(context));
 		result.putBoolean(BUNDLE_EXTRA_IMAGES, fetchImages);

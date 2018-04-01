@@ -60,8 +60,10 @@ public class HeaderAdapter extends ArrayAdapter<Header> {
 	}
 
 	private static int getHeaderType(Header header) {
-		if (header.fragment == null && header.intent == null) return HEADER_TYPE_CATEGORY;
-		else return HEADER_TYPE_NORMAL;
+		if (header.fragment == null && header.intent == null)
+			return HEADER_TYPE_CATEGORY;
+		else
+			return HEADER_TYPE_NORMAL;
 	}
 
 	@Override
@@ -119,7 +121,8 @@ public class HeaderAdapter extends ArrayAdapter<Header> {
 					break;
 			}
 
-			if (view != null) view.setTag(holder);
+			if (view != null)
+				view.setTag(holder);
 		} else {
 
 			view = convertView;

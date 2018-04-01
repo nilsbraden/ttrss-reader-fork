@@ -46,7 +46,8 @@ public class ProgressBarManager {
 	}
 
 	public void removeProgress(MenuActivity activity) {
-		if (progressIndeterminateCount.decrementAndGet() <= 0) progressIndeterminateCount.set(0);
+		if (progressIndeterminateCount.decrementAndGet() <= 0)
+			progressIndeterminateCount.set(0);
 		setIndeterminateVisibility(activity);
 	}
 
@@ -61,7 +62,8 @@ public class ProgressBarManager {
 			activity.setSupportProgressBarIndeterminateVisibility(visible);
 			activity.setSupportProgressBarVisibility(!visible);
 
-			if (!visible) activity.setSupportProgress(0);
+			if (!visible)
+				activity.setSupportProgress(0);
 		}
 	}
 

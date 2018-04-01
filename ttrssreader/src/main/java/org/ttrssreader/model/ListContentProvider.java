@@ -74,13 +74,16 @@ public class ListContentProvider extends ContentProvider {
 		boolean selectArticlesForCategory = false;
 
 		String paramCat = uri.getQueryParameter(PARAM_CAT_ID);
-		if (paramCat != null) categoryId = Integer.parseInt(paramCat);
+		if (paramCat != null)
+			categoryId = Integer.parseInt(paramCat);
 
 		String paramFeedId = uri.getQueryParameter(PARAM_FEED_ID);
-		if (paramFeedId != null) feedId = Integer.parseInt(paramFeedId);
+		if (paramFeedId != null)
+			feedId = Integer.parseInt(paramFeedId);
 
 		String paramSelectArticles = uri.getQueryParameter(PARAM_SELECT_FOR_CAT);
-		if (paramSelectArticles != null) selectArticlesForCategory = ("1".equals(paramSelectArticles));
+		if (paramSelectArticles != null)
+			selectArticlesForCategory = ("1".equals(paramSelectArticles));
 
 		// Retrieve CursorHelper:
 		MainCursorHelper cursorHelper;
@@ -100,7 +103,8 @@ public class ListContentProvider extends ContentProvider {
 		}
 
 		Cursor cursor = cursorHelper.makeQuery(DBHelper.getInstance().getOpenHelper().getReadableDatabase());
-		if (getContext() != null) cursor.setNotificationUri(getContext().getContentResolver(), uri);
+		if (getContext() != null)
+			cursor.setNotificationUri(getContext().getContentResolver(), uri);
 
 		return cursor;
 	}

@@ -75,7 +75,8 @@ public class ReadStateUpdater implements IUpdatable {
 			case CATEGORY:
 				categories = new HashSet<>();
 				Category c = DBHelper.getInstance().getCategory(id);
-				if (c != null) categories.add(c);
+				if (c != null)
+					categories.add(c);
 				break;
 			case ALL_FEEDS:
 				feeds = DBHelper.getInstance().getFeeds(id);
@@ -83,7 +84,8 @@ public class ReadStateUpdater implements IUpdatable {
 			case FEED:
 				feeds = new HashSet<>();
 				Feed f = DBHelper.getInstance().getFeed(id);
-				if (f != null) feeds.add(f);
+				if (f != null)
+					feeds.add(f);
 				break;
 			default:
 				break;

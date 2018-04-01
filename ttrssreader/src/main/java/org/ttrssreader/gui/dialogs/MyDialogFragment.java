@@ -31,7 +31,8 @@ public class MyDialogFragment extends DialogFragment {
 	@Override
 	public void onDestroyView() {
 		// See http://stackoverflow.com/a/15444485
-		if (getDialog() != null && getRetainInstance()) getDialog().setDismissMessage(null);
+		if (getDialog() != null && getRetainInstance())
+			getDialog().setDismissMessage(null);
 		super.onDestroyView();
 	}
 

@@ -229,7 +229,8 @@ public class DBHelper {
 				// Check if deleteDB is scheduled or if DeleteOnStartup is set
 				if (Controller.getInstance().isDeleteDBScheduled()) {
 					final File dbFile = context.getDatabasePath(DATABASE_NAME);
-					if (getOpenHelper() != null) closeDB();
+					if (getOpenHelper() != null)
+						closeDB();
 					if (deleteDB(dbFile)) {
 						Controller.getInstance().setDeleteDBScheduled(false);
 						initializeDBHelper();
@@ -252,20 +253,18 @@ public class DBHelper {
 					read.lock();
 					try {
 						// Try to access the DB
-						c = getOpenHelper().getReadableDatabase()
-								.rawQuery("SELECT COUNT(*) FROM " + TABLE_CATEGORIES, null);
+						c = getOpenHelper().getReadableDatabase().rawQuery("SELECT COUNT(*) FROM " + TABLE_CATEGORIES, null);
 						c.getCount();
-						if (c.moveToFirst()) c.getInt(0);
+						if (c.moveToFirst())
+							c.getInt(0);
 
 					} catch (Exception e) {
 						Log.e(TAG, "Database was corrupted, creating a new one...", e);
 						closeDB();
 						final File dbFile = context.getDatabasePath(DATABASE_NAME);
-						if (dbFile.delete()) initializeDBHelper();
-						ErrorDialog.getInstance(
-								"The Database was corrupted and had to be recreated. If this happened more "
-										+ "than once to you please let me know under what circumstances this "
-										+ "happened.");
+						if (dbFile.delete())
+							initializeDBHelper();
+						ErrorDialog.getInstance("The Database was corrupted and had to be recreated. If this happened more " + "than once to you please let me know under what circumstances this " + "happened.");
 					} finally {
 						close(c);
 						read.unlock();
@@ -280,12 +279,14 @@ public class DBHelper {
 	private synchronized boolean initializeDBHelper() {
 		final Context context = MyApplication.context();
 
-		if (getOpenHelper() != null) closeDB();
+		if (getOpenHelper() != null)
+			closeDB();
 
 		openHelper = new OpenHelper(context);
 		SQLiteDatabase db = openHelper.getWritableDatabase();
 
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) db.setLockingEnabled(true);
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)
+			db.setLockingEnabled(true);
 
 		if (specialUpgradeSuccessful) {
 			// Re-open DB for final usage:
@@ -332,7 +333,8 @@ public class DBHelper {
 	}
 
 	private synchronized boolean deleteDB(final File dbFile) {
-		if (dbFile == null) return false;
+		if (dbFile == null)
+			return false;
 
 		Log.i(TAG, "Deleting Database as requested by preferences.");
 		if (dbFile.exists()) {
@@ -474,7 +476,8 @@ public class DBHelper {
 					cv.putNull("cachedImages");
 					db.update(TABLE_ARTICLES, cv, null, null);
 					ImageCache ic = Controller.getInstance().getImageCache();
-					if (ic != null) ic.clear();
+					if (ic != null)
+						ic.clear();
 				}
 			}
 
@@ -769,8 +772,10 @@ public class DBHelper {
 	}
 
 	private void insertFeed(int id, int categoryId, String title, String url, int unread, byte[] icon) {
-		if (title == null) title = "";
-		if (url == null) url = "";
+		if (title == null)
+			title = "";
+		if (url == null)
+			url = "";
 
 		synchronized (insertFeedLock) {
 			insertFeed.bindLong(1, Integer.valueOf(id).longValue());
@@ -784,13 +789,15 @@ public class DBHelper {
 				insertFeed.bindNull(6);
 			}
 
-			if (!isDBAvailable()) return;
+			if (!isDBAvailable())
+				return;
 			insertFeed.execute();
 		}
 	}
 
 	void insertFeeds(Set<Feed> set) {
-		if (!isDBAvailable() || set == null || set.isEmpty()) return;
+		if (!isDBAvailable() || set == null || set.isEmpty())
+			return;
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
 		write.lock();
@@ -810,15 +817,24 @@ public class DBHelper {
 	}
 
 	private void insertArticleIntern(Article a) {
-		if (a.title == null) a.title = "";
-		if (a.content == null) a.content = "";
-		if (a.url == null) a.url = "";
-		if (a.commentUrl == null) a.commentUrl = "";
-		if (a.updated == null) a.updated = new Date();
-		if (a.attachments == null) a.attachments = new LinkedHashSet<>();
-		if (a.labels == null) a.labels = new LinkedHashSet<>();
-		if (a.author == null) a.author = "";
-		if (a.note == null) a.note = "";
+		if (a.title == null)
+			a.title = "";
+		if (a.content == null)
+			a.content = "";
+		if (a.url == null)
+			a.url = "";
+		if (a.commentUrl == null)
+			a.commentUrl = "";
+		if (a.updated == null)
+			a.updated = new Date();
+		if (a.attachments == null)
+			a.attachments = new LinkedHashSet<>();
+		if (a.labels == null)
+			a.labels = new LinkedHashSet<>();
+		if (a.author == null)
+			a.author = "";
+		if (a.note == null)
+			a.note = "";
 
 		// articleLabels
 		long retId;
@@ -839,15 +855,18 @@ public class DBHelper {
 			insertArticle.bindString(14, a.author);
 			insertArticle.bindString(15, a.note);
 
-			if (!isDBAvailable()) return;
+			if (!isDBAvailable())
+				return;
 			retId = insertArticle.executeInsert();
 		}
 
-		if (retId != -1) insertLabels(a.id, a.labels);
+		if (retId != -1)
+			insertLabels(a.id, a.labels);
 	}
 
 	void insertArticles(Collection<Article> articles) {
-		if (!isDBAvailable() || articles == null || articles.isEmpty()) return;
+		if (!isDBAvailable() || articles == null || articles.isEmpty())
+			return;
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
 		write.lock();
@@ -873,7 +892,8 @@ public class DBHelper {
 	}
 
 	private void insertLabel(int articleId, Label label) {
-		if (!isDBAvailable()) return;
+		if (!isDBAvailable())
+			return;
 
 		if (label.id < -10) {
 			synchronized (insertLabelLock) {
@@ -885,7 +905,8 @@ public class DBHelper {
 	}
 
 	private void removeLabel(int articleId, Label label) {
-		if (!isDBAvailable()) return;
+		if (!isDBAvailable())
+			return;
 
 		if (label.id < -10) {
 			String[] args = new String[]{articleId + "", label.id + ""};
@@ -901,11 +922,14 @@ public class DBHelper {
 	}
 
 	void insertLabels(Set<Integer> articleIds, Label label, boolean assign) {
-		if (!isDBAvailable()) return;
+		if (!isDBAvailable())
+			return;
 
 		for (Integer articleId : articleIds) {
-			if (assign) insertLabel(articleId, label);
-			else removeLabel(articleId, label);
+			if (assign)
+				insertLabel(articleId, label);
+			else
+				removeLabel(articleId, label);
 		}
 	}
 
@@ -924,12 +948,14 @@ public class DBHelper {
 				// extension (reserved for future)
 				insertRemoteFile.bindString(2, "");
 
-				if (isDBAvailable()) ret = insertRemoteFile.executeInsert();
+				if (isDBAvailable())
+					ret = insertRemoteFile.executeInsert();
 			}
 		} catch (SQLException e) {
 			// if this remote file already in DB, get its ID
 			RemoteFile rf = getRemoteFile(url);
-			if (rf != null) ret = rf.id;
+			if (rf != null)
+				ret = rf.id;
 		}
 
 		return ret;
@@ -951,9 +977,7 @@ public class DBHelper {
 				try {
 					insertRemoteFile2Article.executeInsert();
 				} catch (SQLiteConstraintException e) {
-					Log.w(TAG, "Article with id " + aId
-							+ " was removed before we added the corresponding remote-files. This warning can safely be"
-							+ " ignored.");
+					Log.w(TAG, "Article with id " + aId + " was removed before we added the corresponding remote-files. This warning can safely be" + " ignored.");
 				}
 			}
 		}
@@ -971,7 +995,8 @@ public class DBHelper {
 	 */
 	Collection<Integer> markRead(int id, boolean isCategory) {
 		Set<Integer> ret = null;
-		if (!isDBAvailable()) return null;
+		if (!isDBAvailable())
+			return null;
 
 		StringBuilder where = new StringBuilder();
 		StringBuilder feedIds = new StringBuilder();
@@ -1036,7 +1061,8 @@ public class DBHelper {
 	 * @param state  value for the mark
 	 */
 	public void markArticles(Set<Integer> idList, String mark, int state) {
-		if (!isDBAvailable()) return;
+		if (!isDBAvailable())
+			return;
 
 		if (idList != null && !idList.isEmpty()) {
 			SQLiteDatabase db = getOpenHelper().getWritableDatabase();
@@ -1065,7 +1091,8 @@ public class DBHelper {
 	 * @param state value for the mark
 	 */
 	public void markArticle(int id, String mark, int state) {
-		if (!isDBAvailable()) return;
+		if (!isDBAvailable())
+			return;
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
 		write.lock();
@@ -1089,7 +1116,8 @@ public class DBHelper {
 	 * @param note the note to be set
 	 */
 	public void addArticleNote(int id, String note) {
-		if (!isDBAvailable()) return;
+		if (!isDBAvailable())
+			return;
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
 		write.lock();
@@ -1116,7 +1144,8 @@ public class DBHelper {
 	 */
 	private int markArticles(String idList, String mark, String state) {
 		int ret = 0;
-		if (!isDBAvailable()) return ret;
+		if (!isDBAvailable())
+			return ret;
 
 		ContentValues cv = new ContentValues(1);
 		cv.put(mark, state);
@@ -1125,8 +1154,7 @@ public class DBHelper {
 		write.lock();
 		try {
 			db.beginTransaction();
-			ret = db.update(TABLE_ARTICLES, cv, "_id IN (" + idList + ") AND ? != ?",
-					new String[]{mark, String.valueOf(state)});
+			ret = db.update(TABLE_ARTICLES, cv, "_id IN (" + idList + ") AND ? != ?", new String[]{mark, String.valueOf(state)});
 			db.setTransactionSuccessful();
 		} finally {
 			try {
@@ -1140,7 +1168,8 @@ public class DBHelper {
 	}
 
 	void markUnsynchronizedStates(Collection<Integer> ids, String mark, int state) {
-		if (!isDBAvailable()) return;
+		if (!isDBAvailable())
+			return;
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
 		write.lock();
@@ -1150,8 +1179,7 @@ public class DBHelper {
 				// First update, then insert. If row exists it gets updated and second call ignores it, else the second
 				// call inserts it.
 				db.execSQL(String.format("UPDATE %s SET %s=%s WHERE id=%s", TABLE_MARK, mark, state, id));
-				db.execSQL(String.format("INSERT OR IGNORE INTO %s (id, %s) VALUES (%s, %s)", TABLE_MARK, mark, id,
-						state));
+				db.execSQL(String.format("INSERT OR IGNORE INTO %s (id, %s) VALUES (%s, %s)", TABLE_MARK, mark, id, state));
 			}
 			db.setTransactionSuccessful();
 		} finally {
@@ -1166,14 +1194,16 @@ public class DBHelper {
 	// Special treatment for notes since the method markUnsynchronizedStates(...) doesn't support inserting any
 	// additional data.
 	void markUnsynchronizedNotes(Map<Integer, String> ids) {
-		if (!isDBAvailable()) return;
+		if (!isDBAvailable())
+			return;
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
 		write.lock();
 		try {
 			db.beginTransaction();
 			for (Map.Entry<Integer, String> entry : ids.entrySet()) {
-				if (entry.getValue() == null) continue;
+				if (entry.getValue() == null)
+					continue;
 				ContentValues cv = new ContentValues(2);
 				cv.put("_id", entry.getKey());
 				cv.put(COL_NOTE, entry.getValue());
@@ -1194,7 +1224,8 @@ public class DBHelper {
 	 * single transactions so we can do other work in between.
 	 */
 	void calculateCounters() {
-		if (!isDBAvailable()) return;
+		if (!isDBAvailable())
+			return;
 
 		long time = System.currentTimeMillis();
 		int total = 0;
@@ -1209,8 +1240,7 @@ public class DBHelper {
 			write.unlock();
 		}
 
-		Log.i(TAG, String.format("Recalculated counters, total unread: %s (took %sms)", total,
-				(System.currentTimeMillis() - time)));
+		Log.i(TAG, String.format("Recalculated counters, total unread: %s (took %sms)", total, (System.currentTimeMillis() - time)));
 	}
 
 	/**
@@ -1242,8 +1272,7 @@ public class DBHelper {
 		try {
 			db.beginTransaction();
 			final ContentValues cv = new ContentValues(1);
-			c = db.query(TABLE_ARTICLES, new String[]{"feedId", "count(*)"}, "isUnread>0", null, "feedId", null, null,
-					null);
+			c = db.query(TABLE_ARTICLES, new String[]{"feedId", "count(*)"}, "isUnread>0", null, "feedId", null, null, null);
 
 			// update feeds
 			while (c.moveToNext()) {
@@ -1256,7 +1285,8 @@ public class DBHelper {
 			}
 			db.setTransactionSuccessful();
 		} finally {
-			if (c != null && !c.isClosed()) c.close();
+			if (c != null && !c.isClosed())
+				c.close();
 			db.endTransaction();
 		}
 		return total;
@@ -1271,8 +1301,7 @@ public class DBHelper {
 		try {
 			db.beginTransaction();
 			final ContentValues cv = new ContentValues(1);
-			c = db.query(TABLE_FEEDS, new String[]{"categoryId", "sum(unread)"}, "categoryId>=0", null, "categoryId",
-					null, null, null);
+			c = db.query(TABLE_FEEDS, new String[]{"categoryId", "sum(unread)"}, "categoryId>=0", null, "categoryId", null, null, null);
 
 			// update real categories
 			while (c.moveToNext()) {
@@ -1322,11 +1351,14 @@ public class DBHelper {
 	 * @param filesCount new value for remote file references (may be {@code null})
 	 */
 	public void updateArticleCachedImages(int id, Integer filesCount) {
-		if (!isDBAvailable()) return;
+		if (!isDBAvailable())
+			return;
 
 		ContentValues cv = new ContentValues(1);
-		if (filesCount == null) cv.putNull("cachedImages");
-		else cv.put("cachedImages", filesCount);
+		if (filesCount == null)
+			cv.putNull("cachedImages");
+		else
+			cv.put("cachedImages", filesCount);
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
 		write.lock();
@@ -1338,10 +1370,12 @@ public class DBHelper {
 	}
 
 	void deleteCategories(boolean withVirtualCategories) {
-		if (!isDBAvailable()) return;
+		if (!isDBAvailable())
+			return;
 
 		String wherePart = "";
-		if (!withVirtualCategories) wherePart = "_id > 0";
+		if (!withVirtualCategories)
+			wherePart = "_id > 0";
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
 		write.lock();
@@ -1356,7 +1390,8 @@ public class DBHelper {
 	 * delete all rows from feeds table
 	 */
 	void deleteFeeds() {
-		if (!isDBAvailable()) return;
+		if (!isDBAvailable())
+			return;
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
 		write.lock();
@@ -1391,7 +1426,8 @@ public class DBHelper {
 				if (imageCache != null) {
 					File file = imageCache.getCacheFile(rf.url);
 					boolean deleted = file.delete();
-					if (!deleted) Log.e(TAG, "Couldn't delete file: " + file.getAbsolutePath());
+					if (!deleted)
+						Log.e(TAG, "Couldn't delete file: " + file.getAbsolutePath());
 				}
 			}
 			deleteRemoteFiles(rfIds);
@@ -1437,12 +1473,11 @@ public class DBHelper {
 	 * @param amountToPurge amount of articles to be purged
 	 */
 	void purgeLastArticles(int amountToPurge) {
-		if (!isDBAvailable()) return;
+		if (!isDBAvailable())
+			return;
 
 		long time = System.currentTimeMillis();
-		String query = "_id IN ( SELECT _id FROM " + TABLE_ARTICLES
-				+ " WHERE isPublished=0 AND isStarred=0 ORDER BY updateDate DESC LIMIT -1 OFFSET " + (
-				Utils.ARTICLE_LIMIT - amountToPurge + ")");
+		String query = "_id IN ( SELECT _id FROM " + TABLE_ARTICLES + " WHERE isPublished=0 AND isStarred=0 ORDER BY updateDate DESC LIMIT -1 OFFSET " + (Utils.ARTICLE_LIMIT - amountToPurge + ")");
 
 		safelyDeleteArticles(query, null);
 		Log.d(TAG, "purgeLastArticles took " + (System.currentTimeMillis() - time) + "ms");
@@ -1452,7 +1487,8 @@ public class DBHelper {
 	 * delete articles, which belongs to non-existent feeds
 	 */
 	void purgeOrphanedArticles() {
-		if (!isDBAvailable()) return;
+		if (!isDBAvailable())
+			return;
 
 		long time = System.currentTimeMillis();
 		safelyDeleteArticles("feedId NOT IN (SELECT _id FROM " + TABLE_FEEDS + ")", null);
@@ -1460,7 +1496,8 @@ public class DBHelper {
 	}
 
 	private void purgeLabels() {
-		if (!isDBAvailable()) return;
+		if (!isDBAvailable())
+			return;
 
 		// @formatter:off
 		String idsArticles = "SELECT a2l.articleId FROM "
@@ -1485,7 +1522,8 @@ public class DBHelper {
 	}
 
 	void handlePurgeMarked(String idList, int minId, String vcat) {
-		if (!isDBAvailable()) return;
+		if (!isDBAvailable())
+			return;
 
 		long time = System.currentTimeMillis();
 		ContentValues cv = new ContentValues(1);
@@ -1494,8 +1532,7 @@ public class DBHelper {
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
 		write.lock();
 		try {
-			int count = db.update(TABLE_ARTICLES, cv, vcat + ">0 AND _id>" + minId + " AND _id NOT IN (" + idList +
-					")", null);
+			int count = db.update(TABLE_ARTICLES, cv, vcat + ">0 AND _id>" + minId + " AND _id NOT IN (" + idList + ")", null);
 			long timeDiff = (System.currentTimeMillis() - time);
 			Log.d(TAG, String.format("Marked %s articles %s=0 (%s ms)", count, vcat, timeDiff));
 		} finally {
@@ -1507,14 +1544,16 @@ public class DBHelper {
 
 	public Article getArticle(int id) {
 		Article ret = null;
-		if (!isDBAvailable()) return null;
+		if (!isDBAvailable())
+			return null;
 
 		SQLiteDatabase db = getOpenHelper().getReadableDatabase();
 		Cursor c = null;
 		read.lock();
 		try {
 			c = db.query(TABLE_ARTICLES, null, "_id=?", new String[]{id + ""}, null, null, null, null);
-			if (c.moveToFirst()) ret = handleArticleCursor(c);
+			if (c.moveToFirst())
+				ret = handleArticleCursor(c);
 		} finally {
 			close(c);
 			read.unlock();
@@ -1524,7 +1563,8 @@ public class DBHelper {
 	}
 
 	Set<Label> getLabelsForArticle(int articleId) {
-		if (!isDBAvailable()) return new HashSet<>();
+		if (!isDBAvailable())
+			return new HashSet<>();
 
 		// @formatter:off
 		String sql = "SELECT f._id, f.title, 0 checked FROM " + TABLE_FEEDS + " f "
@@ -1559,14 +1599,16 @@ public class DBHelper {
 
 	public Feed getFeed(int id) {
 		Feed ret = new Feed();
-		if (!isDBAvailable()) return ret;
+		if (!isDBAvailable())
+			return ret;
 
 		SQLiteDatabase db = getOpenHelper().getReadableDatabase();
 		Cursor c = null;
 		read.lock();
 		try {
 			c = db.query(TABLE_FEEDS, null, "_id=?", new String[]{id + ""}, null, null, null, null);
-			if (c.moveToFirst()) ret = handleFeedCursor(c);
+			if (c.moveToFirst())
+				ret = handleFeedCursor(c);
 		} finally {
 			close(c);
 			read.unlock();
@@ -1577,14 +1619,16 @@ public class DBHelper {
 
 	public Category getCategory(int id) {
 		Category ret = new Category();
-		if (!isDBAvailable()) return ret;
+		if (!isDBAvailable())
+			return ret;
 
 		SQLiteDatabase db = getOpenHelper().getReadableDatabase();
 		Cursor c = null;
 		read.lock();
 		try {
 			c = db.query(TABLE_CATEGORIES, null, "_id=?", new String[]{id + ""}, null, null, null, null);
-			if (c.moveToFirst()) ret = handleCategoryCursor(c);
+			if (c.moveToFirst())
+				ret = handleCategoryCursor(c);
 		} finally {
 			close(c);
 			read.unlock();
@@ -1673,7 +1717,8 @@ public class DBHelper {
 	@SuppressLint("UseSparseArrays")
 	public Map<Integer, Long> getArticleIdUpdatedMap(String selection) {
 		Map<Integer, Long> ret = null;
-		if (!isDBAvailable()) return null;
+		if (!isDBAvailable())
+			return null;
 
 		Cursor c = null;
 		SQLiteDatabase db = getOpenHelper().getReadableDatabase();
@@ -1699,10 +1744,12 @@ public class DBHelper {
 	 * -4 - All feeds, including virtual feeds
 	 */
 	public Set<Feed> getFeeds(int categoryId) {
-		if (!isDBAvailable()) return new LinkedHashSet<>();
+		if (!isDBAvailable())
+			return new LinkedHashSet<>();
 
 		String where = null; // categoryId = 0
-		if (categoryId >= 0) where = "categoryId=" + categoryId;
+		if (categoryId >= 0)
+			where = "categoryId=" + categoryId;
 		switch (categoryId) {
 			case -1:
 				where = "_id IN (0, -2, -3)";
@@ -1735,7 +1782,8 @@ public class DBHelper {
 	}
 
 	public Set<Category> getAllCategories() {
-		if (!isDBAvailable()) return new LinkedHashSet<>();
+		if (!isDBAvailable())
+			return new LinkedHashSet<>();
 
 		SQLiteDatabase db = getOpenHelper().getReadableDatabase();
 		Cursor c = null;
@@ -1754,7 +1802,8 @@ public class DBHelper {
 	}
 
 	public int getUnreadCount(int id, boolean isCat) {
-		if (!isDBAvailable()) return 0;
+		if (!isDBAvailable())
+			return 0;
 
 		StringBuilder selection = new StringBuilder("isUnread>0");
 		String[] selectionArgs = new String[]{String.valueOf(id)};
@@ -1774,8 +1823,7 @@ public class DBHelper {
 					// Fresh Articles
 					case Data.VCAT_FRESH:
 						selection.append(" and updateDate>?");
-						selectionArgs = new String[]{String.valueOf(
-								new Date().getTime() - Controller.getInstance().getFreshArticleMaxAge())};
+						selectionArgs = new String[]{String.valueOf(new Date().getTime() - Controller.getInstance().getFreshArticleMaxAge())};
 						break;
 
 					// Published Articles
@@ -1806,10 +1854,10 @@ public class DBHelper {
 		Cursor c = null;
 		read.lock();
 		try {
-			c = db.query(TABLE_ARTICLES, new String[]{"count(*)"}, selection.toString(), selectionArgs, null, null,
-					null, null);
+			c = db.query(TABLE_ARTICLES, new String[]{"count(*)"}, selection.toString(), selectionArgs, null, null, null, null);
 
-			if (c.moveToFirst()) ret = c.getInt(0);
+			if (c.moveToFirst())
+				ret = c.getInt(0);
 		} finally {
 			close(c);
 			read.unlock();
@@ -1820,7 +1868,8 @@ public class DBHelper {
 
 	@SuppressLint("UseSparseArrays")
 	Set<Integer> getMarked(String mark, int status) {
-		if (!isDBAvailable()) return new LinkedHashSet<>();
+		if (!isDBAvailable())
+			return new LinkedHashSet<>();
 
 		SQLiteDatabase db = getOpenHelper().getReadableDatabase();
 		Cursor c = null;
@@ -1839,7 +1888,8 @@ public class DBHelper {
 	}
 
 	Map<Integer, String> getMarkedNotes() {
-		if (!isDBAvailable()) return new HashMap<>();
+		if (!isDBAvailable())
+			return new HashMap<>();
 
 		SQLiteDatabase db = getOpenHelper().getReadableDatabase();
 		Cursor c = null;
@@ -1858,7 +1908,8 @@ public class DBHelper {
 	}
 
 	void setMarked(Set<Integer> ids, String mark) {
-		if (!isDBAvailable()) return;
+		if (!isDBAvailable())
+			return;
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
 		write.lock();
@@ -1887,7 +1938,8 @@ public class DBHelper {
 	 * @param ids article IDs of which the notes should be reset
 	 */
 	void setMarkedNotes(Map<Integer, String> ids) {
-		if (!isDBAvailable()) return;
+		if (!isDBAvailable())
+			return;
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
 		write.lock();
@@ -1961,7 +2013,8 @@ public class DBHelper {
 
 	private static Set<String> parseAttachments(String att) {
 		Set<String> ret = new LinkedHashSet<>();
-		if (att == null) return ret;
+		if (att == null)
+			return ret;
 
 		ret.addAll(Arrays.asList(att.split(";")));
 		return ret;
@@ -1973,7 +2026,8 @@ public class DBHelper {
 	 */
 	private static Set<Label> parseArticleLabels(String labelStr) {
 		Set<Label> ret = new LinkedHashSet<>();
-		if (labelStr == null) return ret;
+		if (labelStr == null)
+			return ret;
 
 		int i = 0;
 		for (String s : labelStr.split("---")) {
@@ -1984,8 +2038,10 @@ public class DBHelper {
 				label.id = i;
 				label.checked = true;
 				label.caption = l[0];
-				if (l.length > 1 && l[1].startsWith("#")) label.foregroundColor = l[1];
-				if (l.length > 2 && l[1].startsWith("#")) label.backgroundColor = l[2];
+				if (l.length > 1 && l[1].startsWith("#"))
+					label.foregroundColor = l[1];
+				if (l.length > 2 && l[1].startsWith("#"))
+					label.backgroundColor = l[2];
 				ret.add(label);
 			}
 		}
@@ -1994,14 +2050,14 @@ public class DBHelper {
 	}
 
 	public ArrayList<Article> queryArticlesForImagecache() {
-		if (!isDBAvailable()) return null;
+		if (!isDBAvailable())
+			return null;
 
 		SQLiteDatabase db = getOpenHelper().getReadableDatabase();
 		Cursor c = null;
 		read.lock();
 		try {
-			c = db.query(TABLE_ARTICLES, new String[]{"_id", "content", "attachments"},
-					"cachedImages IS NULL AND isUnread>0", null, null, null, null, "1000");
+			c = db.query(TABLE_ARTICLES, new String[]{"_id", "content", "attachments"}, "cachedImages IS NULL AND isUnread>0", null, null, null, null, "1000");
 
 			ArrayList<Article> ret = new ArrayList<>(c.getCount());
 			while (c.moveToNext()) {
@@ -2019,11 +2075,13 @@ public class DBHelper {
 	}
 
 	private void insertArticleFiles(int articleId, List<String> fileUrls) {
-		if (!isDBAvailable()) return;
+		if (!isDBAvailable())
+			return;
 
 		for (String url : fileUrls) {
 			long remotefileId = insertRemoteFile(url);
-			if (remotefileId != 0) insertRemoteFile2Article(remotefileId, articleId);
+			if (remotefileId != 0)
+				insertRemoteFile2Article(remotefileId, articleId);
 		}
 	}
 
@@ -2033,7 +2091,8 @@ public class DBHelper {
 	 * @param map A map of arrays of remote file URLs mapped to ids of "parent" articles
 	 */
 	public void insertArticleFiles(Map<Integer, List<String>> map) {
-		if (!isDBAvailable()) return;
+		if (!isDBAvailable())
+			return;
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
 		write.lock();
@@ -2059,7 +2118,8 @@ public class DBHelper {
 	 * @return remote file object from DB
 	 */
 	private RemoteFile getRemoteFile(String url) {
-		if (!isDBAvailable()) return null;
+		if (!isDBAvailable())
+			return null;
 
 		RemoteFile rf = null;
 		SQLiteDatabase db = getOpenHelper().getReadableDatabase();
@@ -2067,7 +2127,8 @@ public class DBHelper {
 		read.lock();
 		try {
 			c = db.query(TABLE_REMOTEFILES, null, "url=?", new String[]{url}, null, null, null, null);
-			if (c.moveToFirst()) rf = handleRemoteFileCursor(c);
+			if (c.moveToFirst())
+				rf = handleRemoteFileCursor(c);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -2085,7 +2146,8 @@ public class DBHelper {
 	 * @return collection of remote file objects from DB or {@code null}
 	 */
 	public Collection<RemoteFile> getRemoteFiles(int articleId) {
-		if (!isDBAvailable()) return null;
+		if (!isDBAvailable())
+			return null;
 
 		ArrayList<RemoteFile> rfs = null;
 		SQLiteDatabase db = getOpenHelper().getReadableDatabase();
@@ -2133,9 +2195,9 @@ public class DBHelper {
 	 *                    referenced also by some other articles)
 	 * @return collection of remote file objects from DB or {@code null}
 	 */
-	private Collection<RemoteFile> getRemoteFilesForArticles(String whereClause, String[] whereArgs, boolean
-			uniqOnly) {
-		if (!isDBAvailable()) return null;
+	private Collection<RemoteFile> getRemoteFilesForArticles(String whereClause, String[] whereArgs, boolean uniqOnly) {
+		if (!isDBAvailable())
+			return null;
 
 		ArrayList<RemoteFile> rfs = null;
 		StringBuilder uniqRestriction = new StringBuilder();
@@ -2213,8 +2275,7 @@ public class DBHelper {
 			while (c.moveToNext()) {
 				rfs.add(handleRemoteFileCursor(c));
 			}
-			Log.d(TAG, "Query in getRemoteFilesForArticles took " + (System.currentTimeMillis() - time)
-					+ "ms... (remotefiles: " + rfs.size() + ")");
+			Log.d(TAG, "Query in getRemoteFilesForArticles took " + (System.currentTimeMillis() - time) + "ms... (remotefiles: " + rfs.size() + ")");
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -2231,7 +2292,8 @@ public class DBHelper {
 	 * @param remoteFiles A map of file sizes mapped to their remote file URL
 	 */
 	public void markRemoteFilesCached(Map<String, Long> remoteFiles) {
-		if (!isDBAvailable()) return;
+		if (!isDBAvailable())
+			return;
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
 		write.lock();
@@ -2267,7 +2329,8 @@ public class DBHelper {
 	 * @param rfIds IDs of remote files to be marked as non-cached
 	 */
 	public void markRemoteFilesNonCached(Collection<Integer> rfIds) {
-		if (!isDBAvailable()) return;
+		if (!isDBAvailable())
+			return;
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
 		write.lock();
@@ -2294,7 +2357,8 @@ public class DBHelper {
 	 * @return summary length of remote files
 	 */
 	public long getCachedFilesSize() {
-		if (!isDBAvailable()) return 0;
+		if (!isDBAvailable())
+			return 0;
 
 		long ret = 0;
 		SQLiteDatabase db = getOpenHelper().getReadableDatabase();
@@ -2302,7 +2366,8 @@ public class DBHelper {
 		read.lock();
 		try {
 			c = db.query(TABLE_REMOTEFILES, new String[]{"SUM(length)"}, "cached=1", null, null, null, null);
-			if (c.moveToFirst()) ret = c.getLong(0);
+			if (c.moveToFirst())
+				ret = c.getLong(0);
 		} finally {
 			close(c);
 			read.unlock();
@@ -2318,7 +2383,8 @@ public class DBHelper {
 	 * to free given amount of space
 	 */
 	public Collection<RemoteFile> getUncacheFiles(long spaceToBeFreed) {
-		if (!isDBAvailable()) return null;
+		if (!isDBAvailable())
+			return null;
 
 		ArrayList<RemoteFile> rfs = new ArrayList<>();
 		SQLiteDatabase db = getOpenHelper().getReadableDatabase();
@@ -2347,7 +2413,8 @@ public class DBHelper {
 	 * @return the number of deleted rows
 	 */
 	private int deleteRemoteFiles(Set<Integer> idList) {
-		if (!isDBAvailable()) return 0;
+		if (!isDBAvailable())
+			return 0;
 
 		int deletedCount = 0;
 		if (idList != null && !idList.isEmpty()) {
@@ -2370,7 +2437,8 @@ public class DBHelper {
 	 * @return the number of deleted rows
 	 */
 	public int deleteAllRemoteFiles() {
-		if (!isDBAvailable()) return 0;
+		if (!isDBAvailable())
+			return 0;
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
 		write.lock();

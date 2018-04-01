@@ -50,8 +50,7 @@ public abstract class AbstractPluginActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		CharSequence callingApplicationLabel = null;
 		try {
-			callingApplicationLabel = getPackageManager()
-					.getApplicationLabel(getPackageManager().getApplicationInfo(getCallingPackage(), 0));
+			callingApplicationLabel = getPackageManager().getApplicationLabel(getPackageManager().getApplicationInfo(getCallingPackage(), 0));
 		} catch (final NameNotFoundException e) {
 			Log.e(TAG, "Calling package couldn't be found", e); //$NON-NLS-1$
 		}
@@ -65,7 +64,8 @@ public abstract class AbstractPluginActivity extends Activity {
 		super.onCreateOptionsMenu(menu);
 
 		getMenuInflater().inflate(R.menu.twofortyfouram_locale_help_save_dontsave, menu);
-		if (getActionBar() != null) getActionBar().setDisplayHomeAsUpEnabled(true);
+		if (getActionBar() != null)
+			getActionBar().setDisplayHomeAsUpEnabled(true);
 
 		/*
 		 * Note: There is a small TOCTOU error here, in that the host could be uninstalled right after

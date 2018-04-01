@@ -41,7 +41,8 @@ public class FeedAdapter extends MainAdapter {
 	public Object getItem(int position) {
 		Feed ret = new Feed();
 		Cursor cur = getCursor();
-		if (cur == null) return ret;
+		if (cur == null)
+			return ret;
 
 		if (cur.getCount() >= position) {
 			if (cur.moveToPosition(position)) {

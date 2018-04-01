@@ -46,16 +46,21 @@ public class WifiPreferencesFragment extends PreferenceFragment {
 		String ssid = getArguments().getString(WifiPreferencesActivity.KEY_SSID);
 		String cat = getArguments().getString("cat");
 
-		if (PREFS_MAIN_TOP.equals(cat)) addPreferencesFromResource(R.xml.prefs_main_top);
-		if (PREFS_HTTP.equals(cat)) addPreferencesFromResource(R.xml.prefs_http);
-		if (PREFS_SSL.equals(cat)) addPreferencesFromResource(R.xml.prefs_ssl);
+		if (PREFS_MAIN_TOP.equals(cat))
+			addPreferencesFromResource(R.xml.prefs_main_top);
+		if (PREFS_HTTP.equals(cat))
+			addPreferencesFromResource(R.xml.prefs_http);
+		if (PREFS_SSL.equals(cat))
+			addPreferencesFromResource(R.xml.prefs_ssl);
 
 		initDynamicConnectionPrefs(ssid, PREFS_MAIN_TOP.equals(cat));
 	}
 
 	private void initDynamicConnectionPrefs(String ssid, boolean addEnableWifiPref) {
-		if (getPreferenceScreen().getPreferenceCount() != 1) return;
-		if (!(getPreferenceScreen().getPreference(0) instanceof PreferenceCategory)) return;
+		if (getPreferenceScreen().getPreferenceCount() != 1)
+			return;
+		if (!(getPreferenceScreen().getPreference(0) instanceof PreferenceCategory))
+			return;
 
 		PreferenceCategory category = (PreferenceCategory) getPreferenceScreen().getPreference(0);
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -69,12 +74,14 @@ public class WifiPreferencesFragment extends PreferenceFragment {
 			pref.setKey(newKey);
 
 			Object defaultValue = null;
-			if (prefs.getAll().containsKey(newKey)) defaultValue = prefs.getAll().get(newKey);
+			if (prefs.getAll().containsKey(newKey))
+				defaultValue = prefs.getAll().get(newKey);
 			pref.setDefaultValue(defaultValue);
 
 			// Key of dependency has probably been renamed. Beware: This might stop working if dependencies are
 			// added in another order.
-			if (pref.getDependency() != null) pref.setDependency(ssid + pref.getDependency());
+			if (pref.getDependency() != null)
+				pref.setDependency(ssid + pref.getDependency());
 
 			// Remove and add again to reinitialize default values
 			category.removePreference(pref);
@@ -91,7 +98,8 @@ public class WifiPreferencesFragment extends PreferenceFragment {
 			enableWifiPref.setSummaryOff(R.string.ConnectionWifiPrefDisbledSummary);
 
 			Object defaultValue = null;
-			if (prefs.getAll().containsKey(key)) defaultValue = prefs.getAll().get(key);
+			if (prefs.getAll().containsKey(key))
+				defaultValue = prefs.getAll().get(key);
 			enableWifiPref.setDefaultValue(defaultValue);
 
 			category.addPreference(enableWifiPref);

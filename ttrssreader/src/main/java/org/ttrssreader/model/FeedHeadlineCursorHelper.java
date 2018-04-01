@@ -40,8 +40,10 @@ class FeedHeadlineCursorHelper extends MainCursorHelper {
 	public Cursor createCursor(SQLiteDatabase db, boolean overrideDisplayUnread, boolean buildSafeQuery) {
 
 		String query;
-		if (feedId > -10) query = buildFeedQuery(overrideDisplayUnread, buildSafeQuery);
-		else query = buildLabelQuery(overrideDisplayUnread, buildSafeQuery);
+		if (feedId > -10)
+			query = buildFeedQuery(overrideDisplayUnread, buildSafeQuery);
+		else
+			query = buildLabelQuery(overrideDisplayUnread, buildSafeQuery);
 
 		return db.rawQuery(query, null);
 	}
@@ -53,7 +55,8 @@ class FeedHeadlineCursorHelper extends MainCursorHelper {
 		boolean displayCachedImages = Controller.getInstance().onlyDisplayCachedImages();
 		boolean invertSortArticles = Controller.getInstance().invertSortArticlelist();
 
-		if (overrideDisplayUnread) displayUnread = false;
+		if (overrideDisplayUnread)
+			displayUnread = false;
 
 		StringBuilder query = new StringBuilder();
 		query.append(" SELECT ");
@@ -121,7 +124,8 @@ class FeedHeadlineCursorHelper extends MainCursorHelper {
 		boolean displayUnread = Controller.getInstance().onlyUnread();
 		boolean invertSortArticles = Controller.getInstance().invertSortArticlelist();
 
-		if (overrideDisplayUnread) displayUnread = false;
+		if (overrideDisplayUnread)
+			displayUnread = false;
 
 		StringBuilder query = new StringBuilder();
 		query.append("SELECT ");

@@ -40,8 +40,7 @@ public class YesNoUpdaterDialog extends MyDialogFragment {
 		return getInstance(updater, titleRes, msgRes, false);
 	}
 
-	public static YesNoUpdaterDialog getInstance(IUpdatable updater, int titleRes, int msgRes,
-			boolean backAfterUpdate) {
+	public static YesNoUpdaterDialog getInstance(IUpdatable updater, int titleRes, int msgRes, boolean backAfterUpdate) {
 		YesNoUpdaterDialog fragment = new YesNoUpdaterDialog();
 		fragment.updater = updater;
 		fragment.titleRes = titleRes;

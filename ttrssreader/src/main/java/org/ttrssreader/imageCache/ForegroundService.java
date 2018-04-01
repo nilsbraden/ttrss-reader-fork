@@ -51,7 +51,8 @@ public class ForegroundService extends Service implements ICacheEndListener {
 	}
 
 	public static void cancel() {
-		if (imageCacher != null) imageCacher.cancel();
+		if (imageCacher != null)
+			imageCacher.cancel();
 	}
 
 	public static void registerCallback(ICacheEndListener parentGUI) {
@@ -75,18 +76,21 @@ public class ForegroundService extends Service implements ICacheEndListener {
 			imageCacher = null;
 			instance = null;
 		}
-		if (parent != null) parent.onCacheEnd();
+		if (parent != null)
+			parent.onCacheEnd();
 		this.stopSelf();
 	}
 
 	@Override
 	public void onCacheInterrupted() {
-		if (parent != null) parent.onCacheInterrupted();
+		if (parent != null)
+			parent.onCacheInterrupted();
 	}
 
 	@Override
 	public void onCacheProgress(int taskCount, int progress) {
-		if (parent != null) parent.onCacheProgress(taskCount, progress);
+		if (parent != null)
+			parent.onCacheProgress(taskCount, progress);
 	}
 
 	@Override
@@ -120,8 +124,7 @@ public class ForegroundService extends Service implements ICacheEndListener {
 					int icon = R.drawable.notification_icon;
 					CharSequence ticker = getText(R.string.Cache_service_started);
 					CharSequence text = getText(R.string.Cache_service_text);
-					Notification notification = Utils
-							.buildNotification(this, icon, ticker, title, text, true, new Intent());
+					Notification notification = Utils.buildNotification(this, icon, ticker, title, text, true, new Intent());
 					startForeground(R.string.Cache_service_started, notification);
 				}
 

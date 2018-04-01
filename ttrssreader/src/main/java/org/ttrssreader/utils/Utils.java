@@ -95,8 +95,7 @@ public class Utils {
 	/**
 	 * The Pattern to match image-urls inside HTML img-tags.
 	 */
-	public static final Pattern findImageUrlsPattern = Pattern
-			.compile("<(?:img|video)[^>]+?src=[\"']([^\"']*)", Pattern.CASE_INSENSITIVE);
+	public static final Pattern findImageUrlsPattern = Pattern.compile("<(?:img|video)[^>]+?src=[\"']([^\"']*)", Pattern.CASE_INSENSITIVE);
 
 	private static final int ID_RUNNING = 4564561;
 	private static final int ID_FINISHED = 7897891;
@@ -222,7 +221,8 @@ public class Utils {
 	 * Only checks the connectivity without regard to the preferences
 	 */
 	public static boolean checkConnected(ConnectivityManager cm, boolean onlyWifi, boolean onlyUnmeteredNetwork) {
-		if (cm == null) return false;
+		if (cm == null)
+			return false;
 
 		NetworkInfo info = cm.getActiveNetworkInfo();
 		if (info != null && info.isConnected()) {
@@ -238,7 +238,8 @@ public class Utils {
 	}
 
 	public static int getNetworkType(final ConnectivityManager cm) {
-		if (cm == null) return NETWORK_NONE;
+		if (cm == null)
+			return NETWORK_NONE;
 		final NetworkInfo info = cm.getActiveNetworkInfo();
 		if (info == null || !info.isConnected()) {
 			return NETWORK_NONE;
@@ -287,9 +288,9 @@ public class Utils {
 	 * @param error   set to true if an error occured
 	 * @param context the context
 	 */
-	public static void showFinishedNotification(String content, int time, boolean error, Context context,
-	                                            Intent intent) {
-		if (context == null) return;
+	public static void showFinishedNotification(String content, int time, boolean error, Context context, Intent intent) {
+		if (context == null)
+			return;
 
 		NotificationManager mNotMan = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -298,7 +299,8 @@ public class Utils {
 		CharSequence ticker = context.getText(R.string.Utils_DownloadFinishedTicker);
 		CharSequence text = content;
 
-		if (content == null) text = context.getText(R.string.Utils_DownloadFinishedText);
+		if (content == null)
+			text = context.getText(R.string.Utils_DownloadFinishedText);
 
 		if (error) {
 			icon = R.drawable.icon;
@@ -322,7 +324,8 @@ public class Utils {
 	 * @param finished if the notification is to be removed
 	 */
 	private static void showRunningNotification(Context context, boolean finished, Intent intent) {
-		if (context == null) return;
+		if (context == null)
+			return;
 
 		NotificationManager mNotMan = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -350,9 +353,11 @@ public class Utils {
 		protected Void doInBackground(Void... params) {
 			// Check last appVersionCheckDate
 			long last = Controller.getInstance().appVersionCheckTime();
-			if ((System.currentTimeMillis() - last) < (Utils.HOUR * 4)) return null;
+			if ((System.currentTimeMillis() - last) < (Utils.HOUR * 4))
+				return null;
 
-			if (Controller.getInstance().isNoCrashreports()) return null;
+			if (Controller.getInstance().isNoCrashreports())
+				return null;
 
 			try {
 				URL url = new URL("http://nilsbraden.de/android/tt-rss/minSupportedVersion.txt");
@@ -380,8 +385,7 @@ public class Utils {
 	};
 
 	@SuppressWarnings("deprecation")
-	public static Notification buildNotification(Context context, int icon, CharSequence ticker, CharSequence title,
-	                                             CharSequence text, boolean autoCancel, Intent intent) {
+	public static Notification buildNotification(Context context, int icon, CharSequence ticker, CharSequence title, CharSequence text, boolean autoCancel, Intent intent) {
 		Notification notification = null;
 		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -396,17 +400,18 @@ public class Utils {
 			builder.setAutoCancel(autoCancel);
 			if (Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN)
 				notification = builder.getNotification();
-			else notification = builder.build();
+			else
+				notification = builder.build();
 		} catch (Exception re) {
-			Log.e(TAG, "Exception while building notification. Does your device propagate the right API-Level? ("
-					+ Build.VERSION.SDK_INT + ")", re);
+			Log.e(TAG, "Exception while building notification. Does your device propagate the right API-Level? (" + Build.VERSION.SDK_INT + ")", re);
 		}
 
 		return notification;
 	}
 
 	public static String separateItems(Set<?> att, String separator) {
-		if (att == null) return "";
+		if (att == null)
+			return "";
 
 		String ret;
 		StringBuilder sb = new StringBuilder();
@@ -477,6 +482,7 @@ public class Utils {
 
 	/**
 	 * Downloads the given URL and returns the body as an <code>byte[]</code>.
+	 *
 	 * @param url URL to download
 	 * @return content as <code>byte[]</code>
 	 */
@@ -504,7 +510,7 @@ public class Utils {
 			Log.e(TAG, "Error while downloading feed icon: " + e.getMessage());
 		}
 
-		if(output.size() != 0) {
+		if (output.size() != 0) {
 			Log.d(TAG, "Downloaded " + output.size() + " bytes as feed icon from " + url.toExternalForm());
 			return output.toByteArray();
 		} else {

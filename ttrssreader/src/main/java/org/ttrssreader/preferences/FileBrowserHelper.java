@@ -43,8 +43,7 @@ public class FileBrowserHelper {
 	 * A string array that specifies the name of the intent to use, and the scheme to use with it
 	 * when setting the data for the intent.
 	 */
-	private static final String[][] PICK_DIRECTORY_INTENTS = {
-			{"org.openintents.action.PICK_DIRECTORY", "file://"}, // OI File Manager
+	private static final String[][] PICK_DIRECTORY_INTENTS = {{"org.openintents.action.PICK_DIRECTORY", "file://"}, // OI File Manager
 			{"com.estrongs.action.PICK_DIRECTORY", "file://"}, // ES File Explorer
 			{Intent.ACTION_PICK, "folder://"}, // Blackmoon File Browser (maybe others)
 			{"com.androidworkz.action.PICK_DIRECTORY", "file://"} // SystemExplorer
@@ -94,8 +93,7 @@ public class FileBrowserHelper {
 	 * @return true: if a filebrowser has been found (the result will be in the onActivityResult
 	 * false: a fallback textinput has been shown. The Result will be sent with the callbackDownloadPath method
 	 */
-	public boolean showFileBrowserActivity(Fragment c, File startPath, int requestcode,
-	                                       FileBrowserFailOverCallback callback) {
+	public boolean showFileBrowserActivity(Fragment c, File startPath, int requestcode, FileBrowserFailOverCallback callback) {
 		boolean success = false;
 
 		if (startPath == null) {
@@ -132,15 +130,15 @@ public class FileBrowserHelper {
 		return success;
 	}
 
-	private void showPathTextInput(final Activity c, final File startPath, final FileBrowserFailOverCallback
-			callback) {
+	private void showPathTextInput(final Activity c, final File startPath, final FileBrowserFailOverCallback callback) {
 		AlertDialog.Builder alert = new AlertDialog.Builder(c);
 
 		alert.setTitle(c.getString(R.string.Utils_FileSaveTitle));
 		alert.setMessage(c.getString(R.string.Utils_FileSaveMessage));
 		final EditText input = new EditText(c);
 		input.setInputType(InputType.TYPE_CLASS_TEXT);
-		if (startPath != null) input.setText(startPath.toString());
+		if (startPath != null)
+			input.setText(startPath.toString());
 		alert.setView(input);
 
 		alert.setPositiveButton(c.getString(R.string.Utils_OkayAction), new DialogInterface.OnClickListener() {

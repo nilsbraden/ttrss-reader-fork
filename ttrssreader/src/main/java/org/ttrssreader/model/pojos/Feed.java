@@ -18,7 +18,6 @@
 package org.ttrssreader.model.pojos;
 
 
-
 public class Feed implements Comparable<Feed> {
 
 	public int id;

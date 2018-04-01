@@ -48,8 +48,7 @@ public class SSLUtils {
 
 	private static final String TAG = SSLUtils.class.getSimpleName();
 
-	public static void initSslSocketFactory(KeyManager[] km, TrustManager[] tm)
-			throws KeyManagementException, NoSuchAlgorithmException {
+	public static void initSslSocketFactory(KeyManager[] km, TrustManager[] tm) throws KeyManagementException, NoSuchAlgorithmException {
 
 		SSLContext ctx = SSLContext.getInstance("TLS");
 		ctx.init(km, tm, null);
@@ -61,7 +60,8 @@ public class SSLUtils {
 	public static void initPrivateKeystore(String password) throws GeneralSecurityException {
 		Log.i(TAG, "Enabling SSLUtils to trust certificates from private keystore.");
 		KeyStore keystore = loadKeystore(password);
-		if (keystore == null) return;
+		if (keystore == null)
+			return;
 
 		TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
 		tmf.init(keystore);
@@ -79,7 +79,8 @@ public class SSLUtils {
 
 			File file = new File(MyApplication.context().getExternalFilesDir(null), "store.bks");
 
-			if (!file.exists()) return null;
+			if (!file.exists())
+				return null;
 
 			InputStream in = new FileInputStream(file);
 

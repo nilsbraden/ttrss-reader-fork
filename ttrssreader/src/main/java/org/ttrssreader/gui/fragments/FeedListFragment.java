@@ -74,7 +74,8 @@ public class FeedListFragment extends MainListFragment {
 	@Override
 	public void onCreate(Bundle instance) {
 		Controller.getInstance().lastOpenedFeeds.clear();
-		if (instance != null) categoryId = instance.getInt(FEED_CAT_ID);
+		if (instance != null)
+			categoryId = instance.getInt(FEED_CAT_ID);
 		setHasOptionsMenu(true);
 		super.onCreate(instance);
 	}
@@ -102,17 +103,15 @@ public class FeedListFragment extends MainListFragment {
 	@Override
 	public boolean onContextItemSelected(android.view.MenuItem item) {
 		AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
-		if (cmi == null) return false;
+		if (cmi == null)
+			return false;
 
 		switch (item.getItemId()) {
 			case MARK_READ:
-				new Updater(getActivity(), new ReadStateUpdater(adapter.getId(cmi.position), 42))
-						.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+				new Updater(getActivity(), new ReadStateUpdater(adapter.getId(cmi.position), 42)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 				return true;
 			case UNSUBSCRIBE:
-				YesNoUpdaterDialog dialog = YesNoUpdaterDialog
-						.getInstance(new UnsubscribeUpdater(adapter.getId(cmi.position)),
-								R.string.Dialog_unsubscribeTitle, R.string.Dialog_unsubscribeText);
+				YesNoUpdaterDialog dialog = YesNoUpdaterDialog.getInstance(new UnsubscribeUpdater(adapter.getId(cmi.position)), R.string.Dialog_unsubscribeTitle, R.string.Dialog_unsubscribeText);
 				dialog.show(getFragmentManager(), YesNoUpdaterDialog.DIALOG);
 				return true;
 		}
@@ -145,26 +144,30 @@ public class FeedListFragment extends MainListFragment {
 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-		if (loader.getId() == TYPE_FEED_ID) adapter.changeCursor(data);
+		if (loader.getId() == TYPE_FEED_ID)
+			adapter.changeCursor(data);
 		super.onLoadFinished(loader, data);
 	}
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
-		if (loader.getId() == TYPE_FEED_ID) adapter.changeCursor(null);
+		if (loader.getId() == TYPE_FEED_ID)
+			adapter.changeCursor(null);
 	}
 
 	@Override
 	protected void fetchOtherData() {
 		Category category = DBHelper.getInstance().getCategory(categoryId);
-		if (category != null) title = category.title;
+		if (category != null)
+			title = category.title;
 		unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true);
 	}
 
 	@Override
 	public void doRefresh() {
 		Activity activity = getActivity();
-		if (activity != null && feedUri != null) activity.getContentResolver().notifyChange(feedUri, null);
+		if (activity != null && feedUri != null)
+			activity.getContentResolver().notifyChange(feedUri, null);
 		super.doRefresh();
 	}
 

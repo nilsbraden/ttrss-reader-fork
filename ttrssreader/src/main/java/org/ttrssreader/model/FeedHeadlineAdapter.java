@@ -53,7 +53,8 @@ public class FeedHeadlineAdapter extends MainAdapter {
 	public Object getItem(int position) {
 		Article ret = new Article();
 		Cursor cur = getCursor();
-		if (cur == null) return ret;
+		if (cur == null)
+			return ret;
 
 		if (cur.getCount() >= position) {
 			if (cur.moveToPosition(position)) {
@@ -127,8 +128,10 @@ public class FeedHeadlineAdapter extends MainAdapter {
 		setFeedImage(holder.feedicon, f);
 
 		holder.title.setText(a.title);
-		if (a.isUnread) holder.title.setTypeface(Typeface.DEFAULT_BOLD);
-		else holder.title.setTypeface(Typeface.DEFAULT);
+		if (a.isUnread)
+			holder.title.setTypeface(Typeface.DEFAULT_BOLD);
+		else
+			holder.title.setTypeface(Typeface.DEFAULT);
 
 		final String date = DateUtils.getDateTime(context, a.updated);
 		holder.updateDate.setText(date.length() > 0 ? "(" + date + ")" : "");

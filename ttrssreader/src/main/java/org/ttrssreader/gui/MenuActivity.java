@@ -61,8 +61,7 @@ import org.ttrssreader.utils.Utils;
 /**
  * This class provides common functionality for Activities.
  */
-public abstract class MenuActivity extends MenuFlavorActivity
-		implements IUpdateEndListener, ICacheEndListener, IItemSelectedListener, IDataChangedListener {
+public abstract class MenuActivity extends MenuFlavorActivity implements IUpdateEndListener, ICacheEndListener, IItemSelectedListener, IDataChangedListener {
 
 	@SuppressWarnings("unused")
 	private static final String TAG = MenuActivity.class.getSimpleName();
@@ -112,8 +111,7 @@ public abstract class MenuActivity extends MenuFlavorActivity
 			return; // Do nothing, the views do not exist...
 
 		// Initialize values for layout changes:
-		Controller
-				.refreshDisplayMetrics(((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay());
+		Controller.refreshDisplayMetrics(((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay());
 		isVertical = (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT);
 		displaySize = Controller.displayWidth;
 		if (isVertical) {
@@ -142,8 +140,7 @@ public abstract class MenuActivity extends MenuFlavorActivity
 			if (isVertical) {
 				// calculate height of divider
 				int padding = divider.getPaddingTop() + divider.getPaddingBottom();
-				dividerSize = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, padding,
-						getApplicationContext().getResources().getDisplayMetrics()));
+				dividerSize = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, padding, getApplicationContext().getResources().getDisplayMetrics()));
 
 				// Create LayoutParams for all three views
 				lpMain.height = mainFrameSize;
@@ -151,8 +148,7 @@ public abstract class MenuActivity extends MenuFlavorActivity
 			} else {
 				// calculate width of divider
 				int padding = divider.getPaddingLeft() + divider.getPaddingRight();
-				dividerSize = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, padding,
-						getApplicationContext().getResources().getDisplayMetrics()));
+				dividerSize = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, padding, getApplicationContext().getResources().getDisplayMetrics()));
 
 				// Create LayoutParams for all three views
 				lpMain.width = mainFrameSize;
@@ -170,7 +166,8 @@ public abstract class MenuActivity extends MenuFlavorActivity
 			int match_parent = RelativeLayout.LayoutParams.MATCH_PARENT;
 			frameMain.setLayoutParams(new RelativeLayout.LayoutParams(match_parent, match_parent));
 			frameSub.setLayoutParams(new RelativeLayout.LayoutParams(match_parent, match_parent));
-			if (divider != null) divider.setVisibility(View.GONE);
+			if (divider != null)
+				divider.setVisibility(View.GONE);
 
 		}
 	}
@@ -252,8 +249,7 @@ public abstract class MenuActivity extends MenuFlavorActivity
 		super.onResume();
 		if (Controller.getInstance().isScheduledRestart()) {
 			Controller.getInstance().setScheduledRestart(false);
-			Intent intent = getBaseContext().getPackageManager()
-					.getLaunchIntentForPackage(getBaseContext().getPackageName());
+			Intent intent = getBaseContext().getPackageManager().getLaunchIntentForPackage(getBaseContext().getPackageName());
 			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(intent);
 		} else {
@@ -325,11 +321,13 @@ public abstract class MenuActivity extends MenuFlavorActivity
 			if (Controller.getInstance().workOffline()) {
 				offline.setTitle(getString(R.string.UsageOnlineTitle));
 				offline.setIcon(R.drawable.ic_menu_play_clip);
-				if (refresh != null) menu.findItem(R.id.Menu_Refresh).setVisible(false);
+				if (refresh != null)
+					menu.findItem(R.id.Menu_Refresh).setVisible(false);
 			} else {
 				offline.setTitle(getString(R.string.UsageOfflineTitle));
 				offline.setIcon(R.drawable.ic_menu_stop);
-				if (refresh != null) menu.findItem(R.id.Menu_Refresh).setVisible(true);
+				if (refresh != null)
+					menu.findItem(R.id.Menu_Refresh).setVisible(true);
 			}
 		}
 
@@ -375,7 +373,8 @@ public abstract class MenuActivity extends MenuFlavorActivity
 
 	@Override
 	public boolean onOptionsItemSelected(final MenuItem item) {
-		if (super.onOptionsItemSelected(item)) return true;
+		if (super.onOptionsItemSelected(item))
+			return true;
 
 		switch (item.getItemId()) {
 			case android.R.id.home:
@@ -394,8 +393,7 @@ public abstract class MenuActivity extends MenuFlavorActivity
 				return true;
 			case R.id.Menu_InvertSort:
 				if (this instanceof FeedHeadlineActivity) {
-					Controller.getInstance()
-							.setInvertSortArticleList(!Controller.getInstance().invertSortArticlelist());
+					Controller.getInstance().setInvertSortArticleList(!Controller.getInstance().invertSortArticlelist());
 				} else {
 					Controller.getInstance().setInvertSortFeedsCats(!Controller.getInstance().invertSortFeedscats());
 				}
@@ -405,21 +403,21 @@ public abstract class MenuActivity extends MenuFlavorActivity
 				Controller.getInstance().setWorkOffline(!Controller.getInstance().workOffline());
 				if (!Controller.getInstance().workOffline()) {
 					// Synchronize status of articles with server
-					new Updater(this, new StateSynchronisationUpdater())
-							.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+					new Updater(this, new StateSynchronisationUpdater()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 				}
 				doRefresh();
 				return true;
 			case R.id.Menu_ShowPreferences:
-				startActivityForResult(new Intent(this, PreferencesActivity.class),
-						Constants.ACTIVITY_SHOW_PREFERENCES);
+				startActivityForResult(new Intent(this, PreferencesActivity.class), Constants.ACTIVITY_SHOW_PREFERENCES);
 				return true;
 			case R.id.Menu_About:
 				startActivity(new Intent(this, AboutActivity.class));
 				return true;
 			case R.id.Category_Menu_ImageCache:
-				if (isCacherRunning()) doStopImageCache();
-				else doStartImageCache();
+				if (isCacherRunning())
+					doStopImageCache();
+				else
+					doStartImageCache();
 				return true;
 			case R.id.Menu_FeedSubscribe:
 				startActivity(new Intent(this, SubscribeActivity.class));
@@ -433,7 +431,8 @@ public abstract class MenuActivity extends MenuFlavorActivity
 	public void onUpdateEnd(boolean goBackAfterUpdate) {
 		updater = null;
 		doRefresh();
-		if (goBackAfterUpdate && !isFinishing()) onBackPressed();
+		if (goBackAfterUpdate && !isFinishing())
+			onBackPressed();
 	}
 
 	protected void doStopImageCache() {
@@ -448,12 +447,10 @@ public abstract class MenuActivity extends MenuFlavorActivity
 
 		switch (Utils.getNetworkType(cm)) {
 			case Utils.NETWORK_MOBILE:
-				YesNoUpdaterDialog.getInstance(new ImageCacheUpdater(Utils.NETWORK_MOBILE), title,
-						R.string.Main_ImageCache_NetworkMobile).show(fm, "imagecache");
+				YesNoUpdaterDialog.getInstance(new ImageCacheUpdater(Utils.NETWORK_MOBILE), title, R.string.Main_ImageCache_NetworkMobile).show(fm, "imagecache");
 				break;
 			case Utils.NETWORK_METERED:
-				YesNoUpdaterDialog.getInstance(new ImageCacheUpdater(Utils.NETWORK_METERED), title,
-						R.string.Main_ImageCache_NetworkMetered).show(fm, "imagecache");
+				YesNoUpdaterDialog.getInstance(new ImageCacheUpdater(Utils.NETWORK_METERED), title, R.string.Main_ImageCache_NetworkMetered).show(fm, "imagecache");
 				break;
 			case Utils.NETWORK_WIFI:
 				doCache(Utils.NETWORK_WIFI);
@@ -479,7 +476,8 @@ public abstract class MenuActivity extends MenuFlavorActivity
 		// Register for progress-updates
 		ForegroundService.registerCallback(this);
 
-		if (isCacherRunning()) return;
+		if (isCacherRunning())
+			return;
 
 		invalidateOptionsMenu();
 
@@ -506,8 +504,10 @@ public abstract class MenuActivity extends MenuFlavorActivity
 
 	@Override
 	public void onCacheProgress(int taskCount, int progress) {
-		if (taskCount == 0) setSupportProgress(0);
-		else setSupportProgress((10000 / taskCount) * progress);
+		if (taskCount == 0)
+			setSupportProgress(0);
+		else
+			setSupportProgress((10000 / taskCount) * progress);
 	}
 
 	protected boolean isCacherRunning() {
@@ -573,7 +573,8 @@ public abstract class MenuActivity extends MenuFlavorActivity
 		@Override
 		protected void onProgressUpdate(Integer... values) {
 			if (values[0] == Integer.MAX_VALUE) {
-				if (!isCacherRunning()) ProgressBarManager.getInstance().removeProgress(activity);
+				if (!isCacherRunning())
+					ProgressBarManager.getInstance().removeProgress(activity);
 				return;
 			}
 			// Add 500 to make sure we are still within 10000 but never show an empty progressbar at 0
@@ -594,12 +595,15 @@ public abstract class MenuActivity extends MenuFlavorActivity
 
 	@Override
 	public boolean onTouchEvent(MotionEvent ev) {
-		if (ev == null) return false;
-		if (!Controller.isTablet) return false;
+		if (ev == null)
+			return false;
+		if (!Controller.isTablet)
+			return false;
 
 		// Only handle events when the list-divider is selected or we are already resizing:
 		View view = findViewAtPosition(getWindow().getDecorView().getRootView(), (int) ev.getRawX(), (int) ev.getRawY());
-		if (view == null && !resizing) return false;
+		if (view == null && !resizing)
+			return false;
 
 		switch (ev.getActionMasked()) {
 			case MotionEvent.ACTION_DOWN: {
@@ -622,7 +626,8 @@ public abstract class MenuActivity extends MenuFlavorActivity
 				// Find the index of the active pointer and fetch its position
 				final int pointerIndex = ev.findPointerIndex(mActivePointerId);
 
-				if (pointerIndex < 0) break;
+				if (pointerIndex < 0)
+					break;
 
 				final float x = ev.getX(pointerIndex);
 				final float y = ev.getY(pointerIndex);
@@ -655,8 +660,10 @@ public abstract class MenuActivity extends MenuFlavorActivity
 
 	private int calculateSize(final int size) {
 		int ret = size;
-		if (ret < minSize) ret = minSize;
-		if (ret > maxSize) ret = maxSize;
+		if (ret < minSize)
+			ret = minSize;
+		if (ret > maxSize)
+			ret = maxSize;
 		return ret;
 	}
 

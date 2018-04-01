@@ -135,7 +135,8 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 			@Override
 			public void run() {
 				Looper looper = Looper.myLooper();
-				if (looper != null) looper.quitSafely();
+				if (looper != null)
+					looper.quitSafely();
 			}
 		});
 	}
@@ -146,8 +147,7 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 
 		doProcess();
 
-		Log.i(TAG, String.format("Cache: %s MB (Limit: %s MB, took %s seconds)", folderSize / 1048576,
-				cacheSizeMax / 1048576, (System.currentTimeMillis() - start) / Utils.SECOND));
+		Log.i(TAG, String.format("Cache: %s MB (Limit: %s MB, took %s seconds)", folderSize / 1048576, cacheSizeMax / 1048576, (System.currentTimeMillis() - start) / Utils.SECOND));
 
 		// Cleanup
 		publishProgress(ON_CACHE_END); // Call onCacheEnd()
@@ -156,7 +156,8 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 	}
 
 	private void doProcess() {
-		if (checkCancelRequested()) return;
+		if (checkCancelRequested())
+			return;
 
 		// Update all articles
 		long timeArticles = System.currentTimeMillis();
@@ -173,21 +174,26 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 
 			int progress = 0;
 			publishProgress(++progress);
-			if (checkCancelRequested()) return;
+			if (checkCancelRequested())
+				return;
 			Data.getInstance().updateCategories(true);
 			publishProgress(++progress);
-			if (checkCancelRequested()) return;
+			if (checkCancelRequested())
+				return;
 			Data.getInstance().updateFeeds(Data.VCAT_ALL, true);
 
 			// Cache all articles
 			publishProgress(++progress);
-			if (checkCancelRequested()) return;
+			if (checkCancelRequested())
+				return;
 			Data.getInstance().cacheArticles(false, true);
 
 			for (Feed f : labels) {
-				if (f.unread == 0) continue;
+				if (f.unread == 0)
+					continue;
 				publishProgress(++progress);
-				if (checkCancelRequested()) return;
+				if (checkCancelRequested())
+					return;
 				Data.getInstance().updateArticles(f.id, true, false, false, true);
 				Data.getInstance().updateFeedIcon(f.id);
 			}
@@ -197,7 +203,8 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 
 			Log.i(TAG, String.format("Updating articles took %s ms", (System.currentTimeMillis() - timeArticles)));
 			publishProgress(++progress);
-			if (checkCancelRequested()) return;
+			if (checkCancelRequested())
+				return;
 
 			if (onlyArticles) // We are done here..
 				return;
@@ -205,7 +212,8 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 			// Initialize other preferences
 			this.cacheSizeMax = Controller.getInstance().cacheFolderMaxSize() * Utils.MB;
 			this.imageCache = Controller.getInstance().getImageCache();
-			if (imageCache == null) return;
+			if (imageCache == null)
+				return;
 
 			downloadImages();
 
@@ -264,13 +272,15 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 
 		int count = 0;
 		for (Article article : articles) {
-			if (count++ % 5 == 0 && checkCancelRequested()) break;
+			if (count++ % 5 == 0 && checkCancelRequested())
+				break;
 
 			int articleId = article.id;
 			Set<String> set = new HashSet<>();
 
 			for (String url : findAllImageUrls(article.content)) {
-				if (!imageCache.containsKey(url)) set.add(url);
+				if (!imageCache.containsKey(url))
+					set.add(url);
 			}
 
 			// Get images from attachments separately
@@ -299,7 +309,8 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 
 		long timeWait = System.currentTimeMillis();
 		while (!map.isEmpty()) {
-			if (count++ % 5 == 0 && checkCancelRequested()) break;
+			if (count++ % 5 == 0 && checkCancelRequested())
+				break;
 			synchronized (map) {
 				try {
 					// Only wait for 30 Minutes, then stop all running tasks
@@ -349,7 +360,8 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 
 		@Override
 		public void run() {
-			if (checkCancelRequested()) return;
+			if (checkCancelRequested())
+				return;
 
 			long size = 0;
 			try {
@@ -360,13 +372,15 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 						finishedFileUrls.add(url);
 						remoteFilesLocal.put(url, urlSize);
 					}
-					if (isCancelled || checkCancelRequested()) break;
+					if (isCancelled || checkCancelRequested())
+						break;
 				}
 			} catch (Throwable t) {
 				t.printStackTrace();
 			} finally {
 				articleFilesLocal.put(articleId, finishedFileUrls);
-				if (size > 0) downloaded += size;
+				if (size > 0)
+					downloaded += size;
 
 				synchronized (map) {
 					articleFiles.putAll(articleFilesLocal);
@@ -396,8 +410,10 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 	 * So, if returned value less or equals to 0, then the file was not cached.
 	 */
 	private long downloadToFile(String downloadUrl, File file, long maxSize, long minSize) {
-		if (file.exists() && file.length() > 0) return file.length();
-		if (checkCancelRequested()) return 0;
+		if (file.exists() && file.length() > 0)
+			return file.length();
+		if (checkCancelRequested())
+			return 0;
 
 		long byteWritten = 0;
 		boolean error = false;
@@ -423,15 +439,11 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 				} else if (length < minSize) {
 					error = true;
 					byteWritten = -length;
-					Log.i(TAG, String.format(
-							"Not starting download of %s, the size (%s bytes) is less then the minimum "
-									+ "filesize of %s bytes.", downloadUrl, length, minSize));
+					Log.i(TAG, String.format("Not starting download of %s, the size (%s bytes) is less then the minimum " + "filesize of %s bytes.", downloadUrl, length, minSize));
 				} else if (length > maxSize) {
 					error = true;
 					byteWritten = -length;
-					Log.i(TAG, String.format(
-							"Not starting download of %s, the size (%s bytes) exceeds the " + "maximum "
-									+ "filesize of %s bytes.", downloadUrl, length, maxSize));
+					Log.i(TAG, String.format("Not starting download of %s, the size (%s bytes) exceeds the " + "maximum " + "filesize of %s bytes.", downloadUrl, length, maxSize));
 				}
 			} catch (Exception e) {
 				Log.w(TAG, "Couldn't read Content-Length from url: " + downloadUrl);
@@ -480,7 +492,8 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 			Log.i(TAG, String.format("Download from '%s' finished. Downloaded %d bytes", downloadUrl, byteWritten));
 
 		if (error && file.exists())
-			if (!file.delete()) Log.w(TAG, "File could not be deleted: " + file.getAbsolutePath());
+			if (!file.delete())
+				Log.w(TAG, "File could not be deleted: " + file.getAbsolutePath());
 
 		return byteWritten;
 	}
@@ -519,10 +532,12 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 	 */
 	private static Set<String> findAllImageUrls(String html) {
 		Set<String> ret = new LinkedHashSet<>();
-		if (html == null || html.length() < 10) return ret;
+		if (html == null || html.length() < 10)
+			return ret;
 
 		int i = html.indexOf("<img");
-		if (i == -1) return ret;
+		if (i == -1)
+			return ret;
 
 		// Filter out URLs without leading http, we cannot work with relative URLs (yet?).
 		Matcher m = Utils.findImageUrlsPattern.matcher(html.substring(i, html.length()));
@@ -530,7 +545,8 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 		while (m.find()) {
 			String url = m.group(1);
 
-			if (url.startsWith("http") || url.startsWith("ftp://")) ret.add(url);
+			if (url.startsWith("http") || url.startsWith("ftp://"))
+				ret.add(url);
 		}
 		return ret;
 	}

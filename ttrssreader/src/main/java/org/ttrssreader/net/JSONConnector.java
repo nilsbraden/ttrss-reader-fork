@@ -156,7 +156,8 @@ public class JSONConnector {
 
 	private InputStream doRequest(Map<String, String> params) {
 		try {
-			if (sessionId != null) params.put(SID, sessionId);
+			if (sessionId != null)
+				params.put(SID, sessionId);
 			// ask server to compress responses when available, except the login response
 			// note requests are not compressed
 			boolean askForResponseCompression = !("login".equals(params.get("op")));
@@ -276,7 +277,8 @@ public class JSONConnector {
 
 	private String readResult(Map<String, String> params, boolean login, boolean retry) throws IOException {
 		InputStream in = doRequest(params);
-		if (in == null) return null;
+		if (in == null)
+			return null;
 
 		JsonReader reader = null;
 		String ret = "";
@@ -293,7 +295,8 @@ public class JSONConnector {
 				}
 
 				JsonToken t = reader.peek();
-				if (!t.equals(JsonToken.BEGIN_OBJECT)) continue;
+				if (!t.equals(JsonToken.BEGIN_OBJECT))
+					continue;
 
 				JsonObject object = new JsonObject();
 				reader.beginObject();
@@ -326,7 +329,8 @@ public class JSONConnector {
 						case LOGIN_ERROR:
 							if (!login && retry && login())
 								return readResult(params, false, false); // Just do the same request again
-							else lastError = ctx.getString(R.string.Error_LoginFailed);
+							else
+								lastError = ctx.getString(R.string.Error_LoginFailed);
 							break;
 						case INCORRECT_USAGE:
 							lastError = ctx.getString(R.string.Error_ApiIncorrectUsage);
@@ -346,10 +350,13 @@ public class JSONConnector {
 
 			}
 		} finally {
-			if (reader != null) reader.close();
+			if (reader != null)
+				reader.close();
 		}
-		if (ret.startsWith("\"")) ret = ret.substring(1, ret.length());
-		if (ret.endsWith("\"")) ret = ret.substring(0, ret.length() - 1);
+		if (ret.startsWith("\""))
+			ret = ret.substring(1, ret.length());
+		if (ret.endsWith("\""))
+			ret = ret.substring(0, ret.length() - 1);
 
 		return ret;
 	}
@@ -360,7 +367,8 @@ public class JSONConnector {
 
 	private JsonReader prepareReader(Map<String, String> params, boolean firstCall) throws IOException {
 		InputStream in = doRequest(params);
-		if (in == null) return null;
+		if (in == null)
+			return null;
 		JsonReader reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
 
 		// Check if content contains array or object, array indicates login-response or error, object is content
@@ -384,7 +392,8 @@ public class JSONConnector {
 
 					String nextName = reader.nextName();
 					// We have a BEGIN_OBJECT here but its just the response to call "subscribeToFeed"
-					if ("status".equals(nextName)) return reader;
+					if ("status".equals(nextName))
+						return reader;
 
 					// Handle error
 					while (reader.hasNext()) {
@@ -404,13 +413,13 @@ public class JSONConnector {
 							lastError = NOT_LOGGED_IN;
 							if (firstCall && login() && !hasLastError)
 								return prepareReader(params, false); // Just do the same request again
-							else return null;
+							else
+								return null;
 						}
 
 						if (message.contains(API_DISABLED)) {
 							hasLastError = true;
-							lastError = MyApplication.context()
-									.getString(R.string.Error_ApiDisabled, Controller.getInstance().username());
+							lastError = MyApplication.context().getString(R.string.Error_ApiDisabled, Controller.getInstance().username());
 							return null;
 						}
 
@@ -429,7 +438,9 @@ public class JSONConnector {
 
 	private boolean sessionNotAlive() {
 		// Make sure we are logged in
-		if (sessionId == null || lastError.equals(NOT_LOGGED_IN)) if (!login()) return true;
+		if (sessionId == null || lastError.equals(NOT_LOGGED_IN))
+			if (!login())
+				return true;
 		return hasLastError;
 	}
 
@@ -439,13 +450,15 @@ public class JSONConnector {
 	 * @return true if the call was successful.
 	 */
 	private boolean doRequestNoAnswer(Map<String, String> params) {
-		if (sessionNotAlive()) return false;
+		if (sessionNotAlive())
+			return false;
 
 		try {
 			String result = readResult(params, false);
 
 			// Reset error, this is only for an api-bug which returns an empty result for updateFeed
-			if (result == null) pullLastError();
+			if (result == null)
+				pullLastError();
 
 			return "OK".equals(result);
 		} catch (MalformedJsonException mje) {
@@ -473,9 +486,7 @@ public class JSONConnector {
 	 * (ie. no username, no password, no user management)
 	 */
 	private boolean isSingleUser() {
-		return httpAuth
-				&& StringSupport.isEmpty(Controller.getInstance().username())
-				&& StringSupport.isEmpty(Controller.getInstance().password());
+		return httpAuth && StringSupport.isEmpty(Controller.getInstance().username()) && StringSupport.isEmpty(Controller.getInstance().password());
 	}
 
 	/**
@@ -505,7 +516,8 @@ public class JSONConnector {
 		long time = System.currentTimeMillis();
 
 		// Just login once, check if already logged in after acquiring the lock on mSessionId
-		if (sessionId != null && !lastError.equals(NOT_LOGGED_IN)) return true;
+		if (sessionId != null && !lastError.equals(NOT_LOGGED_IN))
+			return true;
 
 		synchronized (lock) {
 			if (sessionId != null && !lastError.equals(NOT_LOGGED_IN))
@@ -560,7 +572,8 @@ public class JSONConnector {
 						case CONTENT_URL:
 							attUrl = reader.nextString();
 							// Some URLs may start with // to indicate that both, http and https can be used
-							if (attUrl.startsWith("//")) attUrl = "https:" + attUrl;
+							if (attUrl.startsWith("//"))
+								attUrl = "https:" + attUrl;
 							break;
 						case ID:
 							attId = reader.nextString();
@@ -577,7 +590,8 @@ public class JSONConnector {
 			}
 			reader.endObject();
 
-			if (attId != null && attUrl != null) ret.add(attUrl);
+			if (attId != null && attUrl != null)
+				ret.add(attUrl);
 		}
 		reader.endArray();
 		return ret;
@@ -605,7 +619,8 @@ public class JSONConnector {
 				boolean skipObject = parseArticle(article, reader, filter);
 				reader.endObject();
 
-				if (!skipObject && article.id != -1 && article.title != null) articles.add(article);
+				if (!skipObject && article.id != -1 && article.title != null)
+					articles.add(article);
 
 				count++;
 			}
@@ -616,13 +631,11 @@ public class JSONConnector {
 			Log.e(TAG, "Input data could not be read: " + e.getMessage() + " (" + e.getCause() + ")", e);
 		}
 
-		Log.d(TAG, String.format("parseArticleArray: parsing %s articles took %s ms", count,
-				(System.currentTimeMillis() - time)));
+		Log.d(TAG, String.format("parseArticleArray: parsing %s articles took %s ms", count, (System.currentTimeMillis() - time)));
 		return count;
 	}
 
-	private boolean parseArticle(final Article a, final JsonReader reader, final IArticleOmitter filter)
-			throws IOException {
+	private boolean parseArticle(final Article a, final JsonReader reader, final IArticleOmitter filter) throws IOException {
 
 		boolean skipObject = false;
 		while (reader.hasNext() && reader.peek().equals(JsonToken.NAME)) {
@@ -656,22 +669,25 @@ public class JSONConnector {
 						a.updated = new Date(reader.nextLong() * 1000);
 						break;
 					case feed_id:
-						if (reader.peek() == JsonToken.NULL) reader.nextNull();
-						else a.feedId = reader.nextInt();
+						if (reader.peek() == JsonToken.NULL)
+							reader.nextNull();
+						else
+							a.feedId = reader.nextInt();
 						break;
 					case content:
-						a.content = reader.nextString()
-								.replaceAll("(<(?:img|video)[^>]+?src=[\"'])//([^\"']*)", "$1https://$2");
+						a.content = reader.nextString().replaceAll("(<(?:img|video)[^>]+?src=[\"'])//([^\"']*)", "$1https://$2");
 						break;
 					case link:
 						a.url = reader.nextString();
 						// Some URLs may start with // to indicate that both, http and https can be used
-						if (a.url.startsWith("//")) a.url = "https:" + a.url;
+						if (a.url.startsWith("//"))
+							a.url = "https:" + a.url;
 						break;
 					case comments:
 						a.commentUrl = reader.nextString();
 						// Some URLs may start with // to indicate that both, http and https can be used
-						if (a.commentUrl.startsWith("//")) a.commentUrl = "https:" + a.commentUrl;
+						if (a.commentUrl.startsWith("//"))
+							a.commentUrl = "https:" + a.commentUrl;
 						break;
 					case attachments:
 						a.attachments = parseAttachments(reader);
@@ -689,15 +705,18 @@ public class JSONConnector {
 						a.author = reader.nextString();
 						break;
 					case note:
-						if (reader.peek() == JsonToken.NULL) reader.nextNull();
-						else a.note = reader.nextString();
+						if (reader.peek() == JsonToken.NULL)
+							reader.nextNull();
+						else
+							a.note = reader.nextString();
 						break;
 					default:
 						reader.skipValue();
 						continue;
 				}
 
-				if (filter != null) skipObject = filter.omitArticle(field, a);
+				if (filter != null)
+					skipObject = filter.omitArticle(field, a);
 
 			} catch (IllegalArgumentException | IOException e) {
 				Log.w(TAG, "Result contained illegal value for entry \"" + name + "\".");
@@ -740,7 +759,8 @@ public class JSONConnector {
 		} catch (Exception e) {
 			// Ignore exceptions here
 			try {
-				if (reader.peek().equals(JsonToken.END_ARRAY)) reader.endArray();
+				if (reader.peek().equals(JsonToken.END_ARRAY))
+					reader.endArray();
 			} catch (Exception ee) {
 				// Empty!
 			}
@@ -759,7 +779,8 @@ public class JSONConnector {
 	public Set<Category> getCategories() {
 		long time = System.currentTimeMillis();
 		Set<Category> ret = new LinkedHashSet<>();
-		if (sessionNotAlive()) return ret;
+		if (sessionNotAlive())
+			return ret;
 
 		Map<String, String> params = new HashMap<>();
 		params.put(PARAM_OP, VALUE_GET_CATEGORIES);
@@ -768,7 +789,8 @@ public class JSONConnector {
 		try {
 			reader = prepareReader(params);
 
-			if (reader == null) return ret;
+			if (reader == null)
+				return ret;
 
 			reader.beginArray();
 			while (reader.hasNext()) {
@@ -805,17 +827,19 @@ public class JSONConnector {
 
 				// Don't handle categories with an id below 1, we already have them in the DB from
 				// Data.updateVirtualCategories()
-				if (id > 0 && title != null) ret.add(new Category(id, title, unread));
+				if (id > 0 && title != null)
+					ret.add(new Category(id, title, unread));
 			}
 			reader.endArray();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
-			if (reader != null) try {
-				reader.close();
-			} catch (IOException e1) {
-				// Empty!
-			}
+			if (reader != null)
+				try {
+					reader.close();
+				} catch (IOException e1) {
+					// Empty!
+				}
 		}
 
 		Log.d(TAG, "getCategories: " + (System.currentTimeMillis() - time) + "ms");
@@ -832,7 +856,8 @@ public class JSONConnector {
 	private Set<Feed> getFeeds(boolean tolerateWrongUnreadInformation) {
 		long time = System.currentTimeMillis();
 		Set<Feed> ret = new LinkedHashSet<>();
-		if (sessionNotAlive()) return ret;
+		if (sessionNotAlive())
+			return ret;
 
 		if (!tolerateWrongUnreadInformation) {
 			makeLazyServerWork();
@@ -847,7 +872,8 @@ public class JSONConnector {
 		try {
 			reader = prepareReader(params);
 
-			if (reader == null) return ret;
+			if (reader == null)
+				return ret;
 
 			reader.beginArray();
 			while (reader.hasNext()) {
@@ -907,11 +933,12 @@ public class JSONConnector {
 		} catch (IOException e) {
 			Log.e(TAG, e.getMessage());
 		} finally {
-			if (reader != null) try {
-				reader.close();
-			} catch (IOException e1) {
-				// Empty!
-			}
+			if (reader != null)
+				try {
+					reader.close();
+				} catch (IOException e1) {
+					// Empty!
+				}
 		}
 
 		Log.d(TAG, "getFeeds: " + (System.currentTimeMillis() - time) + "ms");
@@ -966,14 +993,14 @@ public class JSONConnector {
 	 *                   {@code
 	 *                   null})
 	 */
-	public void getHeadlines(final Set<Article> articles, Integer id, int limit, String viewMode, boolean isCategory,
-	                         Integer sinceId, String search, IArticleOmitter filter) {
+	public void getHeadlines(final Set<Article> articles, Integer id, int limit, String viewMode, boolean isCategory, Integer sinceId, String search, IArticleOmitter filter) {
 		long time = System.currentTimeMillis();
 		int offset = 0;
 		int count;
 		int maxSize = articles.size() + limit;
 
-		if (sessionNotAlive()) return;
+		if (sessionNotAlive())
+			return;
 
 		int limitParam = Math.min((apiLevel < 6) ? PARAM_LIMIT_API_5 : PARAM_LIMIT_MAX_VALUE, limit);
 
@@ -990,20 +1017,26 @@ public class JSONConnector {
 			params.put(PARAM_IS_CAT, (isCategory ? "1" : "0"));
 			params.put(PARAM_SHOW_CONTENT, "1");
 			params.put(PARAM_INC_ATTACHMENTS, "1");
-			if (sinceId > 0) params.put(PARAM_SINCE_ID, sinceId + "");
-			if (search != null) params.put(PARAM_SEARCH, search);
+			if (sinceId > 0)
+				params.put(PARAM_SINCE_ID, sinceId + "");
+			if (search != null)
+				params.put(PARAM_SEARCH, search);
 
 			JsonReader reader = null;
 			try {
 				reader = prepareReader(params);
 
-				if (hasLastError) return;
-				if (reader == null) continue;
+				if (hasLastError)
+					return;
+				if (reader == null)
+					continue;
 
 				count = parseArticleArray(articles, reader, filter);
 
-				if (count < limitParam) break;
-				else offset += count;
+				if (count < limitParam)
+					break;
+				else
+					offset += count;
 
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -1029,7 +1062,8 @@ public class JSONConnector {
 	 */
 	public boolean setArticleRead(Set<Integer> articlesIds, int articleState) {
 		boolean ret = true;
-		if (articlesIds.isEmpty()) return true;
+		if (articlesIds.isEmpty())
+			return true;
 
 		for (String idList : StringSupport.convertListToString(articlesIds, MAX_ID_LIST_LENGTH)) {
 			Map<String, String> params = new HashMap<>();
@@ -1051,7 +1085,8 @@ public class JSONConnector {
 	 */
 	public boolean setArticleStarred(Set<Integer> ids, int articleState) {
 		boolean ret = true;
-		if (ids.size() == 0) return true;
+		if (ids.size() == 0)
+			return true;
 
 		for (String idList : StringSupport.convertListToString(ids, MAX_ID_LIST_LENGTH)) {
 			Map<String, String> params = new HashMap<>();
@@ -1087,7 +1122,8 @@ public class JSONConnector {
 	 * @return true if the operation succeeded.
 	 */
 	public boolean setArticlePublished(Set<Integer> ids, int articleState) {
-		if (ids.size() == 0) return true;
+		if (ids.size() == 0)
+			return true;
 		boolean ret = true;
 		for (String idList : StringSupport.convertListToString(ids, MAX_ID_LIST_LENGTH)) {
 			Map<String, String> params = new HashMap<>();
@@ -1107,11 +1143,13 @@ public class JSONConnector {
 	 * @return true if the operation succeeded.
 	 */
 	public boolean setArticleNote(Map<Integer, String> ids) {
-		if (ids.size() == 0) return true;
+		if (ids.size() == 0)
+			return true;
 		boolean ret = true;
 		for (Integer id : ids.keySet()) {
 			String note = ids.get(id);
-			if (note == null) continue;
+			if (note == null)
+				continue;
 
 			Map<String, String> params = new HashMap<>();
 			params.put(PARAM_OP, VALUE_UPDATE_ARTICLE);
@@ -1137,7 +1175,8 @@ public class JSONConnector {
 	 * @return the value of the preference or null if it ist not set or unknown
 	 */
 	public String getPref(String pref) {
-		if (sessionNotAlive()) return null;
+		if (sessionNotAlive())
+			return null;
 
 		Map<String, String> params = new HashMap<>();
 		params.put(PARAM_OP, VALUE_GET_PREF);
@@ -1154,7 +1193,8 @@ public class JSONConnector {
 
 	public boolean setArticleLabel(Set<Integer> articleIds, int labelId, boolean assign) {
 		boolean ret = true;
-		if (articleIds.size() == 0) return true;
+		if (articleIds.size() == 0)
+			return true;
 
 		for (String idList : StringSupport.convertListToString(articleIds, MAX_ID_LIST_LENGTH)) {
 			Map<String, String> params = new HashMap<>();
@@ -1184,7 +1224,8 @@ public class JSONConnector {
 
 	public SubscriptionResponse feedSubscribe(String feed_url, int category_id) {
 		SubscriptionResponse ret = new SubscriptionResponse();
-		if (sessionNotAlive()) return ret;
+		if (sessionNotAlive())
+			return ret;
 
 		Map<String, String> params = new HashMap<>();
 		params.put(PARAM_OP, VALUE_FEED_SUBSCRIBE);
@@ -1196,7 +1237,8 @@ public class JSONConnector {
 		JsonReader reader = null;
 		try {
 			reader = prepareReader(params);
-			if (reader == null) return ret;
+			if (reader == null)
+				return ret;
 
 			reader.beginObject();
 			while (reader.hasNext()) {
@@ -1221,11 +1263,12 @@ public class JSONConnector {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			if (reader != null) try {
-				reader.close();
-			} catch (IOException e1) {
-				// Empty!
-			}
+			if (reader != null)
+				try {
+					reader.close();
+				} catch (IOException e1) {
+					// Empty!
+				}
 		}
 
 		return ret;
@@ -1259,7 +1302,8 @@ public class JSONConnector {
 	 * @return a string representing message and cause of the exception
 	 */
 	private static String formatException(Exception e) {
-		if (e == null) return "";
+		if (e == null)
+			return "";
 		String msg = e.getMessage() != null ? "Exception-Message: " + e.getMessage() + " " : "No Exception-Message available. ";
 		String cause = e.getCause() != null ? "Exception-Cause: " + e.getCause() : "No Exception-Cause available.";
 		return msg + cause;

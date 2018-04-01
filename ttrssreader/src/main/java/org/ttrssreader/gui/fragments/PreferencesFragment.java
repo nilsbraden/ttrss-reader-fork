@@ -62,17 +62,23 @@ public class PreferencesFragment extends PreferenceFragment {
 		super.onCreate(savedInstanceState);
 
 		String cat = getArguments().getString("cat");
-		if (PREFS_DISPLAY.equals(cat)) addPreferencesFromResource(R.xml.prefs_display);
-		if (PREFS_HEADERS.equals(cat)) addPreferencesFromResource(R.xml.prefs_headers);
-		if (PREFS_HTTP.equals(cat)) addPreferencesFromResource(R.xml.prefs_http);
-		if (PREFS_MAIN_TOP.equals(cat)) addPreferencesFromResource(R.xml.prefs_main_top);
-		if (PREFS_SSL.equals(cat)) addPreferencesFromResource(R.xml.prefs_ssl);
+		if (PREFS_DISPLAY.equals(cat))
+			addPreferencesFromResource(R.xml.prefs_display);
+		if (PREFS_HEADERS.equals(cat))
+			addPreferencesFromResource(R.xml.prefs_headers);
+		if (PREFS_HTTP.equals(cat))
+			addPreferencesFromResource(R.xml.prefs_http);
+		if (PREFS_MAIN_TOP.equals(cat))
+			addPreferencesFromResource(R.xml.prefs_main_top);
+		if (PREFS_SSL.equals(cat))
+			addPreferencesFromResource(R.xml.prefs_ssl);
 		if (PREFS_SYSTEM.equals(cat)) {
 			addPreferencesFromResource(R.xml.prefs_system);
 			// Manually initialize Listeners for Download- and CachePath
 			initializePreferences(this);
 		}
-		if (PREFS_USAGE.equals(cat)) addPreferencesFromResource(R.xml.prefs_usage);
+		if (PREFS_USAGE.equals(cat))
+			addPreferencesFromResource(R.xml.prefs_usage);
 		if (PREFS_WIFI.equals(cat)) {
 			initWifibasedPreferences();
 		}
@@ -87,9 +93,7 @@ public class PreferencesFragment extends PreferenceFragment {
 			downloadPath.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 				@Override
 				public boolean onPreferenceClick(Preference preference) {
-					FileBrowserHelper.getInstance()
-							.showFileBrowserActivity(fragment, new File(Controller.getInstance().saveAttachmentPath()),
-									ACTIVITY_CHOOSE_ATTACHMENT_FOLDER, callbackDownloadPath);
+					FileBrowserHelper.getInstance().showFileBrowserActivity(fragment, new File(Controller.getInstance().saveAttachmentPath()), ACTIVITY_CHOOSE_ATTACHMENT_FOLDER, callbackDownloadPath);
 					return true;
 				}
 
@@ -113,9 +117,7 @@ public class PreferencesFragment extends PreferenceFragment {
 			cachePath.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 				@Override
 				public boolean onPreferenceClick(Preference preference) {
-					FileBrowserHelper.getInstance()
-							.showFileBrowserActivity(fragment, new File(Controller.getInstance().cacheFolder()),
-									ACTIVITY_CHOOSE_CACHE_FOLDER, callbackCachePath);
+					FileBrowserHelper.getInstance().showFileBrowserActivity(fragment, new File(Controller.getInstance().cacheFolder()), ACTIVITY_CHOOSE_CACHE_FOLDER, callbackCachePath);
 					return true;
 				}
 
@@ -141,17 +143,23 @@ public class PreferencesFragment extends PreferenceFragment {
 		WifiManager mWifiManager = (WifiManager) getActivity().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
 		List<WifiConfiguration> mWifiList = mWifiManager.getConfiguredNetworks();
-		if (mWifiList == null) return;
+		if (mWifiList == null)
+			return;
 
 		// Sort list by name (SSID) of the network, currently connected network is displayed on top
 		Collections.sort(mWifiList, new Comparator<WifiConfiguration>() {
 			@Override
 			public int compare(WifiConfiguration lhs, WifiConfiguration rhs) {
-				if (Objects.equals(lhs, rhs)) return 0;
-				if (lhs == null) return -1;
-				if (rhs == null) return 1;
-				if (WifiConfiguration.Status.CURRENT == lhs.status) return -1;
-				if (WifiConfiguration.Status.CURRENT == rhs.status) return 1;
+				if (Objects.equals(lhs, rhs))
+					return 0;
+				if (lhs == null)
+					return -1;
+				if (rhs == null)
+					return 1;
+				if (WifiConfiguration.Status.CURRENT == lhs.status)
+					return -1;
+				if (WifiConfiguration.Status.CURRENT == rhs.status)
+					return 1;
 				return lhs.SSID.compareToIgnoreCase(rhs.SSID);
 			}
 		});
@@ -171,7 +179,8 @@ public class PreferencesFragment extends PreferenceFragment {
 			pref.setIntent(intent);
 			if (WifiConfiguration.Status.CURRENT == wifi.status)
 				pref.setSummary(getResources().getString(R.string.ConnectionWifiConnected));
-			else pref.setSummary(getResources().getString(R.string.ConnectionWifiNotInRange));
+			else
+				pref.setSummary(getResources().getString(R.string.ConnectionWifiNotInRange));
 			mWifibasedCategory.addPreference(pref);
 		}
 	}
@@ -182,7 +191,8 @@ public class PreferencesFragment extends PreferenceFragment {
 		if (resultCode == Activity.RESULT_OK && data != null) {
 			// obtain the filename
 			Uri fileUri = data.getData();
-			if (fileUri != null) path = fileUri.getPath();
+			if (fileUri != null)
+				path = fileUri.getPath();
 		}
 		if (path != null) {
 			switch (requestCode) {

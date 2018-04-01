@@ -143,8 +143,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 	private GestureDetector gestureDetector = null;
 	private View.OnTouchListener gestureListener = null;
 
-	public static ArticleFragment newInstance(int id, int feedId, int categoryId, boolean selectArticles,
-			int lastMove) {
+	public static ArticleFragment newInstance(int id, int feedId, int categoryId, boolean selectArticles, int lastMove) {
 		// Create a new fragment instance
 		ArticleFragment detail = new ArticleFragment();
 		detail.articleId = id;
@@ -169,7 +168,8 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			categoryId = instance.getInt(FeedHeadlineListFragment.FEED_CAT_ID);
 			selectArticlesForCategory = instance.getBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES);
 			lastMove = instance.getInt(ARTICLE_MOVE);
-			if (webView != null) webView.restoreState(instance);
+			if (webView != null)
+				webView.restoreState(instance);
 		}
 		super.onCreate(instance);
 	}
@@ -186,7 +186,8 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		// Remove the WebView from the old placeholder
-		if (webView != null) webContainer.removeView(webView);
+		if (webView != null)
+			webContainer.removeView(webView);
 
 		super.onConfigurationChanged(newConfig);
 
@@ -201,7 +202,8 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 		instance.putInt(FeedHeadlineListFragment.FEED_CAT_ID, categoryId);
 		instance.putBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES, selectArticlesForCategory);
 		instance.putInt(ARTICLE_MOVE, lastMove);
-		if (webView != null) webView.saveState(instance);
+		if (webView != null)
+			webView.saveState(instance);
 		super.onSaveInstanceState(instance);
 	}
 
@@ -248,8 +250,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 				ActionBar actionBar = ((MenuActivity) getActivity()).getSupportActionBar();
 
 				// Detect touch gestures like swipe and scroll down:
-				gestureDetector = new GestureDetector(getActivity(),
-						new ArticleGestureDetector(actionBar, Controller.getInstance().hideActionbar()));
+				gestureDetector = new GestureDetector(getActivity(), new ArticleGestureDetector(actionBar, Controller.getInstance().hideActionbar()));
 
 				gestureListener = new View.OnTouchListener() {
 					public boolean onTouch(View v, MotionEvent event) {
@@ -265,9 +266,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 
 		registerForContextMenu(webView);
 
-		getActivity().findViewById(R.id.article_button_view).setVisibility(
-				Controller.getInstance().showButtonsMode() == Constants.SHOW_BUTTONS_MODE_ALLWAYS ? View.VISIBLE
-																								  : View.GONE);
+		getActivity().findViewById(R.id.article_button_view).setVisibility(Controller.getInstance().showButtonsMode() == Constants.SHOW_BUTTONS_MODE_ALLWAYS ? View.VISIBLE : View.GONE);
 
 		// Attach the WebView to its placeholder
 		if (webView.getParent() != null && webView.getParent() instanceof FrameLayout)
@@ -278,7 +277,8 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 	}
 
 	private void initData() {
-		if (feedId > 0) Controller.getInstance().lastOpenedFeeds.add(feedId);
+		if (feedId > 0)
+			Controller.getInstance().lastOpenedFeeds.add(feedId);
 		Controller.getInstance().lastOpenedArticles.add(articleId);
 
 		/* Move database access to background:
@@ -287,7 +287,8 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			protected Void doInBackground(Void... params) {
 				// Get article from DB
 				article = DBHelper.getInstance().getArticle(articleId);
-				if (article == null) return null;
+				if (article == null)
+					return null;
 
 				feed = DBHelper.getInstance().getFeed(article.feedId);
 
@@ -295,8 +296,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 				// you set it to "unread" in the meantime.
 				if (article.isUnread) {
 					article.isUnread = false;
-					new Updater(null, new ArticleReadStateUpdater(article, 0))
-							.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+					new Updater(null, new ArticleReadStateUpdater(article, 0)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 				}
 				cachedImages = getCachedImagesJS(article.id);
 
@@ -321,25 +321,30 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 	@Override
 	public void onResume() {
 		super.onResume();
-		if (getView() != null) getView().setVisibility(View.VISIBLE);
+		if (getView() != null)
+			getView().setVisibility(View.VISIBLE);
 	}
 
 	@Override
 	public void onStop() {
 		super.onStop();
-		if (getView() != null) getView().setVisibility(View.GONE);
+		if (getView() != null)
+			getView().setVisibility(View.GONE);
 	}
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		if (webContainer != null) webContainer.removeAllViews();
-		if (webView != null) webView.destroy();
+		if (webContainer != null)
+			webContainer.removeAllViews();
+		if (webView != null)
+			webView.destroy();
 	}
 
 	@SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
 	private void doRefresh() {
-		if (webView == null) return;
+		if (webView == null)
+			return;
 
 		try {
 			ProgressBarManager.getInstance().addProgress((MenuActivity) getActivity());
@@ -353,7 +358,8 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 				webView.getSettings().setMediaPlaybackRequiresUserGesture(false);
 
 			// No need to reload everything
-			if (webviewInitialized) return;
+			if (webviewInitialized)
+				return;
 
 			// Check for errors
 			if (Controller.getInstance().getConnector().hasLastError()) {
@@ -366,19 +372,22 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			StringBuilder labels = new StringBuilder();
 			for (Label label : article.labels) {
 				if (label.checked) {
-					if (labels.length() > 0) labels.append(", ");
+					if (labels.length() > 0)
+						labels.append(", ");
 
 					String labelString = label.caption;
-					if (label.foregroundColor != null && label.backgroundColor != null) labelString = String
-							.format(LABEL_COLOR_STRING, label.foregroundColor, label.backgroundColor, label.caption);
+					if (label.foregroundColor != null && label.backgroundColor != null)
+						labelString = String.format(LABEL_COLOR_STRING, label.foregroundColor, label.backgroundColor, label.caption);
 					labels.append(labelString);
 				}
 			}
 
 			// Remove all html tags and content that doesn't meet this set of allowed stuff
 			final String contentClean;
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) contentClean = article.content;
-			else contentClean = Jsoup.clean(article.content, Whitelist.relaxed());
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
+				contentClean = article.content;
+			else
+				contentClean = Jsoup.clean(article.content, Whitelist.relaxed());
 
 			// Load html from Controller and insert content// Article-Prefetch-Stuff from Raw-Ressources and System
 			ST htmlTmpl = new ST(getString(R.string.HTML_TEMPLATE), '$', '$');
@@ -450,8 +459,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			// Everything did load, we dont have to do this again.
 			webviewInitialized = true;
 		} catch (Exception e) {
-			Log.w(TAG, e.getClass().getSimpleName() + " in doRefresh(): " + e.getMessage() + " (" + e.getCause() + ")",
-					e);
+			Log.w(TAG, e.getClass().getSimpleName() + " in doRefresh(): " + e.getMessage() + " (" + e.getCause() + ")", e);
 		} finally {
 			ProgressBarManager.getInstance().removeProgress((MenuActivity) getActivity());
 		}
@@ -462,10 +470,12 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 	 * url contains spaces or newline-characters it is first trim()'ed.
 	 */
 	private void openLink() {
-		if (article.url == null || article.url.length() == 0) return;
+		if (article.url == null || article.url.length() == 0)
+			return;
 
 		String url = article.url;
-		if (article.url.contains(" ") || article.url.contains("\n")) url = url.trim();
+		if (article.url.contains(" ") || article.url.contains("\n"))
+			url = url.trim();
 
 		try {
 			Intent i = new Intent(Intent.ACTION_VIEW);
@@ -485,11 +495,13 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 		StringBuilder content = new StringBuilder();
 		Map<String, Collection<String>> attachmentsByMimeType = FileUtils.groupFilesByMimeType(attachments);
 
-		if (attachmentsByMimeType.isEmpty()) return "";
+		if (attachmentsByMimeType.isEmpty())
+			return "";
 
 		for (String mimeType : attachmentsByMimeType.keySet()) {
 			Collection<String> mimeTypeUrls = attachmentsByMimeType.get(mimeType);
-			if (mimeTypeUrls.isEmpty()) return "";
+			if (mimeTypeUrls.isEmpty())
+				return "";
 
 			if (mimeType.equals(FileUtils.IMAGE_MIME)) {
 				ST st = new ST(getResources().getString(R.string.ATTACHMENT_IMAGES_TEMPLATE));
@@ -498,9 +510,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			} else {
 				ST st = new ST(getResources().getString(R.string.ATTACHMENT_MEDIA_TEMPLATE));
 				st.add("items", mimeTypeUrls);
-				CharSequence linkText = mimeType.equals(FileUtils.AUDIO_MIME) || mimeType.equals(FileUtils.VIDEO_MIME)
-										? getText(R.string.ArticleActivity_MediaPlay)
-										: getText(R.string.ArticleActivity_MediaDisplayLink);
+				CharSequence linkText = mimeType.equals(FileUtils.AUDIO_MIME) || mimeType.equals(FileUtils.VIDEO_MIME) ? getText(R.string.ArticleActivity_MediaPlay) : getText(R.string.ArticleActivity_MediaDisplayLink);
 				st.add("linkText", linkText);
 				content.append(st.render());
 			}
@@ -525,26 +535,23 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 		// Anchors get a context-menu with "Share URL" and "Copy URL"
 		if (anchor) {
 			mSelectedExtra = result.getExtra();
-			menu.add(ContextMenu.NONE, CONTEXT_MENU_SHARE_URL, 2,
-					getResources().getString(R.string.ArticleActivity_ShareURL));
-			menu.add(ContextMenu.NONE, CONTEXT_MENU_COPY_URL, 3,
-					getResources().getString(R.string.ArticleActivity_CopyURL));
+			menu.add(ContextMenu.NONE, CONTEXT_MENU_SHARE_URL, 2, getResources().getString(R.string.ArticleActivity_ShareURL));
+			menu.add(ContextMenu.NONE, CONTEXT_MENU_COPY_URL, 3, getResources().getString(R.string.ArticleActivity_CopyURL));
 		}
 
 		// Images get a context-menu with "Show caption" which displays the content of the title- or alt-attribute
 		if (image) {
 			mSelectedAltText = getAltTextForImageUrl(result.getExtra());
-			if (mSelectedAltText != null) menu.add(ContextMenu.NONE, CONTEXT_MENU_DISPLAY_CAPTION, 1,
-					getResources().getString(R.string.ArticleActivity_ShowCaption));
+			if (mSelectedAltText != null)
+				menu.add(ContextMenu.NONE, CONTEXT_MENU_DISPLAY_CAPTION, 1, getResources().getString(R.string.ArticleActivity_ShowCaption));
 		}
-		menu.add(ContextMenu.NONE, CONTEXT_MENU_SHARE_ARTICLE, 10,
-				getResources().getString(R.string.ArticleActivity_ShareArticle));
-		menu.add(ContextMenu.NONE, CONTEXT_MENU_COPY_CONTENT, 4,
-				getResources().getString(R.string.ArticleActivity_CopyContent));
+		menu.add(ContextMenu.NONE, CONTEXT_MENU_SHARE_ARTICLE, 10, getResources().getString(R.string.ArticleActivity_ShareArticle));
+		menu.add(ContextMenu.NONE, CONTEXT_MENU_COPY_CONTENT, 4, getResources().getString(R.string.ArticleActivity_CopyContent));
 	}
 
 	public void onPrepareOptionsMenu(Menu menu) {
-		if (getActivity() == null || article == null) return;
+		if (getActivity() == null || article == null)
+			return;
 
 		MenuItem read = menu.findItem(R.id.Article_Menu_MarkRead);
 		if (read != null) {
@@ -581,22 +588,20 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 	}
 
 	public boolean onOptionsItemSelected(MenuItem item) {
-		if (article == null) return false; // No article object -> no action!
+		if (article == null)
+			return false; // No article object -> no action!
 
 		switch (item.getItemId()) {
 			case R.id.Article_Menu_MarkRead: {
-				new Updater(getActivity(), new ArticleReadStateUpdater(article, article.isUnread ? 0 : 1))
-						.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+				new Updater(getActivity(), new ArticleReadStateUpdater(article, article.isUnread ? 0 : 1)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 				return true;
 			}
 			case R.id.Article_Menu_MarkStar: {
-				new Updater(getActivity(), new StarredStateUpdater(article, article.isStarred ? 0 : 1))
-						.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+				new Updater(getActivity(), new StarredStateUpdater(article, article.isStarred ? 0 : 1)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 				return true;
 			}
 			case R.id.Article_Menu_MarkPublish: {
-				new Updater(getActivity(), new PublishedStateUpdater(article, article.isPublished ? 0 : 1))
-						.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+				new Updater(getActivity(), new PublishedStateUpdater(article, article.isPublished ? 0 : 1)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 				return true;
 			}
 			case R.id.Article_Menu_MarkNote: {
@@ -629,7 +634,8 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 	 * @return the alt-text or null if none was found.
 	 */
 	private String getAltTextForImageUrl(String extra) {
-		if (content == null || !content.contains(extra)) return null;
+		if (content == null || !content.contains(extra))
+			return null;
 
 		HtmlCleaner cleaner = new HtmlCleaner();
 		TagNode node = cleaner.clean(content);
@@ -637,7 +643,8 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 		MyTagNodeVisitor tnv = new MyTagNodeVisitor(extra);
 		node.traverse(tnv);
 
-		if (tnv.alt == null) return null;
+		if (tnv.alt == null)
+			return null;
 		return Html.fromHtml(tnv.alt).toString();
 	}
 
@@ -657,7 +664,8 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			for (RemoteFile rf : rfs) {
 
 				if (rf.cached) {
-					if (hashes.length() > 0) hashes.append(",\n");
+					if (hashes.length() > 0)
+						hashes.append(",\n");
 
 					hashes.append("'");
 					hashes.append(rf.url);
@@ -691,9 +699,11 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 				if ("img".equals(tagName) && extra.equals(tag.getAttributeByName("src"))) {
 					// Prefer title-attribute over alt since this is the html default
 					alt = tag.getAttributeByName("title");
-					if (alt != null) return false;
+					if (alt != null)
+						return false;
 					alt = tag.getAttributeByName("alt");
-					if (alt != null) return false;
+					if (alt != null)
+						return false;
 				}
 			}
 			return true;
@@ -712,8 +722,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 				break;
 			case CONTEXT_MENU_COPY_URL:
 				if (mSelectedExtra != null) {
-					ClipboardManager clipboard = (ClipboardManager) getActivity()
-							.getSystemService(Context.CLIPBOARD_SERVICE);
+					ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
 					ClipData clip = ClipData.newPlainText("URL from TTRSS", mSelectedExtra);
 					clipboard.setPrimaryClip(clip);
 				}
@@ -795,10 +804,12 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 		@JavascriptInterface
 		public void prev() {
 			final Activity activity = activityRef.get();
-			if (activity == null) return;
+			if (activity == null)
+				return;
 
 			// Add this to avoid android.view.windowmanager$badtokenexception unable to add window
-			if (activity.isFinishing()) return;
+			if (activity.isFinishing())
+				return;
 
 			// loadurl on UI main thread
 			activity.runOnUiThread(new Runnable() {
@@ -812,10 +823,12 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 		@JavascriptInterface
 		public void next() {
 			final Activity activity = activityRef.get();
-			if (activity == null) return;
+			if (activity == null)
+				return;
 
 			// Add this to avoid android.view.windowmanager$badtokenexception unable to add window
-			if (activity.isFinishing()) return;
+			if (activity.isFinishing())
+				return;
 
 			activity.runOnUiThread(new Runnable() {
 				public void run() {
@@ -828,18 +841,18 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 		@JavascriptInterface
 		public void copyContentToClipboard(String aContent) {
 			final Activity activity = activityRef.get();
-			if (activity == null) return;
+			if (activity == null)
+				return;
 
 			final String contentPlain = aContent;
 			// Add this to avoid android.view.windowmanager$badtokenexception unable to add window
-			if (activity.isFinishing()) return;
+			if (activity.isFinishing())
+				return;
 
 			activity.runOnUiThread(new Runnable() {
 				public void run() {
-					ClipboardManager clipboard = (ClipboardManager) activity
-							.getSystemService(Context.CLIPBOARD_SERVICE);
-					ClipData clip = ClipData
-							.newHtmlText("HTML Text", contentPlain, prepareHTMLContentForClipboard(content));
+					ClipboardManager clipboard = (ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
+					ClipData clip = ClipData.newHtmlText("HTML Text", contentPlain, prepareHTMLContentForClipboard(content));
 					//ClipData clip = ClipData.newPlainText("HTML Text", contentPlain);
 					clipboard.setPrimaryClip(clip);
 				}
@@ -851,14 +864,14 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 		 */
 		public void javaCallCopyToClipoard() {
 			final Activity activity = activityRef.get();
-			if (activity == null) return;
+			if (activity == null)
+				return;
 
-			final String webUrl =
-					"javascript:window.articleController.copyContentToClipboard(document.getElementsByTagName"
-							+ "('body')[0].innerText);";
+			final String webUrl = "javascript:window.articleController.copyContentToClipboard(document.getElementsByTagName" + "('body')[0].innerText);";
 
 			// Add this to avoid android.view.windowmanager$badtokenexception unable to add window
-			if (activity.isFinishing()) return;
+			if (activity.isFinishing())
+				return;
 
 			// loadurl on UI main thread
 			activity.runOnUiThread(new Runnable() {
@@ -890,26 +903,25 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 		@Override
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
 			// Refresh metrics-data in Controller
-			Controller.refreshDisplayMetrics(
-					((WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay());
+			Controller.refreshDisplayMetrics(((WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay());
 
-			if (Math.abs(e1.getY() - e2.getY()) > Controller.relSwipeMaxOffPath) return false;
+			if (Math.abs(e1.getY() - e2.getY()) > Controller.relSwipeMaxOffPath)
+				return false;
 
 			float distX = Math.abs(e1.getX() - e2.getX());
 			float distY = Math.abs(e1.getY() - e2.getY());
 			// Only accept this movement as a swipe if the horizontal distance was greater then the vertical distance
-			if (distX < 1.3 * distY) return false;
+			if (distX < 1.3 * distY)
+				return false;
 
-			if (e1.getX() - e2.getX() > Controller.relSwipeMinDistance
-					&& Math.abs(velocityX) > Controller.relSwipeThresholdVelocity) {
+			if (e1.getX() - e2.getX() > Controller.relSwipeMinDistance && Math.abs(velocityX) > Controller.relSwipeThresholdVelocity) {
 
 				// right to left swipe
 				FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
 				activity.openNextArticle(1);
 				return true;
 
-			} else if (e2.getX() - e1.getX() > Controller.relSwipeMinDistance
-					&& Math.abs(velocityX) > Controller.relSwipeThresholdVelocity) {
+			} else if (e2.getX() - e1.getX() > Controller.relSwipeMinDistance && Math.abs(velocityX) > Controller.relSwipeThresholdVelocity) {
 
 				// left to right swipe
 				FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
@@ -933,7 +945,8 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			Animator a;
 			if (Controller.sFragmentAnimationDirection > 0)
 				a = AnimatorInflater.loadAnimator(getActivity(), R.animator.slide_out_left);
-			else a = AnimatorInflater.loadAnimator(getActivity(), R.animator.slide_out_right);
+			else
+				a = AnimatorInflater.loadAnimator(getActivity(), R.animator.slide_out_right);
 
 			// Reset:
 			Controller.sFragmentAnimationDirection = 0;

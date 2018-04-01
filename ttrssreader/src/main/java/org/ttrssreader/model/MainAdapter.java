@@ -34,7 +34,7 @@ public abstract class MainAdapter extends SimpleCursorAdapter {
 	private static final int layout = R.layout.main;
 
 	MainAdapter(Context context) {
-		super(context, layout, null, new String[] {}, new int[] {}, 0);
+		super(context, layout, null, new String[]{}, new int[]{}, 0);
 	}
 
 	@Override
@@ -45,16 +45,20 @@ public abstract class MainAdapter extends SimpleCursorAdapter {
 	public final int getId(int position) {
 		int ret = Integer.MIN_VALUE;
 		Cursor cur = getCursor();
-		if (cur == null) return ret;
+		if (cur == null)
+			return ret;
 
-		if (cur.getCount() >= position) if (cur.moveToPosition(position)) ret = cur.getInt(0);
+		if (cur.getCount() >= position)
+			if (cur.moveToPosition(position))
+				ret = cur.getInt(0);
 		return ret;
 	}
 
 	public final List<Integer> getIds() {
 		List<Integer> ret = new ArrayList<>();
 		Cursor cur = getCursor();
-		if (cur == null) return ret;
+		if (cur == null)
+			return ret;
 
 		if (cur.moveToFirst()) {
 			while (!cur.isAfterLast()) {

@@ -18,7 +18,6 @@
 package org.ttrssreader.model.pojos;
 
 
-
 import java.util.Date;
 
 /**
@@ -28,19 +27,29 @@ import java.util.Date;
  * @author igor
  */
 public class RemoteFile implements Comparable<RemoteFile> {
-	/** numerical ID */
+	/**
+	 * numerical ID
+	 */
 	public int id;
 
-	/** remote file URL */
+	/**
+	 * remote file URL
+	 */
 	public String url;
 
-	/** file size */
+	/**
+	 * file size
+	 */
 	public int length;
 
-	/** last change date */
+	/**
+	 * last change date
+	 */
 	public Date updated;
 
-	/** boolean flag determining if the file is locally stored */
+	/**
+	 * boolean flag determining if the file is locally stored
+	 */
 	public volatile boolean cached;
 
 	@Override

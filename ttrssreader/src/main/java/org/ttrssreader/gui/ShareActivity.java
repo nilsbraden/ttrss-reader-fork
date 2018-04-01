@@ -131,12 +131,14 @@ public class ShareActivity extends MenuActivity {
 				boolean ret = Data.getInstance().shareToPublished(titleValue, urlValue, contentValue);
 				progress.dismiss();
 
-				if (ret) finishCompat();
+				if (ret)
+					finishCompat();
 				else if (Controller.getInstance().getConnector().hasLastError())
 					showErrorDialog(Controller.getInstance().getConnector().pullLastError());
 				else if (Controller.getInstance().workOffline())
 					showErrorDialog("Working offline, synchronisation of published articles is not implemented yet.");
-				else showErrorDialog("An unknown error occurred.");
+				else
+					showErrorDialog("An unknown error occurred.");
 
 			} catch (RuntimeException r) {
 				showErrorDialog(r.getMessage());
@@ -146,8 +148,10 @@ public class ShareActivity extends MenuActivity {
 		}
 
 		private void finishCompat() {
-			if (Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) finishAffinity();
-			else finish();
+			if (Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN)
+				finishAffinity();
+			else
+				finish();
 		}
 
 	}

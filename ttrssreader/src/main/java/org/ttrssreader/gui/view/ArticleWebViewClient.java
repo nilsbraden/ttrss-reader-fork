@@ -108,8 +108,7 @@ public class ArticleWebViewClient extends WebViewClient {
 							break;
 						case 1:
 							try {
-								new AsyncMediaDownloader(context)
-										.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, new URL(url));
+								new AsyncMediaDownloader(context).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, new URL(url));
 							} catch (MalformedURLException e) {
 								e.printStackTrace();
 							}
@@ -255,10 +254,12 @@ public class ArticleWebViewClient extends WebViewClient {
 	 */
 	@Override
 	public WebResourceResponse shouldInterceptRequest(WebView view, String urlStr) {
-		if (!Controller.getInstance().useHttpAuth()) return null;
+		if (!Controller.getInstance().useHttpAuth())
+			return null;
 		try {
 			URL url = new URL(urlStr);
-			if (!Controller.getInstance().urlNeedsAuthentication(url)) return null;
+			if (!Controller.getInstance().urlNeedsAuthentication(url))
+				return null;
 			URLConnection c = Controller.getInstance().openConnection(url);
 			return new WebResourceResponse(c.getContentType(), c.getContentEncoding(), c.getInputStream());
 		} catch (IOException e) {

@@ -54,7 +54,8 @@ public class IdUpdatedArticleOmitter implements IArticleOmitter {
 
 	public IdUpdatedArticleOmitter(final String selection, final long sinceId) {
 		String selectSince = "_id >= " + sinceId;
-		if (selection != null) selectSince = selectSince + " AND " + selection;
+		if (selection != null)
+			selectSince = selectSince + " AND " + selection;
 		init(selectSince);
 	}
 

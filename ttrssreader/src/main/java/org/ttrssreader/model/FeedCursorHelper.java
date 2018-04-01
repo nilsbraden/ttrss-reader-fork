@@ -44,7 +44,8 @@ class FeedCursorHelper extends MainCursorHelper {
 		boolean displayUnread = Controller.getInstance().onlyUnread();
 		boolean invertSortFeedCats = Controller.getInstance().invertSortFeedscats();
 
-		if (overrideDisplayUnread) displayUnread = false;
+		if (overrideDisplayUnread)
+			displayUnread = false;
 
 		if (lastOpenedFeedsList.length() > 0 && !buildSafeQuery) {
 			query.append("SELECT _id,title,unread,icon FROM (");

@@ -28,23 +28,23 @@ import java.lang.ref.WeakReference;
  * Android's lint, references to Handlers can be kept around for a long
  * time - longer than Fragments for example. So we should use handlers
  * that don't have strong references to the things they are handling for.
- *
+ * <p>
  * You can use this class to more or less forget about that requirement.
  * Unfortunately you can have anonymous static inner classes, so it is a
  * little more verbose.
- *
+ * <p>
  * Example use:
- *
+ * <p>
  * private static class MsgHandler extends WeakReferenceHandler<MyFragment>
  * {
  * public MsgHandler(MyFragment fragment) { super(fragment); }
- *
+ * <p>
  * "@Override public void handleMessage(MyFragment fragment, Message msg)
  * {
  * fragment.doStuff(msg.arg1);
  * }
  * }"
- *
+ * <p>
  * // ...
  * MsgHandler handler = new MsgHandler(this);
  */
@@ -57,7 +57,8 @@ public abstract class WeakReferenceHandler<T> extends Handler {
 
 	@Override
 	public void handleMessage(Message msg) {
-		if (mReference.get() == null) return;
+		if (mReference.get() == null)
+			return;
 		handleMessage(mReference.get());
 	}
 

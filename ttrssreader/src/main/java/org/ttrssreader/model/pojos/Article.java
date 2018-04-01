@@ -18,7 +18,6 @@
 package org.ttrssreader.model.pojos;
 
 
-
 import java.util.Date;
 import java.util.Set;
 
@@ -48,7 +47,8 @@ public class Article implements Comparable<Article> {
 
 	@Override
 	public boolean equals(Object o) {
-		if (o == null) return false;
+		if (o == null)
+			return false;
 		if (o instanceof Article) {
 			Article ac = (Article) o;
 			return id == ac.id;
@@ -62,9 +62,7 @@ public class Article implements Comparable<Article> {
 	}
 
 	public enum ArticleField {
-		id, guid, title, unread, updated, feed_id, content, link, comments, attachments, marked, published, labels,
-		is_updated, tags, feed_title, comments_count, comments_link, always_display_attachments, author, score, lang,
-		note
+		id, guid, title, unread, updated, feed_id, content, link, comments, attachments, marked, published, labels, is_updated, tags, feed_title, comments_count, comments_link, always_display_attachments, author, score, lang, note
 	}
 
 }

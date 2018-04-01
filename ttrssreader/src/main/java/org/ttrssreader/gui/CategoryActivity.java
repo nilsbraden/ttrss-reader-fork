@@ -81,14 +81,10 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 		}
 
 		FragmentManager fm = getFragmentManager();
-		CategoryListFragment categoryFragment = (CategoryListFragment) fm
-				.findFragmentByTag(CategoryListFragment.FRAGMENT);
+		CategoryListFragment categoryFragment = (CategoryListFragment) fm.findFragmentByTag(CategoryListFragment.FRAGMENT);
 
 		if (categoryFragment == null) {
-			fm.beginTransaction()
-					.add(R.id.frame_main, CategoryListFragment.newInstance(), CategoryListFragment.FRAGMENT)
-					.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-					.commit();
+			fm.beginTransaction().add(R.id.frame_main, CategoryListFragment.newInstance(), CategoryListFragment.FRAGMENT).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).commit();
 		}
 
 		if (Utils.checkIsFirstRun()) {
@@ -152,10 +148,12 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 		super.doRefresh();
 
 		CategoryListFragment categoryFragment = getCategoryListFragment();
-		if (categoryFragment != null) categoryFragment.doRefresh();
+		if (categoryFragment != null)
+			categoryFragment.doRefresh();
 
 		FeedListFragment feedFragment = getFeedListFragment();
-		if (feedFragment != null) feedFragment.doRefresh();
+		if (feedFragment != null)
+			feedFragment.doRefresh();
 
 		setTitleAndUnread();
 	}
@@ -207,7 +205,8 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 
 	@Override
 	public final boolean onOptionsItemSelected(final MenuItem item) {
-		if (super.onOptionsItemSelected(item)) return true;
+		if (super.onOptionsItemSelected(item))
+			return true;
 
 		switch (item.getItemId()) {
 			case R.id.Menu_Refresh: {
@@ -235,7 +234,8 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 
 			Set<Feed> labels = new LinkedHashSet<>();
 			for (Feed f : DBHelper.getInstance().getFeeds(-2)) {
-				if (f.unread == 0 && onlyUnreadArticles) continue;
+				if (f.unread == 0 && onlyUnreadArticles)
+					continue;
 				labels.add(f);
 			}
 
@@ -322,9 +322,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 	public void displayFeed(int categoryId) {
 		if (mOnSaveInstanceStateCalled) {
 			Log.w(TAG, "displayFeed() has been called after onSaveInstanceState(), this call has been supressed!");
-			Toast.makeText(this,
-					"displayFeed() has been called after onSaveInstanceState(), this call has been supressed!",
-					Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, "displayFeed() has been called after onSaveInstanceState(), this call has been supressed!", Toast.LENGTH_SHORT).show();
 			return;
 		}
 
@@ -336,14 +334,15 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 		fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
 		FragmentTransaction ft = fm.beginTransaction();
-		if (!Controller.isTablet) ft.addToBackStack(null);
+		if (!Controller.isTablet)
+			ft.addToBackStack(null);
 		ft.replace(R.id.frame_sub, feedFragment, FeedListFragment.FRAGMENT);
 
 		// Animation
 		if (Controller.isTablet)
-			ft.setCustomAnimations(R.animator.slide_in_left, android.R.animator.fade_out, android.R.animator.fade_in,
-					R.animator.slide_out_left);
-		else ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+			ft.setCustomAnimations(R.animator.slide_in_left, android.R.animator.fade_out, android.R.animator.fade_in, R.animator.slide_out_left);
+		else
+			ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
 
 		ft.commit();
 	}
@@ -376,13 +375,11 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 	}
 
 	private FeedListFragment getFeedListFragment() {
-		return (FeedListFragment) getFragmentManager()
-				.findFragmentByTag(FeedListFragment.FRAGMENT);
+		return (FeedListFragment) getFragmentManager().findFragmentByTag(FeedListFragment.FRAGMENT);
 	}
 
 	private CategoryListFragment getCategoryListFragment() {
-		return (CategoryListFragment) getFragmentManager()
-				.findFragmentByTag(CategoryListFragment.FRAGMENT);
+		return (CategoryListFragment) getFragmentManager().findFragmentByTag(CategoryListFragment.FRAGMENT);
 	}
 
 }

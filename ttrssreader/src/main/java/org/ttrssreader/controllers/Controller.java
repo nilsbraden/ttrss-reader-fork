@@ -204,7 +204,8 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 
 		synchronized (lockInitialize) {
 
-			if (initialized) return;
+			if (initialized)
+				return;
 
 			/* Attempt to initialize some stuff in a background-thread to reduce loading time. Start a login-request
 			separately because this takes some time. Also initialize SSL-Stuff since the login needs this. */
@@ -276,14 +277,13 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	@SuppressLint("PackageManagerGetSignatures")
 	public static boolean checkRightAppSignature(Context context) {
 		try {
-			PackageInfo packageInfo = context.getPackageManager()
-					.getPackageInfo(context.getPackageName(), PackageManager.GET_SIGNATURES);
+			PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), PackageManager.GET_SIGNATURES);
 			for (Signature signature : packageInfo.signatures) {
 				MessageDigest md = MessageDigest.getInstance("SHA");
 				md.update(signature.toByteArray());
-				final String currentSignature = Base64.encodeToString(md.digest(), Base64.NO_WRAP).replace("\r", "")
-						.replace("\n", "");
-				if (SIGNATURE.equals(currentSignature)) return true;
+				final String currentSignature = Base64.encodeToString(md.digest(), Base64.NO_WRAP).replace("\r", "").replace("\n", "");
+				if (SIGNATURE.equals(currentSignature))
+					return true;
 			}
 		} catch (Exception e) {
 			Log.w(TAG, "Signing key could not be determined, assuming wrong key.");
@@ -297,8 +297,7 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	}
 
 	public static boolean checkNoEmulator() {
-		return !("google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT) || "sdk_x86".equals(Build.PRODUCT)
-				|| "vbox86p".equals(Build.PRODUCT));
+		return !("google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT) || "sdk_x86".equals(Build.PRODUCT) || "vbox86p".equals(Build.PRODUCT));
 	}
 
 	public static boolean checkDebuggableDisabled(final Context context) {
@@ -319,7 +318,8 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	}
 
 	public static void refreshDisplayMetrics(Display display) {
-		if (display == null) return;
+		if (display == null)
+			return;
 
 		DisplayMetrics dm = new DisplayMetrics();
 		display.getMetrics(dm);
@@ -353,7 +353,8 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 
 	public URL feedIconUrl(int feedId) throws MalformedURLException {
 		String base = base();
-		if (!base.endsWith("/")) base = base + "/";
+		if (!base.endsWith("/"))
+			base = base + "/";
 		return new URL(base + baseFeedIconPath() + "/" + feedId + ".ico");
 	}
 
@@ -379,8 +380,10 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 		String key = getStringWithSSID(URL, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
 
 		String url;
-		if (prefs.contains(key)) url = prefs.getString(key, URL_DEFAULT);
-		else url = prefs.getString(URL, URL_DEFAULT);
+		if (prefs.contains(key))
+			url = prefs.getString(key, URL_DEFAULT);
+		else
+			url = prefs.getString(URL, URL_DEFAULT);
 
 		return url;
 	}
@@ -389,16 +392,20 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 		// Load from Wifi-Preferences:
 		String key = getStringWithSSID(USERNAME, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
 
-		if (prefs.contains(key)) return prefs.getString(key, EMPTY);
-		else return prefs.getString(USERNAME, EMPTY);
+		if (prefs.contains(key))
+			return prefs.getString(key, EMPTY);
+		else
+			return prefs.getString(USERNAME, EMPTY);
 	}
 
 	public String password() {
 		// Load from Wifi-Preferences:
 		String key = getStringWithSSID(PASSWORD, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
 
-		if (prefs.contains(key)) return prefs.getString(key, EMPTY);
-		else return prefs.getString(PASSWORD, EMPTY);
+		if (prefs.contains(key))
+			return prefs.getString(key, EMPTY);
+		else
+			return prefs.getString(PASSWORD, EMPTY);
 	}
 
 	public boolean lazyServer() {
@@ -419,8 +426,10 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 		String key = getStringWithSSID(URL_FEEDICONS, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
 
 		String url;
-		if (prefs.contains(key)) url = prefs.getString(key, URL_DEFAULT_FEEDICONS);
-		else url = prefs.getString(URL_FEEDICONS, URL_DEFAULT_FEEDICONS);
+		if (prefs.contains(key))
+			url = prefs.getString(key, URL_DEFAULT_FEEDICONS);
+		else
+			url = prefs.getString(URL_FEEDICONS, URL_DEFAULT_FEEDICONS);
 		return url;
 	}
 
@@ -441,100 +450,125 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 		// Load from Wifi-Preferences:
 		String key = getStringWithSSID(PROXY_HOST, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
 
-		if (prefs.contains(key)) return prefs.getString(key, EMPTY);
-		else return prefs.getString(PROXY_HOST, EMPTY);
+		if (prefs.contains(key))
+			return prefs.getString(key, EMPTY);
+		else
+			return prefs.getString(PROXY_HOST, EMPTY);
 	}
 
 	public int proxyPort() {
 		// Load from Wifi-Preferences:
 		String key = getStringWithSSID(PROXY_PORT, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
 
-		if (prefs.contains(key)) return prefs.getInt(key, Constants.PROXY_PORT_DEFAULT);
-		else return prefs.getInt(PROXY_HOST, Constants.PROXY_PORT_DEFAULT);
+		if (prefs.contains(key))
+			return prefs.getInt(key, Constants.PROXY_PORT_DEFAULT);
+		else
+			return prefs.getInt(PROXY_HOST, Constants.PROXY_PORT_DEFAULT);
 	}
 
 	public boolean useHttpAuth() {
 		// Load from Wifi-Preferences:
 		String key = getStringWithSSID(USE_HTTP_AUTH, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
 
-		if (prefs.contains(key)) return prefs.getBoolean(key, USE_HTTP_AUTH_DEFAULT);
-		else return prefs.getBoolean(USE_HTTP_AUTH, USE_HTTP_AUTH_DEFAULT);
+		if (prefs.contains(key))
+			return prefs.getBoolean(key, USE_HTTP_AUTH_DEFAULT);
+		else
+			return prefs.getBoolean(USE_HTTP_AUTH, USE_HTTP_AUTH_DEFAULT);
 	}
 
 	public String httpUsername() {
 		// Load from Wifi-Preferences:
 		String key = getStringWithSSID(HTTP_USERNAME, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
 
-		if (prefs.contains(key)) return prefs.getString(key, EMPTY);
-		else return prefs.getString(HTTP_USERNAME, EMPTY);
+		if (prefs.contains(key))
+			return prefs.getString(key, EMPTY);
+		else
+			return prefs.getString(HTTP_USERNAME, EMPTY);
 	}
 
 	public String httpPassword() {
 		// Load from Wifi-Preferences:
 		String key = getStringWithSSID(HTTP_PASSWORD, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
 
-		if (prefs.contains(key)) return prefs.getString(key, EMPTY);
-		else return prefs.getString(HTTP_PASSWORD, EMPTY);
+		if (prefs.contains(key))
+			return prefs.getString(key, EMPTY);
+		else
+			return prefs.getString(HTTP_PASSWORD, EMPTY);
 	}
 
 	public boolean useKeystore() {
 		// Load from Wifi-Preferences:
 		String key = getStringWithSSID(USE_KEYSTORE, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
 
-		if (prefs.contains(key)) return prefs.getBoolean(key, USE_KEYSTORE_DEFAULT);
-		else return prefs.getBoolean(USE_KEYSTORE, USE_KEYSTORE_DEFAULT);
+		if (prefs.contains(key))
+			return prefs.getBoolean(key, USE_KEYSTORE_DEFAULT);
+		else
+			return prefs.getBoolean(USE_KEYSTORE, USE_KEYSTORE_DEFAULT);
 	}
 
 	public boolean useProviderInstaller() {
 		// Load from Wifi-Preferences:
 		String key = getStringWithSSID(USE_PROVIDER_INSTALLER, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
 
-		if (prefs.contains(key)) return prefs.getBoolean(key, USE_PROVIDER_INSTALLER_DEFAULT);
-		else return prefs.getBoolean(USE_PROVIDER_INSTALLER, USE_PROVIDER_INSTALLER_DEFAULT);
+		if (prefs.contains(key))
+			return prefs.getBoolean(key, USE_PROVIDER_INSTALLER_DEFAULT);
+		else
+			return prefs.getBoolean(USE_PROVIDER_INSTALLER, USE_PROVIDER_INSTALLER_DEFAULT);
 	}
 
 	public boolean useClientCertificate() {
 		// Load from Wifi-Preferences:
 		String key = getStringWithSSID(USE_CLIENT_CERT, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
 
-		if (prefs.contains(key)) return prefs.getBoolean(key, USE_CLIENT_CERT_DEFAULT);
-		else return prefs.getBoolean(USE_CLIENT_CERT, USE_CLIENT_CERT_DEFAULT);
+		if (prefs.contains(key))
+			return prefs.getBoolean(key, USE_CLIENT_CERT_DEFAULT);
+		else
+			return prefs.getBoolean(USE_CLIENT_CERT, USE_CLIENT_CERT_DEFAULT);
 	}
 
 	public boolean trustAllSsl() {
 		// Load from Wifi-Preferences:
 		String key = getStringWithSSID(TRUST_ALL_SSL, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
 
-		if (prefs.contains(key)) return prefs.getBoolean(key, TRUST_ALL_SSL_DEFAULT);
-		else return prefs.getBoolean(TRUST_ALL_SSL, TRUST_ALL_SSL_DEFAULT);
+		if (prefs.contains(key))
+			return prefs.getBoolean(key, TRUST_ALL_SSL_DEFAULT);
+		else
+			return prefs.getBoolean(TRUST_ALL_SSL, TRUST_ALL_SSL_DEFAULT);
 	}
 
 	private boolean trustAllHosts() {
 		// Load from Wifi-Preferences:
 		String key = getStringWithSSID(TRUST_ALL_HOSTS, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
 
-		if (prefs.contains(key)) return prefs.getBoolean(key, TRUST_ALL_HOSTS_DEFAULT);
-		else return prefs.getBoolean(TRUST_ALL_HOSTS, TRUST_ALL_HOSTS_DEFAULT);
+		if (prefs.contains(key))
+			return prefs.getBoolean(key, TRUST_ALL_HOSTS_DEFAULT);
+		else
+			return prefs.getBoolean(TRUST_ALL_HOSTS, TRUST_ALL_HOSTS_DEFAULT);
 	}
 
 	public String getKeystorePassword() {
 		// Load from Wifi-Preferences:
 		String key = getStringWithSSID(KEYSTORE_PASSWORD, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
 
-		if (prefs.contains(key)) return prefs.getString(key, EMPTY);
-		else return prefs.getString(KEYSTORE_PASSWORD, EMPTY);
+		if (prefs.contains(key))
+			return prefs.getString(key, EMPTY);
+		else
+			return prefs.getString(KEYSTORE_PASSWORD, EMPTY);
 	}
 
 	public String getClientCertificateAlias() {
 		// Load from Wifi-Preferences:
 		String key = getStringWithSSID(CLIENT_CERTIFICATE, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
 
-		if (prefs.contains(key)) return prefs.getString(key, EMPTY);
-		else return prefs.getString(KEYSTORE_PASSWORD, EMPTY);
+		if (prefs.contains(key))
+			return prefs.getString(key, EMPTY);
+		else
+			return prefs.getString(KEYSTORE_PASSWORD, EMPTY);
 	}
 
 	public boolean urlNeedsAuthentication(URL url) {
-		if (!this.useHttpAuth()) return false;
+		if (!this.useHttpAuth())
+			return false;
 
 		try {
 			return url.getHost().equalsIgnoreCase(this.url().getHost());
@@ -603,8 +637,8 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	}
 
 	public boolean ignoreUnsafeConnectionError() {
-		if (ignoreUnsafeConnectionError == null) ignoreUnsafeConnectionError = prefs
-				.getBoolean(IGNORE_UNSAFE_CONNECTION_ERROR, IGNORE_UNSAFE_CONNECTION_ERROR_DEFAULT);
+		if (ignoreUnsafeConnectionError == null)
+			ignoreUnsafeConnectionError = prefs.getBoolean(IGNORE_UNSAFE_CONNECTION_ERROR, IGNORE_UNSAFE_CONNECTION_ERROR_DEFAULT);
 		return ignoreUnsafeConnectionError;
 	}
 
@@ -638,7 +672,8 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	}
 
 	public boolean loadMedia() {
-		if (loadImages == null) loadImages = prefs.getBoolean(LOAD_IMAGES, LOAD_IMAGES_DEFAULT);
+		if (loadImages == null)
+			loadImages = prefs.getBoolean(LOAD_IMAGES, LOAD_IMAGES_DEFAULT);
 		return loadImages;
 	}
 
@@ -671,8 +706,7 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 
 	public boolean goBackAfterMarkAllRead() {
 		if (goBackAfterMarkAllRead == null)
-			goBackAfterMarkAllRead = prefs.getBoolean(GO_BACK_AFTER_MARK_ALL_READ,
-					GO_BACK_AFTER_MARK_ALL_READ_DEFAULT);
+			goBackAfterMarkAllRead = prefs.getBoolean(GO_BACK_AFTER_MARK_ALL_READ, GO_BACK_AFTER_MARK_ALL_READ_DEFAULT);
 		return goBackAfterMarkAllRead;
 	}
 
@@ -724,7 +758,8 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	// ******* DISPLAY-Options ****************************
 
 	public boolean animations() {
-		if (animations == null) animations = prefs.getBoolean(ANIMATIONS, ANIMATIONS_DEFAULT);
+		if (animations == null)
+			animations = prefs.getBoolean(ANIMATIONS, ANIMATIONS_DEFAULT);
 		return animations;
 	}
 
@@ -762,8 +797,8 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	}
 
 	public boolean allowHyphenation() {
-		if (allowHyphenation == null) allowHyphenation = prefs.getBoolean(ALLOW_HYPHENATION,
-				ALLOW_HYPHENATION_DEFAULT);
+		if (allowHyphenation == null)
+			allowHyphenation = prefs.getBoolean(ALLOW_HYPHENATION, ALLOW_HYPHENATION_DEFAULT);
 		return allowHyphenation;
 	}
 
@@ -806,7 +841,8 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	}
 
 	public boolean onlyUnread() {
-		if (onlyUnread == null) onlyUnread = prefs.getBoolean(ONLY_UNREAD, ONLY_UNREAD_DEFAULT);
+		if (onlyUnread == null)
+			onlyUnread = prefs.getBoolean(ONLY_UNREAD, ONLY_UNREAD_DEFAULT);
 		return onlyUnread;
 	}
 
@@ -871,7 +907,8 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	}
 
 	public String dateString() {
-		if (dateString == null) dateString = prefs.getString(DATE_STRING, DATE_STRING_DEFAULT);
+		if (dateString == null)
+			dateString = prefs.getString(DATE_STRING, DATE_STRING_DEFAULT);
 		return dateString;
 	}
 
@@ -881,7 +918,8 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	}
 
 	public String timeString() {
-		if (timeString == null) timeString = prefs.getString(TIME_STRING, TIME_STRING_DEFAULT);
+		if (timeString == null)
+			timeString = prefs.getString(TIME_STRING, TIME_STRING_DEFAULT);
 		return timeString;
 	}
 
@@ -916,7 +954,8 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	}
 
 	private int getThemeInternal() {
-		if (theme == null) theme = Integer.parseInt(prefs.getString(THEME, THEME_DEFAULT));
+		if (theme == null)
+			theme = Integer.parseInt(prefs.getString(THEME, THEME_DEFAULT));
 		return theme;
 	}
 
@@ -967,7 +1006,8 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	}
 
 	public void setCacheFolder(String cacheFolder) {
-		if (!cacheFolder.endsWith("/")) cacheFolder = cacheFolder + "/";
+		if (!cacheFolder.endsWith("/"))
+			cacheFolder = cacheFolder + "/";
 		put(CACHE_FOLDER, cacheFolder);
 		this.cacheFolder = cacheFolder;
 	}
@@ -1053,8 +1093,8 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	public boolean isNoCrashreports() {
 		if (noCrashreports == null)
 			noCrashreports = prefs.getBoolean(NO_CRASHREPORTS, NO_CRASHREPORTS_DEFAULT);
-		if (noCrashreportsUntilUpdate == null) noCrashreportsUntilUpdate = prefs
-				.getBoolean(NO_CRASHREPORTS_UNTIL_UPDATE, NO_CRASHREPORTS_UNTIL_UPDATE_DEFAULT);
+		if (noCrashreportsUntilUpdate == null)
+			noCrashreportsUntilUpdate = prefs.getBoolean(NO_CRASHREPORTS_UNTIL_UPDATE, NO_CRASHREPORTS_UNTIL_UPDATE_DEFAULT);
 		return noCrashreports || noCrashreportsUntilUpdate;
 	}
 
@@ -1150,7 +1190,8 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	}
 
 	public long getLastSync() {
-		if (lastSync == null) lastSync = prefs.getLong(LAST_SYNC, LAST_SYNC_DEFAULT);
+		if (lastSync == null)
+			lastSync = prefs.getLong(LAST_SYNC, LAST_SYNC_DEFAULT);
 		return lastSync;
 	}
 
@@ -1170,7 +1211,8 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	}
 
 	public long getLastCleanup() {
-		if (lastCleanup == null) lastCleanup = prefs.getLong(LAST_CLEANUP, LAST_CLEANUP_DEFAULT);
+		if (lastCleanup == null)
+			lastCleanup = prefs.getLong(LAST_CLEANUP, LAST_CLEANUP_DEFAULT);
 		return lastCleanup;
 	}
 
@@ -1251,7 +1293,8 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 		for (Field field : Constants.class.getDeclaredFields()) {
 
 			// No default-values
-			if (field.getName().endsWith(APPENDED_DEFAULT)) continue;
+			if (field.getName().endsWith(APPENDED_DEFAULT))
+				continue;
 
 			// Only use public static fields
 			if (!Modifier.isStatic(field.getModifiers()) || !Modifier.isPublic(field.getModifiers()))
@@ -1260,9 +1303,11 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 			String fieldName = "";
 			try {
 				Object f = field.get(this);
-				if (!(f instanceof String)) continue;
+				if (!(f instanceof String))
+					continue;
 
-				if (!key.equals(f)) continue;
+				if (!key.equals(f))
+					continue;
 
 				// reset variable, it will be re-read on next access
 				fieldName = constant2Var(field.getName());
@@ -1295,8 +1340,10 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	}
 
 	private static String getStringWithSSID(String param, String wifiSSID, boolean wifibasedPrefsEnabled) {
-		if (wifiSSID == null || !wifibasedPrefsEnabled) return param;
-		else return wifiSSID + param;
+		if (wifiSSID == null || !wifibasedPrefsEnabled)
+			return param;
+		else
+			return wifiSSID + param;
 	}
 
 	private static final String SIZE_VERTICAL_CATEGORY = "sizeVerticalCategory";
@@ -1323,13 +1370,15 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 			}
 		}
 
-		if (ret < min || ret > max) ret = (min + max) / 2;
+		if (ret < min || ret > max)
+			ret = (min + max) / 2;
 
 		return ret;
 	}
 
 	public void setViewSize(MenuActivity activity, boolean isVertical, int size) {
-		if (size <= 0) return;
+		if (size <= 0)
+			return;
 		if (activity instanceof CategoryActivity) {
 			if (isVertical) {
 				sizeVerticalCategory = size;
