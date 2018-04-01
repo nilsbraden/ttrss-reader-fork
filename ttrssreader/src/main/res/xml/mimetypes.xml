@@ -18,82 +18,82 @@
 	* limitations under the License.
 -->
 <MimeTypes>
-	<!-- Image types -->
-	<type
-		extension=".png"
-		mimetype="image/png" />
-	<type
-		extension=".gif"
-		mimetype="image/gif" />
-	<type
-		extension=".jpg"
-		mimetype="image/jpg" />
-	<type
-		extension=".jpeg"
-		mimetype="image/jpeg" />
-	<type
-		extension=".bmp"
-		mimetype="image/bmp" />
+    <!-- Image types -->
+    <type
+        extension=".png"
+        mimetype="image/png"/>
+    <type
+        extension=".gif"
+        mimetype="image/gif"/>
+    <type
+        extension=".jpg"
+        mimetype="image/jpg"/>
+    <type
+        extension=".jpeg"
+        mimetype="image/jpeg"/>
+    <type
+        extension=".bmp"
+        mimetype="image/bmp"/>
 
-	<!-- Audio types -->
-	<type
-		extension=".mp3"
-		mimetype="audio/mp3" />
-	<type
-		extension=".wav"
-		mimetype="audio/wav" />
-	<type
-		extension=".ogg"
-		mimetype="audio/x-ogg" />
-	<type
-		extension=".mid"
-		mimetype="audio/mid" />
-	<type
-		extension=".midi"
-		mimetype="audio/midi" />
-	<type
-		extension=".amr"
-		mimetype="audio/AMR" />
-	<type
-		extension=".aac"
-		mimetype="audio/x-aac" />
-	<type
-		extension=".xmf"
-		mimetype="audio/midi" />
-	<type
-		extension=".mxmf"
-		mimetype="audio/midi" />
+    <!-- Audio types -->
+    <type
+        extension=".mp3"
+        mimetype="audio/mp3"/>
+    <type
+        extension=".wav"
+        mimetype="audio/wav"/>
+    <type
+        extension=".ogg"
+        mimetype="audio/x-ogg"/>
+    <type
+        extension=".mid"
+        mimetype="audio/mid"/>
+    <type
+        extension=".midi"
+        mimetype="audio/midi"/>
+    <type
+        extension=".amr"
+        mimetype="audio/AMR"/>
+    <type
+        extension=".aac"
+        mimetype="audio/x-aac"/>
+    <type
+        extension=".xmf"
+        mimetype="audio/midi"/>
+    <type
+        extension=".mxmf"
+        mimetype="audio/midi"/>
 
-	<!-- Video types -->
-	<type
-		extension=".mpg"
-		mimetype="video/mpeg" />
-	<type
-		extension=".mpeg"
-		mimetype="video/mpeg" />
-	<type
-		extension=".3gp"
-		mimetype="video/3gpp" />
-	<type
-		extension=".mp4"
-		mimetype="video/mp4" />
-	<type
-		extension=".aac"
-		mimetype="video/aac" />
-	<type
-		extension=".ts"
-		mimetype="video/mpeg" />
-	<type
-		extension=".webm"
-		mimetype="video/webm" />
-	<type
-		extension=".mkv"
-		mimetype="video/x-matroska" />
-	<type
-		extension=".avi"
-		mimetype="video/avi" />
-	<type
-		extension=".flv"
-		mimetype="video/x-flv" />
+    <!-- Video types -->
+    <type
+        extension=".mpg"
+        mimetype="video/mpeg"/>
+    <type
+        extension=".mpeg"
+        mimetype="video/mpeg"/>
+    <type
+        extension=".3gp"
+        mimetype="video/3gpp"/>
+    <type
+        extension=".mp4"
+        mimetype="video/mp4"/>
+    <type
+        extension=".aac"
+        mimetype="video/aac"/>
+    <type
+        extension=".ts"
+        mimetype="video/mpeg"/>
+    <type
+        extension=".webm"
+        mimetype="video/webm"/>
+    <type
+        extension=".mkv"
+        mimetype="video/x-matroska"/>
+    <type
+        extension=".avi"
+        mimetype="video/avi"/>
+    <type
+        extension=".flv"
+        mimetype="video/x-flv"/>
 
 </MimeTypes>

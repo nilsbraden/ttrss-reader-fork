@@ -16,140 +16,140 @@
   not, see http://www.gnu.org/licenses/.
   -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:orientation="vertical">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-	<ScrollView
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:layout_above="@+id/AboutActivity.ButtonBar"
-		android:scrollbarDefaultDelayBeforeFade="1000000">
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/AboutActivity.ButtonBar"
+        android:scrollbarDefaultDelayBeforeFade="1000000">
 
-		<RelativeLayout
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:isScrollContainer="true"
-			android:orientation="vertical"
-			android:padding="5dip"
-			android:scrollbars="vertical">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:isScrollContainer="true"
+            android:orientation="vertical"
+            android:padding="5dip"
+            android:scrollbars="vertical">
 
 
-			<LinearLayout
-				android:id="@+id/general_info"
-				android:layout_width="wrap_content"
-				android:layout_height="match_parent"
-				android:orientation="horizontal">
+            <LinearLayout
+                android:id="@+id/general_info"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
 
-				<ImageView
-					style="@style/listitem"
-					android:layout_gravity="top"
-					android:contentDescription="@string/Empty"
-					android:src="@drawable/icon" />
+                <ImageView
+                    style="@style/listitem"
+                    android:layout_gravity="top"
+                    android:contentDescription="@string/Empty"
+                    android:src="@drawable/icon"/>
 
-				<LinearLayout
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:orientation="vertical">
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
 
-					<TextView
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:text="@string/ApplicationName"
-						android:textStyle="bold" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ApplicationName"
+                        android:textStyle="bold"/>
 
-					<TextView
-						android:id="@+id/AboutActivity.VersionText"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:text="@+id/AboutActivity.VersionText"
-						android:textSize="11.5sp" />
+                    <TextView
+                        android:id="@+id/AboutActivity.VersionText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@+id/AboutActivity.VersionText"
+                        android:textSize="11.5sp"/>
 
-					<TextView
-						android:id="@+id/AboutActivity.VersionCodeText"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:text="@+id/AboutActivity.VersionCodeText"
-						android:textSize="11.5sp" />
-				</LinearLayout>
-			</LinearLayout>
+                    <TextView
+                        android:id="@+id/AboutActivity.VersionCodeText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@+id/AboutActivity.VersionCodeText"
+                        android:textSize="11.5sp"/>
+                </LinearLayout>
+            </LinearLayout>
 
-			<LinearLayout
-				android:layout_below="@+id/general_info"
-				android:layout_width="match_parent"
-				android:layout_height="match_parent"
-				android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/general_info"
+                android:orientation="vertical">
 
-				<TextView
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_marginTop="8dp"
-					android:text="@string/ApplicationDescription"
-					android:textSize="11.0sp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/ApplicationDescription"
+                    android:textSize="11.0sp"/>
 
-				<TextView
-					android:id="@+id/AboutActivity.LicenseText"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_marginTop="8dp"
-					android:text="@+id/AboutActivity.UrlText"
-					android:textSize="12.5sp" />
+                <TextView
+                    android:id="@+id/AboutActivity.LicenseText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@+id/AboutActivity.UrlText"
+                    android:textSize="12.5sp"/>
 
-				<TextView
-					android:id="@+id/AboutActivity.UrlText"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_marginTop="8dp"
-					android:autoLink="web"
-					android:text="@+id/AboutActivity.UrlText"
-					android:textSize="11.0sp" />
+                <TextView
+                    android:id="@+id/AboutActivity.UrlText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:autoLink="web"
+                    android:text="@+id/AboutActivity.UrlText"
+                    android:textSize="11.0sp"/>
 
-				<TextView
-					android:id="@+id/AboutActivity.LastSyncText"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_marginTop="8dp"
-					android:text="@+id/AboutActivity.LastSyncText"
-					android:textSize="12.5sp" />
+                <TextView
+                    android:id="@+id/AboutActivity.LastSyncText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@+id/AboutActivity.LastSyncText"
+                    android:textSize="12.5sp"/>
 
-				<TextView
-					android:id="@+id/AboutActivity.ThanksText"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_marginTop="8dp"
-					android:text="@+id/AboutActivity.ThanksText"
-					android:textSize="11.0sp" />
-			</LinearLayout>
-		</RelativeLayout>
+                <TextView
+                    android:id="@+id/AboutActivity.ThanksText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@+id/AboutActivity.ThanksText"
+                    android:textSize="11.0sp"/>
+            </LinearLayout>
+        </RelativeLayout>
 
-	</ScrollView>
+    </ScrollView>
 
-	<LinearLayout
-		style="?android:attr/buttonBarStyle"
-		android:id="@+id/AboutActivity.ButtonBar"
-		android:layout_width="match_parent"
-		android:layout_height="45dip"
-		android:layout_alignParentBottom="true"
-		android:background="@android:drawable/bottom_bar"
-		android:gravity="center"
-		android:orientation="horizontal">
+    <LinearLayout
+        android:id="@+id/AboutActivity.ButtonBar"
+        style="?android:attr/buttonBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="45dip"
+        android:layout_alignParentBottom="true"
+        android:background="@android:drawable/bottom_bar"
+        android:gravity="center"
+        android:orientation="horizontal">
 
-		<Button
-			style="?android:attr/buttonBarButtonStyle"
-			android:id="@+id/AboutActivity.CloseBtn"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:layout_weight="1.0"
-			android:padding="4dip"
-			android:text="@string/AboutActivity.CloseBtn" />
+        <Button
+            android:id="@+id/AboutActivity.CloseBtn"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1.0"
+            android:padding="4dip"
+            android:text="@string/AboutActivity.CloseBtn"/>
 
-		<Button
-			style="?android:attr/buttonBarButtonStyle"
-			android:id="@+id/AboutActivity.DonateBtn"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:layout_weight="1.0"
-			android:padding="4dip"
-			android:text="@string/AboutActivity.DonateBtn" />
-	</LinearLayout>
+        <Button
+            android:id="@+id/AboutActivity.DonateBtn"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1.0"
+            android:padding="4dip"
+            android:text="@string/AboutActivity.DonateBtn"/>
+    </LinearLayout>
 </RelativeLayout>

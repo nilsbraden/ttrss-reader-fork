@@ -17,14 +17,14 @@
   -->
 <resources>
 
-	<!-- Base application theme. -->
-	<style name="TTRSS.White" parent="TTRSS.Base.White" />
+    <!-- Base application theme. -->
+    <style name="TTRSS.White" parent="TTRSS.Base.White"/>
 
-	<style name="TTRSS.Base.White" parent="TTRSS.Light">
+    <style name="TTRSS.Base.White" parent="TTRSS.Light">
 
-		<item name="colorAccent">@color/themeWhiteAccent</item>
-		<item name="colorBackground">@color/themeWhiteBackground</item>
+        <item name="colorAccent">@color/themeWhiteAccent</item>
+        <item name="colorBackground">@color/themeWhiteBackground</item>
 
-	</style>
+    </style>
 
 </resources>

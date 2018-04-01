@@ -17,13 +17,13 @@
   -->
 <resources>
 
-	<style name="TTRSS.Black" parent="TTRSS.Base.Black" />
+    <style name="TTRSS.Black" parent="TTRSS.Base.Black"/>
 
-	<style name="TTRSS.Base.Black" parent="TTRSS.Dark">
+    <style name="TTRSS.Base.Black" parent="TTRSS.Dark">
 
-		<item name="colorAccent">@color/themeBlackAccent</item>
-		<item name="colorBackground">@color/themeBlackBackground</item>
+        <item name="colorAccent">@color/themeBlackAccent</item>
+        <item name="colorBackground">@color/themeBlackBackground</item>
 
-	</style>
+    </style>
 
 </resources>

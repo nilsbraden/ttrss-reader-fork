@@ -18,32 +18,32 @@
 
 <resources>
 
-	<!-- Colors for light theme -->
-	<color name="themeLightPrimary">#FFE1E1E1</color>
-	<color name="themeLightPrimaryDark">#FFB7B7B7</color>
-	<color name="themeLightAccent">#FFF57C00</color>
-	<color name="themeLightAccentDark">#FFC76602</color>
-	<color name="themeLightBackground">#FFE1E1E1</color>
-	<color name="themeLightTextColorPrimary">#D23A3931</color>
-	<color name="themeLightTextColor">#FF3A3931</color>
-	<color name="themeLightHtmlHeaderBackgound">#FFB8B3B3</color>
+    <!-- Colors for light theme -->
+    <color name="themeLightPrimary">#FFE1E1E1</color>
+    <color name="themeLightPrimaryDark">#FFB7B7B7</color>
+    <color name="themeLightAccent">#FFF57C00</color>
+    <color name="themeLightAccentDark">#FFC76602</color>
+    <color name="themeLightBackground">#FFE1E1E1</color>
+    <color name="themeLightTextColorPrimary">#D23A3931</color>
+    <color name="themeLightTextColor">#FF3A3931</color>
+    <color name="themeLightHtmlHeaderBackgound">#FFB8B3B3</color>
 
-	<!-- Colors for dark theme -->
-	<color name="themeDarkPrimary">#FF858585</color>
-	<color name="themeDarkPrimaryDark">#FF282828</color>
-	<color name="themeDarkAccent">#FFF57C00</color>
-	<color name="themeDarkAccentDark">#FFC76602</color>
-	<color name="themeDarkBackground">#FF222222</color>
-	<color name="themeDarkTextColorPrimary">#D2CCCCCC</color>
-	<color name="themeDarkTextColor">#FFCCCCCC</color>
-	<color name="themeDarkHtmlHeaderBackgound">#FF454545</color>
+    <!-- Colors for dark theme -->
+    <color name="themeDarkPrimary">#FF858585</color>
+    <color name="themeDarkPrimaryDark">#FF282828</color>
+    <color name="themeDarkAccent">#FFF57C00</color>
+    <color name="themeDarkAccentDark">#FFC76602</color>
+    <color name="themeDarkBackground">#FF222222</color>
+    <color name="themeDarkTextColorPrimary">#D2CCCCCC</color>
+    <color name="themeDarkTextColor">#FFCCCCCC</color>
+    <color name="themeDarkHtmlHeaderBackgound">#FF454545</color>
 
-	<!-- Colors for white theme -->
-	<color name="themeWhiteAccent">#FFFF3D00</color>
-	<color name="themeWhiteBackground">#FFFFFFFF</color>
+    <!-- Colors for white theme -->
+    <color name="themeWhiteAccent">#FFFF3D00</color>
+    <color name="themeWhiteBackground">#FFFFFFFF</color>
 
-	<!-- Colors for black theme -->
-	<color name="themeBlackAccent">#FFFF3D00</color>
-	<color name="themeBlackBackground">#FF000000</color>
+    <!-- Colors for black theme -->
+    <color name="themeBlackAccent">#FFFF3D00</color>
+    <color name="themeBlackBackground">#FF000000</color>
 
 </resources>

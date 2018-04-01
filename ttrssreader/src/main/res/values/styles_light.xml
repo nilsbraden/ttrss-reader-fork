@@ -17,40 +17,40 @@
   -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-	<!-- Base application theme. -->
-	<style name="TTRSS.Light" parent="TTRSS.Base.Light" />
+    <!-- Base application theme. -->
+    <style name="TTRSS.Light" parent="TTRSS.Base.Light"/>
 
-	<style name="TTRSS.Base.Light" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="TTRSS.Base.Light" parent="Theme.AppCompat.Light.NoActionBar">
 
-		<item name="colorPrimary">@color/themeLightPrimary</item>
-		<item name="colorPrimaryDark">@color/themeLightPrimaryDark</item>
-		<item name="colorAccent">@color/themeLightAccent</item>
-		<item name="colorAccentDark">@color/themeLightAccentDark</item>
-		<item name="colorBackground">@color/themeLightBackground</item>
-		<item name="android:textColorPrimary">@color/themeLightTextColorPrimary</item>
-		<item name="android:textColor">@color/themeLightTextColor</item>
+        <item name="colorPrimary">@color/themeLightPrimary</item>
+        <item name="colorPrimaryDark">@color/themeLightPrimaryDark</item>
+        <item name="colorAccent">@color/themeLightAccent</item>
+        <item name="colorAccentDark">@color/themeLightAccentDark</item>
+        <item name="colorBackground">@color/themeLightBackground</item>
+        <item name="android:textColorPrimary">@color/themeLightTextColorPrimary</item>
+        <item name="android:textColor">@color/themeLightTextColor</item>
 
-		<!-- Window settings -->
-		<item name="android:windowNoTitle">true</item>
-		<item name="windowActionBar">false</item>
+        <!-- Window settings -->
+        <item name="android:windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
 
-		<!-- Overall background -->
-		<item name="android:windowBackground">?colorBackground</item>
+        <!-- Overall background -->
+        <item name="android:windowBackground">?colorBackground</item>
 
-		<!-- Background for Button-Navigation -->
-		<item name="android:buttonBarStyle">@style/CustomButtonBarStyle</item>
-		<!-- Color for Navigation-Buttons in ArticleView -->
-		<item name="htmlHeaderBackgound">@color/themeLightHtmlHeaderBackgound</item>
-		<!-- Theme for preferences -->
-		<item name="android:alertDialogTheme">@style/TTRSS.Light.Dialog.Alert.Light</item>
+        <!-- Background for Button-Navigation -->
+        <item name="android:buttonBarStyle">@style/CustomButtonBarStyle</item>
+        <!-- Color for Navigation-Buttons in ArticleView -->
+        <item name="htmlHeaderBackgound">@color/themeLightHtmlHeaderBackgound</item>
+        <!-- Theme for preferences -->
+        <item name="android:alertDialogTheme">@style/TTRSS.Light.Dialog.Alert.Light</item>
 
-	</style>
+    </style>
 
-	<style name="TTRSS.Light.Dialog.Alert.Light" parent="Theme.AppCompat.Light.Dialog">
-		<item name="android:windowBackground">@android:color/transparent</item>
-		<item name="android:windowContentOverlay">@null</item>
-		<item name="android:windowMinWidthMajor">@android:dimen/dialog_min_width_major</item>
-		<item name="android:windowMinWidthMinor">@android:dimen/dialog_min_width_minor</item>
-	</style>
+    <style name="TTRSS.Light.Dialog.Alert.Light" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowMinWidthMajor">@android:dimen/dialog_min_width_major</item>
+        <item name="android:windowMinWidthMinor">@android:dimen/dialog_min_width_minor</item>
+    </style>
 
 </resources>

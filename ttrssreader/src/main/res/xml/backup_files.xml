@@ -16,11 +16,11 @@
   not, see http://www.gnu.org/licenses/.
   -->
 <full-backup-content>
-	<include
-		domain="sharedpref"
-		path="org.ttrssreader_preferences" />
+    <include
+        domain="sharedpref"
+        path="org.ttrssreader_preferences"/>
 
-	<include
-		domain="database"
-		path="ttrss.db" />
+    <include
+        domain="database"
+        path="ttrss.db"/>
 </full-backup-content>

@@ -17,15 +17,15 @@
   -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-	<!-- Background for Button-Navigation -->
-	<style name="CustomButtonBarStyle" parent="@android:style/ButtonBar">
-		<item name="android:background">?htmlHeaderBackgound</item>
-	</style>
+    <!-- Background for Button-Navigation -->
+    <style name="CustomButtonBarStyle" parent="@android:style/ButtonBar">
+        <item name="android:background">?htmlHeaderBackgound</item>
+    </style>
 
-	<style name="listitem">
-		<item name="android:layout_width">@dimen/listitem_icon_dimens</item>
-		<item name="android:layout_height">@dimen/listitem_icon_dimens</item>
-		<item name="android:layout_margin">@dimen/listitem_icon_margin</item>
-	</style>
+    <style name="listitem">
+        <item name="android:layout_width">@dimen/listitem_icon_dimens</item>
+        <item name="android:layout_height">@dimen/listitem_icon_dimens</item>
+        <item name="android:layout_margin">@dimen/listitem_icon_margin</item>
+    </style>
 
 </resources>

@@ -17,31 +17,31 @@
   -->
 <preference-headers xmlns:android="http://schemas.android.com/apk/res/android">
 
-	<!-- CONNECTION -->
-	<header android:title="@string/ConnectionPreferenceCategory" />
-	<header
-		android:fragment="org.ttrssreader.gui.fragments.WifiPreferencesFragment"
-		android:icon="@drawable/ic_menu_account_list"
-		android:title="@string/ConnectionPreferenceCategoryTitle">
-		<extra
-			android:name="cat"
-			android:value="prefs_main_top" />
-	</header>
-	<header
-		android:fragment="org.ttrssreader.gui.fragments.WifiPreferencesFragment"
-		android:icon="@android:drawable/ic_menu_sort_by_size"
-		android:title="@string/ConnectionHttpPreferenceCategoryTitle">
-		<extra
-			android:name="cat"
-			android:value="prefs_http" />
-	</header>
-	<header
-		android:fragment="org.ttrssreader.gui.fragments.WifiPreferencesFragment"
-		android:icon="@drawable/ic_menu_login"
-		android:title="@string/ConnectionSslPreferenceCategoryTitle">
-		<extra
-			android:name="cat"
-			android:value="prefs_ssl" />
-	</header>
+    <!-- CONNECTION -->
+    <header android:title="@string/ConnectionPreferenceCategory"/>
+    <header
+        android:fragment="org.ttrssreader.gui.fragments.WifiPreferencesFragment"
+        android:icon="@drawable/ic_menu_account_list"
+        android:title="@string/ConnectionPreferenceCategoryTitle">
+        <extra
+            android:name="cat"
+            android:value="prefs_main_top"/>
+    </header>
+    <header
+        android:fragment="org.ttrssreader.gui.fragments.WifiPreferencesFragment"
+        android:icon="@android:drawable/ic_menu_sort_by_size"
+        android:title="@string/ConnectionHttpPreferenceCategoryTitle">
+        <extra
+            android:name="cat"
+            android:value="prefs_http"/>
+    </header>
+    <header
+        android:fragment="org.ttrssreader.gui.fragments.WifiPreferencesFragment"
+        android:icon="@drawable/ic_menu_login"
+        android:title="@string/ConnectionSslPreferenceCategoryTitle">
+        <extra
+            android:name="cat"
+            android:value="prefs_ssl"/>
+    </header>
 
 </preference-headers>

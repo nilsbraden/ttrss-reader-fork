@@ -16,11 +16,11 @@
   not, see http://www.gnu.org/licenses/.
   -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-	android:title="@string/ConnectionWifiPrefScreenTitle">
+    android:title="@string/ConnectionWifiPrefScreenTitle">
 
-	<PreferenceCategory
-		android:key="wifibasedCategory"
-		android:summary="@string/ConnectionWifiPrefCatDescription"
-		android:title="@string/ConnectionWifiPrefCatTitle" />
+    <PreferenceCategory
+        android:key="wifibasedCategory"
+        android:summary="@string/ConnectionWifiPrefCatDescription"
+        android:title="@string/ConnectionWifiPrefCatTitle"/>
 
 </PreferenceScreen>

@@ -17,40 +17,40 @@
   -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-	<!-- Base application theme. -->
-	<style name="TTRSS.Dark" parent="TTRSS.Base.Dark" />
+    <!-- Base application theme. -->
+    <style name="TTRSS.Dark" parent="TTRSS.Base.Dark"/>
 
-	<style name="TTRSS.Base.Dark" parent="Theme.AppCompat.NoActionBar">
+    <style name="TTRSS.Base.Dark" parent="Theme.AppCompat.NoActionBar">
 
-		<item name="colorPrimary">@color/themeDarkPrimary</item>
-		<item name="colorPrimaryDark">@color/themeDarkPrimaryDark</item>
-		<item name="colorAccent">@color/themeDarkAccent</item>
-		<item name="colorAccentDark">@color/themeDarkAccentDark</item>
-		<item name="colorBackground">@color/themeDarkBackground</item>
-		<item name="android:textColorPrimary">@color/themeDarkTextColorPrimary</item>
-		<item name="android:textColor">@color/themeDarkTextColor</item>
+        <item name="colorPrimary">@color/themeDarkPrimary</item>
+        <item name="colorPrimaryDark">@color/themeDarkPrimaryDark</item>
+        <item name="colorAccent">@color/themeDarkAccent</item>
+        <item name="colorAccentDark">@color/themeDarkAccentDark</item>
+        <item name="colorBackground">@color/themeDarkBackground</item>
+        <item name="android:textColorPrimary">@color/themeDarkTextColorPrimary</item>
+        <item name="android:textColor">@color/themeDarkTextColor</item>
 
-		<!-- Window settings -->
-		<item name="android:windowNoTitle">true</item>
-		<item name="windowActionBar">false</item>
+        <!-- Window settings -->
+        <item name="android:windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
 
-		<!-- Overall background -->
-		<item name="android:windowBackground">?colorBackground</item>
+        <!-- Overall background -->
+        <item name="android:windowBackground">?colorBackground</item>
 
-		<!-- Background for Button-Navigation -->
-		<item name="android:buttonBarStyle">@style/CustomButtonBarStyle</item>
-		<!-- Color for Navigation-Buttons in ArticleView -->
-		<item name="htmlHeaderBackgound">@color/themeDarkHtmlHeaderBackgound</item>
-		<!-- Theme for preferences -->
-		<item name="android:alertDialogTheme">@style/TTRSS.Light.Dialog.Alert.Dark</item>
+        <!-- Background for Button-Navigation -->
+        <item name="android:buttonBarStyle">@style/CustomButtonBarStyle</item>
+        <!-- Color for Navigation-Buttons in ArticleView -->
+        <item name="htmlHeaderBackgound">@color/themeDarkHtmlHeaderBackgound</item>
+        <!-- Theme for preferences -->
+        <item name="android:alertDialogTheme">@style/TTRSS.Light.Dialog.Alert.Dark</item>
 
-	</style>
+    </style>
 
-	<style name="TTRSS.Light.Dialog.Alert.Dark" parent="Theme.AppCompat.Dialog">
-		<item name="android:windowBackground">@android:color/transparent</item>
-		<item name="android:windowContentOverlay">@null</item>
-		<item name="android:windowMinWidthMajor">@android:dimen/dialog_min_width_major</item>
-		<item name="android:windowMinWidthMinor">@android:dimen/dialog_min_width_minor</item>
-	</style>
+    <style name="TTRSS.Light.Dialog.Alert.Dark" parent="Theme.AppCompat.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowMinWidthMajor">@android:dimen/dialog_min_width_major</item>
+        <item name="android:windowMinWidthMinor">@android:dimen/dialog_min_width_minor</item>
+    </style>
 
 </resources>

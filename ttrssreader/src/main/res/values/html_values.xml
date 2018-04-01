@@ -17,8 +17,8 @@
   -->
 <resources>
 
-	<!-- MAIN TEMPLATE -->
-	<string name="HTML_TEMPLATE" formatted="false">
+    <!-- MAIN TEMPLATE -->
+    <string name="HTML_TEMPLATE" formatted="false">
 <![CDATA[
 <!DOCTYPE html>
 <head>
@@ -74,8 +74,8 @@
 </html>]]>
 	</string>
 
-	<!-- CHANGELOG TEMPLATE -->
-	<string name="HTML_TEMPLATE_CHANGELOG" formatted="false">
+    <!-- CHANGELOG TEMPLATE -->
+    <string name="HTML_TEMPLATE_CHANGELOG" formatted="false">
 <![CDATA[
 <!DOCTYPE html>
 <head>
@@ -91,8 +91,8 @@
 	</string>
 
 
-	<!-- CSS -->
-	<string name="STYLE_TEMPLATE" formatted="false">
+    <!-- CSS -->
+    <string name="STYLE_TEMPLATE" formatted="false">
 <![CDATA[
 <style type=\"text/css\">
 	body {
@@ -231,16 +231,16 @@
 </style>]]>
 	</string>
 
-	<!-- HYPHENATION -->
-	<string name="JAVASCRIPT_HYPHENATION_TEMPLATE" formatted="false">
+    <!-- HYPHENATION -->
+    <string name="JAVASCRIPT_HYPHENATION_TEMPLATE" formatted="false">
 <![CDATA[
 <script src=\"file:///android_asset/Hyphenator.js\" type=\"text/javascript\"></script>
 <script type=\"text/javascript\">Hyphenator.run();</script>
 <script type=\"text/javascript\" src=\"file:///android_asset/patterns/$LANGUAGE$.js\"></script>]]>
 	</string>
 
-	<!-- BOTTOM NAVIGATION -->
-	<string name="BOTTOM_NAVIGATION_TEMPLATE" formatted="false">
+    <!-- BOTTOM NAVIGATION -->
+    <string name="BOTTOM_NAVIGATION_TEMPLATE" formatted="false">
 <![CDATA[
 <style type=\"text/css\">
 	.bottom_navigation {
@@ -264,19 +264,19 @@
 </div>]]>
 	</string>
 
-	<!-- ATTACHMENTS -->
-	<string name="ATTACHMENT_IMAGES_TEMPLATE" formatted="false"><![CDATA[<items:{it|\\<img src=\"<it>\" />\\<br/>\n}>]]></string>
-	<string name="ATTACHMENT_MEDIA_TEMPLATE" formatted="false"><![CDATA[<items:{it|\\<a href=\"<it>\"><linkText>\\</a>\n}>]]></string>
+    <!-- ATTACHMENTS -->
+    <string name="ATTACHMENT_IMAGES_TEMPLATE" formatted="false"><![CDATA[<items:{it|\\<img src=\"<it>\" />\\<br/>\n}>]]></string>
+    <string name="ATTACHMENT_MEDIA_TEMPLATE" formatted="false"><![CDATA[<items:{it|\\<a href=\"<it>\"><linkText>\\</a>\n}>]]></string>
 
-	<!-- NOTES -->
-	<string name="NOTE_TEMPLATE" formatted="false"><![CDATA[<div id=\"note\">$NOTE$</div>]]></string>
+    <!-- NOTES -->
+    <string name="NOTE_TEMPLATE" formatted="false"><![CDATA[<div id=\"note\">$NOTE$</div>]]></string>
 
-	<!-- EVERYTHING ELSE -->
-	<string name="ALIGN_JUSTIFY">justify</string>
-	<string name="ALIGN_LEFT">left</string>
-	<string name="HTML_THEME_DARK" translatable="false">darkTheme</string>
-	<string name="HTML_THEME_LIGHT" translatable="false">lightTheme</string>
-	<string name="HTML_THEME_BLACK" translatable="false">blackTheme</string>
-	<string name="HTML_THEME_WHITE" translatable="false">whiteTheme</string>
+    <!-- EVERYTHING ELSE -->
+    <string name="ALIGN_JUSTIFY">justify</string>
+    <string name="ALIGN_LEFT">left</string>
+    <string name="HTML_THEME_DARK" translatable="false">darkTheme</string>
+    <string name="HTML_THEME_LIGHT" translatable="false">lightTheme</string>
+    <string name="HTML_THEME_BLACK" translatable="false">blackTheme</string>
+    <string name="HTML_THEME_WHITE" translatable="false">whiteTheme</string>
 
 </resources>

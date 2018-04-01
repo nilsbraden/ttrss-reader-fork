@@ -18,7 +18,7 @@
 
 <resources>
 
-	<dimen name="listitem_icon_dimens">48dp</dimen>
-	<dimen name="listitem_icon_margin">8dp</dimen>
+    <dimen name="listitem_icon_dimens">48dp</dimen>
+    <dimen name="listitem_icon_margin">8dp</dimen>
 
 </resources>

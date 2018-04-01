@@ -17,8 +17,8 @@
 -->
 <resources>
 
-	<attr name="htmlHeaderBackgound" format="reference|color" />
-	<attr name="colorBackground" format="reference|color" />
-	<attr name="colorAccentDark" format="reference|color" />
+    <attr name="htmlHeaderBackgound" format="reference|color"/>
+    <attr name="colorBackground" format="reference|color"/>
+    <attr name="colorAccentDark" format="reference|color"/>
 
 </resources>

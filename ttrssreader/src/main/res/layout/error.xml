@@ -16,91 +16,91 @@
   not, see http://www.gnu.org/licenses/.
   -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:padding="15dip">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="15dip">
 
-	<LinearLayout
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:isScrollContainer="true"
-		android:orientation="vertical"
-		android:scrollbars="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:isScrollContainer="true"
+        android:orientation="vertical"
+        android:scrollbars="vertical">
 
-		<LinearLayout
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-			<TextView
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:text="@string/ErrorActivity.Title"
-				android:textStyle="bold" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ErrorActivity.Title"
+                android:textStyle="bold"/>
 
-			<TextView
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="6dp"
-				android:text="@string/ErrorActivity.UserMessage"
-				android:textSize="12.5sp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="@string/ErrorActivity.UserMessage"
+                android:textSize="12.5sp"/>
 
-			<TextView
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="6dp"
-				android:text="@string/ErrorActivity.ErrorTitle"
-				android:textSize="12.5sp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="@string/ErrorActivity.ErrorTitle"
+                android:textSize="12.5sp"/>
 
-			<TextView
-				android:id="@+id/ErrorActivity.ErrorMessage"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_marginLeft="6dp"
-				android:layout_marginStart="6dp"
-				android:layout_marginTop="6dp"
-				android:textSize="12.5sp" />
-		</LinearLayout>
+            <TextView
+                android:id="@+id/ErrorActivity.ErrorMessage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="6dp"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="6dp"
+                android:textSize="12.5sp"/>
+        </LinearLayout>
 
-		<LinearLayout
-			style="?android:attr/buttonBarStyle"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_marginTop="8dip"
-			android:orientation="horizontal">
+        <LinearLayout
+            style="?android:attr/buttonBarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dip"
+            android:orientation="horizontal">
 
-			<Button
-				style="?android:attr/buttonBarButtonStyle"
-				android:id="@+id/Preferences.Btn"
-				android:layout_width="0dip"
-				android:layout_height="wrap_content"
-				android:layout_weight="0.5"
-				android:text="@string/Preferences.Btn" />
-		</LinearLayout>
+            <Button
+                android:id="@+id/Preferences.Btn"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:text="@string/Preferences.Btn"/>
+        </LinearLayout>
 
-		<LinearLayout
-			style="?android:attr/buttonBarStyle"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_marginTop="8dip"
-			android:orientation="horizontal">
+        <LinearLayout
+            style="?android:attr/buttonBarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dip"
+            android:orientation="horizontal">
 
-			<Button
-				style="?android:attr/buttonBarButtonStyle"
-				android:id="@+id/ErrorActivity.CloseBtn"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_weight="0.5"
-				android:text="@string/ErrorActivity.CloseBtn" />
+            <Button
+                android:id="@+id/ErrorActivity.CloseBtn"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:text="@string/ErrorActivity.CloseBtn"/>
 
-			<Button
-				style="?android:attr/buttonBarButtonStyle"
-				android:id="@+id/ErrorActivity.ExitBtn"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_weight="0.5"
-				android:text="@string/ErrorActivity.ExitBtn" />
-		</LinearLayout>
-	</LinearLayout>
+            <Button
+                android:id="@+id/ErrorActivity.ExitBtn"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:text="@string/ErrorActivity.ExitBtn"/>
+        </LinearLayout>
+    </LinearLayout>
 
 </ScrollView>

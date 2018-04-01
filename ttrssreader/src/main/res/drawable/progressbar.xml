@@ -16,23 +16,23 @@
   not, see http://www.gnu.org/licenses/.
   -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-	<item android:id="@android:id/background">
-		<shape>
-			<solid
-				android:color="@color/themeLightPrimaryDark" />
-		</shape>
-	</item>
-	<item android:id="@android:id/progress">
-		<clip>
-			<shape>
-				<gradient
-					android:startColor="@color/themeLightAccent"
-					android:centerColor="@color/themeLightAccent"
-					android:centerY="1.0"
-					android:endColor="@color/themeLightAccentDark"
-					android:angle="270"
-					/>
-			</shape>
-		</clip>
-	</item>
+    <item android:id="@android:id/background">
+        <shape>
+            <solid
+                android:color="@color/themeLightPrimaryDark"/>
+        </shape>
+    </item>
+    <item android:id="@android:id/progress">
+        <clip>
+            <shape>
+                <gradient
+                    android:angle="270"
+                    android:centerColor="@color/themeLightAccent"
+                    android:centerY="1.0"
+                    android:endColor="@color/themeLightAccentDark"
+                    android:startColor="@color/themeLightAccent"
+                    />
+            </shape>
+        </clip>
+    </item>
 </layer-list>

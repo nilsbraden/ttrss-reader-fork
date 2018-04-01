@@ -16,41 +16,41 @@
   not, see http://www.gnu.org/licenses/.
   -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:orientation="horizontal">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
 
-	<ImageView
-		android:id="@+id/ph_icon"
-		android:layout_width="wrap_content"
-		android:layout_height="match_parent"
-		android:layout_margin="6dp"
-		android:contentDescription="@string/Empty"
-		android:gravity="center" />
+    <ImageView
+        android:id="@+id/ph_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_margin="6dp"
+        android:contentDescription="@string/Empty"
+        android:gravity="center"/>
 
-	<LinearLayout
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:layout_margin="7dp"
-		android:gravity="center_vertical"
-		android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="7dp"
+        android:gravity="center_vertical"
+        android:orientation="vertical">
 
-		<TextView
-			android:id="@+id/ph_title"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:maxLines="1"
-			android:textIsSelectable="false"
-			android:textSize="17sp" />
+        <TextView
+            android:id="@+id/ph_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:textIsSelectable="false"
+            android:textSize="17sp"/>
 
-		<TextView
-			android:id="@+id/ph_summary"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:gravity="start"
-			android:maxLines="1"
-			android:textIsSelectable="false"
-			android:textSize="15sp" />
-	</LinearLayout>
+        <TextView
+            android:id="@+id/ph_summary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:maxLines="1"
+            android:textIsSelectable="false"
+            android:textSize="15sp"/>
+    </LinearLayout>
 
 </LinearLayout>

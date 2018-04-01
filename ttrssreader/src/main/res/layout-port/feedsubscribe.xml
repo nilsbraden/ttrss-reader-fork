@@ -16,62 +16,62 @@
   not, see http://www.gnu.org/licenses/.
   -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools"
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
 
-	<include
-		android:id="@+id/toolbar"
-		layout="@layout/toolbar" />
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar"/>
 
-	<EditText
-		android:id="@+id/subscribe_url"
-		android:layout_below="@id/toolbar"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:hint="@string/Subscribe.url"
-		android:inputType="textUri"
-		android:singleLine="true">
+    <EditText
+        android:id="@+id/subscribe_url"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/toolbar"
+        android:hint="@string/Subscribe.url"
+        android:inputType="textUri"
+        android:singleLine="true">
 
-		<requestFocus />
-	</EditText>
+        <requestFocus/>
+    </EditText>
 
-	<Button
-		style="?android:attr/buttonBarButtonStyle"
-		android:id="@+id/subscribe_paste"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_alignEnd="@+id/subscribe_url"
-		android:layout_alignRight="@+id/subscribe_url"
-		android:layout_below="@+id/subscribe_url"
-		android:text="@string/Subscribe.Paste" />
+    <Button
+        android:id="@+id/subscribe_paste"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/subscribe_url"
+        android:layout_alignRight="@+id/subscribe_url"
+        android:layout_below="@+id/subscribe_url"
+        android:text="@string/Subscribe.Paste"/>
 
-	<TextView
-		android:id="@+id/subscribe_cat_label"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_below="@+id/subscribe_paste"
-		android:paddingTop="20dp"
-		android:text="@string/Subscribe.Category_Label" />
+    <TextView
+        android:id="@+id/subscribe_cat_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/subscribe_paste"
+        android:paddingTop="20dp"
+        android:text="@string/Subscribe.Category_Label"/>
 
-	<Spinner
-		android:id="@+id/subscribe_categories"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_below="@+id/subscribe_cat_label" />
+    <Spinner
+        android:id="@+id/subscribe_categories"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/subscribe_cat_label"/>
 
-	<Button
-		style="?android:attr/buttonBarButtonStyle"
-		android:id="@+id/subscribe_ok_button"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_alignParentStart="true"
-		android:layout_alignParentLeft="true"
-		android:layout_alignEnd="@+id/subscribe_categories"
-		android:layout_alignRight="@+id/subscribe_categories"
-		android:layout_below="@+id/subscribe_categories"
-		android:layout_margin="20dp"
-		android:text="@string/Subscribe.ok_button"
-		tools:ignore="ButtonOrder" />
+    <Button
+        android:id="@+id/subscribe_ok_button"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/subscribe_categories"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignRight="@+id/subscribe_categories"
+        android:layout_below="@+id/subscribe_categories"
+        android:layout_margin="20dp"
+        android:text="@string/Subscribe.ok_button"
+        tools:ignore="ButtonOrder"/>
 
 </RelativeLayout>

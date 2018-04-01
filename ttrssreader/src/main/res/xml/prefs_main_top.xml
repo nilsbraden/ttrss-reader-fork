@@ -16,7 +16,7 @@
   not, see http://www.gnu.org/licenses/.
   -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-                  android:title="@string/ConnectionPreferenceCategoryTitle">
+    android:title="@string/ConnectionPreferenceCategoryTitle">
 
     <PreferenceCategory
         android:key="connectionCategory"

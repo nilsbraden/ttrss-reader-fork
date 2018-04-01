@@ -15,17 +15,17 @@
   copy of the GNU General Public License along with this program; If
   not, see http://www.gnu.org/licenses/.
   -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/dialog_layout_root"
-	android:orientation="vertical"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent">
+<LinearLayout android:id="@+id/dialog_layout_root"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-	<WebView
-		android:id="@+id/changelog"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:scrollbars="vertical"
-		android:scrollbarAlwaysDrawVerticalTrack="true" />
+    <WebView
+        android:id="@+id/changelog"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scrollbarAlwaysDrawVerticalTrack="true"
+        android:scrollbars="vertical"/>
 
 </LinearLayout>

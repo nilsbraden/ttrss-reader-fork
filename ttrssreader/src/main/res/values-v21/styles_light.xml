@@ -17,21 +17,21 @@
   -->
 <resources>
 
-	<!-- Base application theme. -->
-	<style name="TTRSS.Light" parent="TTRSS.Base.Light">
+    <!-- Base application theme. -->
+    <style name="TTRSS.Light" parent="TTRSS.Base.Light">
 
-		<item name="android:windowContentTransitions">true</item>
-		<item name="android:windowAllowEnterTransitionOverlap">true</item>
-		<item name="android:windowAllowReturnTransitionOverlap">true</item>
-		<item name="android:windowSharedElementEnterTransition">@android:transition/move</item>
-		<item name="android:windowSharedElementExitTransition">@android:transition/move</item>
+        <item name="android:windowContentTransitions">true</item>
+        <item name="android:windowAllowEnterTransitionOverlap">true</item>
+        <item name="android:windowAllowReturnTransitionOverlap">true</item>
+        <item name="android:windowSharedElementEnterTransition">@android:transition/move</item>
+        <item name="android:windowSharedElementExitTransition">@android:transition/move</item>
 
-	</style>
+    </style>
 
-	<style name="TTRSS.Light.Dialog.Alert.Light" parent="Theme.AppCompat.Light.Dialog">
-		<item name="android:windowContentOverlay">@null</item>
-		<item name="android:windowMinWidthMajor">@android:dimen/dialog_min_width_major</item>
-		<item name="android:windowMinWidthMinor">@android:dimen/dialog_min_width_minor</item>
-	</style>
+    <style name="TTRSS.Light.Dialog.Alert.Light" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowMinWidthMajor">@android:dimen/dialog_min_width_major</item>
+        <item name="android:windowMinWidthMinor">@android:dimen/dialog_min_width_minor</item>
+    </style>
 
 </resources>

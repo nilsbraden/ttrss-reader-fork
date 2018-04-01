@@ -16,66 +16,66 @@
   not, see http://www.gnu.org/licenses/.
   -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
-	android:orientation="vertical">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
-	<include
-		android:id="@+id/toolbar"
-		layout="@layout/toolbar" />
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar"/>
 
-	<TextView
-		android:id="@+id/labelTitle"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:text="@string/Share.title" />
+    <TextView
+        android:id="@+id/labelTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/Share.title"/>
 
-	<EditText
-		android:id="@+id/share_title"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:hint="@string/Share.title"
-		android:singleLine="true" />
+    <EditText
+        android:id="@+id/share_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/Share.title"
+        android:singleLine="true"/>
 
-	<TextView
-		android:id="@+id/labelURL"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_marginTop="10dip"
-		android:text="@string/Share.url" />
+    <TextView
+        android:id="@+id/labelURL"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dip"
+        android:text="@string/Share.url"/>
 
-	<EditText
-		android:id="@+id/share_url"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:hint="@string/Share.url"
-		android:inputType="textUri"
-		android:singleLine="true" />
+    <EditText
+        android:id="@+id/share_url"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/Share.url"
+        android:inputType="textUri"
+        android:singleLine="true"/>
 
-	<TextView
-		android:id="@+id/labelContent"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_marginTop="10dip"
-		android:text="@string/Share.content" />
+    <TextView
+        android:id="@+id/labelContent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dip"
+        android:text="@string/Share.content"/>
 
-	<EditText
-		android:id="@+id/share_content"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:hint="@string/Share.content"
-		android:inputType="textMultiLine"
-		android:maxLines="3">
+    <EditText
+        android:id="@+id/share_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/Share.content"
+        android:inputType="textMultiLine"
+        android:maxLines="3">
 
-		<requestFocus />
-	</EditText>
+        <requestFocus/>
+    </EditText>
 
-	<Button
-		style="?android:attr/buttonBarButtonStyle"
-		android:id="@+id/share_ok_button"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_margin="20dp"
-		android:text="@string/Share.ok_button" />
+    <Button
+        android:id="@+id/share_ok_button"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:text="@string/Share.ok_button"/>
 
 </LinearLayout>

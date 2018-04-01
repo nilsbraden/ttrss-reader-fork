@@ -17,15 +17,15 @@
   -->
 
 <org.ttrssreader.gui.view.CustomFrameLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:gravity="top"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="top">
 
-	<ListView
-		android:id="@id/android:list"
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:layout_weight="1"
-		android:drawSelectorOnTop="false" />
+    <ListView
+        android:id="@id/android:list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:drawSelectorOnTop="false"/>
 </org.ttrssreader.gui.view.CustomFrameLayout>

@@ -15,52 +15,52 @@
   copy of the GNU General Public License along with this program; If
   not, see http://www.gnu.org/licenses/.
   -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/frame_all"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:orientation="vertical">
+<LinearLayout android:id="@+id/frame_all"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-	<include
-		layout="@layout/toolbar" />
+    <include
+        layout="@layout/toolbar"/>
 
-	<RelativeLayout
-		android:baselineAligned="false"
-		android:layout_width="match_parent"
-		android:layout_height="match_parent">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:baselineAligned="false">
 
-		<FrameLayout
-			android:id="@+id/frame_main"
-			android:layout_width="match_parent"
-			android:layout_height="0px"
-			android:layout_below="@id/toolbar" />
+        <FrameLayout
+            android:id="@+id/frame_main"
+            android:layout_width="match_parent"
+            android:layout_height="0px"
+            android:layout_below="@id/toolbar"/>
 
-		<FrameLayout
-			android:id="@+id/list_divider"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_below="@+id/frame_main"
-			android:background="?colorBackground">
+        <FrameLayout
+            android:id="@+id/list_divider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/frame_main"
+            android:background="?colorBackground">
 
-			<ImageView
-				android:layout_width="match_parent"
-				android:layout_height="16dp"
-				android:layout_gravity="center"
-				android:background="@drawable/list_divider"
-				android:contentDescription="@string/Empty" />
-		</FrameLayout>
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="16dp"
+                android:layout_gravity="center"
+                android:background="@drawable/list_divider"
+                android:contentDescription="@string/Empty"/>
+        </FrameLayout>
 
-		<FrameLayout
-			android:id="@+id/frame_sub"
-			android:layout_width="match_parent"
-			android:layout_height="0px"
-			android:layout_below="@+id/list_divider" />
+        <FrameLayout
+            android:id="@+id/frame_sub"
+            android:layout_width="match_parent"
+            android:layout_height="0px"
+            android:layout_below="@+id/list_divider"/>
 
-		<FrameLayout
-			android:id="@+id/frame_invisible"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:visibility="gone" />
+        <FrameLayout
+            android:id="@+id/frame_invisible"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"/>
 
-	</RelativeLayout>
+    </RelativeLayout>
 </LinearLayout>
