@@ -760,6 +760,13 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	public boolean animations() {
 		if (animations == null)
 			animations = prefs.getBoolean(ANIMATIONS, ANIMATIONS_DEFAULT);
+
+		// TODO: Remove the following when a solution for #374 has been found
+		// Forcibly disable animations on Android Oreo and above:
+		if (animations && Build.VERSION.SDK_INT >= 27) {
+			setAnimations(false);
+		}
+
 		return animations;
 	}
 

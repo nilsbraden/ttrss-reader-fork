@@ -17,14 +17,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    flavorDimensions "play"
-    compileSdkVersion 27
-    buildToolsVersion '27.0.3'
+    compileSdkVersion 24
+    buildToolsVersion '25.0.0'
 
     defaultConfig {
         applicationId 'org.ttrssreader'
         minSdkVersion 14
-        targetSdkVersion 27
+        targetSdkVersion 24
     }
 
     buildTypes {
@@ -43,8 +42,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
     }
 
     productFlavors {
@@ -54,29 +53,22 @@ android {
 }
 
 dependencies {
-    implementation project(':localeapi')
-    implementation 'com.google.code.gson:gson:2.8.0'
-    implementation 'commons-io:commons-io:2.4'
-    implementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.5'
-    implementation 'org.antlr:ST4:4.0.8'
-    implementation 'com.google.guava:guava:22.0'
-
+    compile project(':localeapi')
+    compile 'com.google.code.gson:gson:2.8.0'
+    compile 'commons-io:commons-io:2.4'
+    compile 'net.sourceforge.htmlcleaner:htmlcleaner:2.5'
+    compile 'org.antlr:ST4:4.0.8'
+    compile 'com.google.guava:guava:19.0'
     // Use Material Design everywhere, see here for latest versions: https://developer.android.com/topic/libraries/support-library/features.html#v7
-    implementation 'com.android.support:appcompat-v7:27.1.0'
-    implementation 'com.android.support:support-media-compat:27.1.0'
-    implementation 'com.android.support:animated-vector-drawable:27.1.0'
-    implementation 'com.android.support:support-v4:27.1.0'
-    implementation 'com.android.support:recyclerview-v7:27.1.0'
-
+    compile 'com.android.support:appcompat-v7:24.2.1'
+    compile 'com.android.support:recyclerview-v7:24.2.1'
     // For @Nullable/@NonNull
-    implementation 'com.intellij:annotations:12.0'
-
+    compile 'com.intellij:annotations:12.0'
     // Remove any potentially harmful script-tags from incoming content
-    implementation 'org.jsoup:jsoup:1.8.1'
+    compile 'org.jsoup:jsoup:1.8.1'
 
     // "Updating Your Security Provider to Protect Against SSL Exploits"
     // https://developer.android.com/training/articles/security-gms-provider.html
     // Only used in productFlavour "play"
-    playImplementation 'com.google.android.gms:play-services-base:12.0.1'
+    playCompile 'com.google.android.gms:play-services-base:12.0.0'
 }
-
