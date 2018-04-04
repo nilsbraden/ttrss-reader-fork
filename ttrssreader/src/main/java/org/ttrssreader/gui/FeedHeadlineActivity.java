@@ -354,7 +354,15 @@ public class FeedHeadlineActivity extends MenuActivity {
 			ft.addToBackStack(null);
 		setAnimationForDirection(ft, direction);
 		ft.setTransition(FragmentTransaction.TRANSIT_NONE);
-		ft.replace(R.id.frame_sub, articleFragment, ArticleFragment.FRAGMENT).commit();
+		ft.replace(R.id.frame_sub, articleFragment, ArticleFragment.FRAGMENT);
+
+		//ArticleFragment articleFragmentOld = (ArticleFragment) getFragmentManager().findFragmentByTag(ArticleFragment.FRAGMENT);
+		//if (articleFragmentOld != null)
+		//	ft.remove(articleFragmentOld);
+		//ft.add(R.id.frame_sub, articleFragment, ArticleFragment.FRAGMENT);
+		//ft.show(articleFragment);
+
+		ft.commit();
 
 		// Check if a next feed in this direction exists
 		if (direction != 0) {
@@ -364,14 +372,13 @@ public class FeedHeadlineActivity extends MenuActivity {
 		}
 	}
 
-	private static FragmentTransaction setAnimationForDirection(final FragmentTransaction ft, final int direction) {
+	private static void setAnimationForDirection(final FragmentTransaction ft, final int direction) {
 		if (Controller.getInstance().animations()) {
 			if (direction >= 0)
 				ft.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
 			else
 				ft.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_out_right);
 		}
-		return ft;
 	}
 
 	@Override
