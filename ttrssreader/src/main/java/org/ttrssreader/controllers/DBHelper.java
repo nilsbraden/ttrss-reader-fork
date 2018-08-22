@@ -31,7 +31,6 @@ import android.text.Html;
 import android.util.Log;
 import android.widget.Toast;
 
-import org.apache.commons.io.FileUtils;
 import org.ttrssreader.MyApplication;
 import org.ttrssreader.gui.dialogs.ErrorDialog;
 import org.ttrssreader.imageCache.ImageCache;
@@ -41,11 +40,11 @@ import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.pojos.Label;
 import org.ttrssreader.model.pojos.RemoteFile;
 import org.ttrssreader.utils.AsyncTask;
+import org.ttrssreader.utils.FileUtils;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -295,7 +294,7 @@ public class DBHelper {
 			db = openHelper.getWritableDatabase();
 
 			Toast.makeText(context, "ImageCache is beeing cleaned...", Toast.LENGTH_LONG).show();
-			new org.ttrssreader.utils.AsyncTask<Void, Void, Void>() {
+			new AsyncTask<Void, Void, Void>() {
 				protected Void doInBackground(Void... params) {
 					// Clear ImageCache since no files are in REMOTE_FILES anymore and we dont want to leave them
 					// there forever:
@@ -303,13 +302,7 @@ public class DBHelper {
 					if (imageCache != null) {
 						imageCache.fillMemoryCacheFromDisk();
 						File cacheFolder = new File(imageCache.getDiskCacheDirectory());
-						if (cacheFolder.isDirectory()) {
-							try {
-								FileUtils.deleteDirectory(cacheFolder);
-							} catch (IOException e) {
-								e.printStackTrace();
-							}
-						}
+						FileUtils.deleteFolderRecursive(cacheFolder);
 					}
 					return null;
 				}

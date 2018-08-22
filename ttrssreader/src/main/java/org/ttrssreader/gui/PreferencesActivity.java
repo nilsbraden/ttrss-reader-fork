@@ -25,19 +25,19 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
-import android.support.v7.widget.AppCompatCheckBox;
-import android.support.v7.widget.AppCompatCheckedTextView;
-import android.support.v7.widget.AppCompatEditText;
-import android.support.v7.widget.AppCompatRadioButton;
-import android.support.v7.widget.AppCompatSpinner;
-import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.CheckedTextView;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
+import android.widget.RadioButton;
+import android.widget.Spinner;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
@@ -192,15 +192,15 @@ public class PreferencesActivity extends PreferenceActivity implements Toolbar.O
 			// standard framework versions
 			switch (name) {
 				case "EditText":
-					return new AppCompatEditText(this, attrs);
+					return new EditText(this, attrs);
 				case "Spinner":
-					return new AppCompatSpinner(this, attrs);
+					return new Spinner(this, attrs);
 				case "CheckBox":
-					return new AppCompatCheckBox(this, attrs);
+					return new CheckBox(this, attrs);
 				case "RadioButton":
-					return new AppCompatRadioButton(this, attrs);
+					return new RadioButton(this, attrs);
 				case "CheckedTextView":
-					return new AppCompatCheckedTextView(this, attrs);
+					return new CheckedTextView(this, attrs);
 			}
 		}
 

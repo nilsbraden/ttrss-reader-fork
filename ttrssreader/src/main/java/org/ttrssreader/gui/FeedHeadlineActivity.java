@@ -341,27 +341,23 @@ public class FeedHeadlineActivity extends MenuActivity {
 		articleId = newArticleId;
 		FeedHeadlineListFragment headlineFragment = (FeedHeadlineListFragment) getFragmentManager().findFragmentByTag(FeedHeadlineListFragment.FRAGMENT);
 		headlineFragment.setSelectedId(articleId);
-		FragmentManager fm = getFragmentManager();
 
 		// Clear back stack
 		Controller.sFragmentAnimationDirection = direction;
-		fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
 		ArticleFragment articleFragment = ArticleFragment.newInstance(articleId, feedId, categoryId, selectArticlesForCategory, direction);
+		FragmentManager fm = getFragmentManager();
+
+		// Clear back stack
+		fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
 		FragmentTransaction ft = fm.beginTransaction();
-		if (!Controller.isTablet)
+		if (!Controller.isTablet) {
 			ft.addToBackStack(null);
+		}
 		setAnimationForDirection(ft, direction);
 		ft.setTransition(FragmentTransaction.TRANSIT_NONE);
 		ft.replace(R.id.frame_sub, articleFragment, ArticleFragment.FRAGMENT);
-
-		//ArticleFragment articleFragmentOld = (ArticleFragment) getFragmentManager().findFragmentByTag(ArticleFragment.FRAGMENT);
-		//if (articleFragmentOld != null)
-		//	ft.remove(articleFragmentOld);
-		//ft.add(R.id.frame_sub, articleFragment, ArticleFragment.FRAGMENT);
-		//ft.show(articleFragment);
-
 		ft.commit();
 
 		// Check if a next feed in this direction exists
@@ -384,8 +380,7 @@ public class FeedHeadlineActivity extends MenuActivity {
 	@Override
 	public void onBackPressed() {
 		articleId = Integer.MIN_VALUE;
-		/* Back button automatically finishes the activity since Lollipop so we have to work around by checking the
-		backstack before */
+		// Back button automatically finishes the activity since Lollipop so we have to work around by checking the backstack before
 		if (getFragmentManager().getBackStackEntryCount() > 0) {
 			getFragmentManager().popBackStack();
 		} else {

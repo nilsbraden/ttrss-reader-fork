@@ -59,11 +59,11 @@ public class ProgressBarManager {
 	public void setIndeterminateVisibility(MenuActivity activity) {
 		boolean visible = (progressIndeterminateCount.get() > 0);
 		if (activity != null) {
-			activity.setSupportProgressBarIndeterminateVisibility(visible);
-			activity.setSupportProgressBarVisibility(!visible);
+			activity.setMyProgressBarIndeterminateVisibility(visible);
+			activity.setMyProgressBarVisibility(!visible);
 
 			if (!visible)
-				activity.setSupportProgress(0);
+				activity.setMyProgress(0);
 		}
 	}
 

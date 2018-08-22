@@ -73,7 +73,7 @@ public class SubscribeActivity extends MenuActivity {
 
 		setTitle(R.string.IntentSubscribe);
 		ProgressBarManager.getInstance().addProgress(activity);
-		setSupportProgressBarVisibility(true);
+		setMyProgressBarVisibility(true);
 
 		String urlValue = getIntent().getStringExtra(Intent.EXTRA_TEXT);
 

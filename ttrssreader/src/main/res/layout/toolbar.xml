@@ -17,15 +17,15 @@
   -->
 <merge
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    >
 
-    <android.support.v7.widget.Toolbar
+    <android.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimaryDark"
-        app:contentInsetEnd="0dp"
-        app:contentInsetStart="0dp">
+        android:background="?android:attr/colorPrimaryDark"
+        android:contentInsetEnd="0dp"
+        android:contentInsetStart="0dp">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -78,7 +78,7 @@
             android:indeterminate="true"
             android:visibility="gone"/>
 
-    </android.support.v7.widget.Toolbar>
+    </android.widget.Toolbar>
 
     <!--
         Parent layout necessary to allow using visibility:gone (this makes sure the progressbar is redrawn) and
@@ -88,7 +88,7 @@
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:layout_below="@id/toolbar"
-        android:background="?colorPrimaryDark">
+        android:background="?android:attr/colorPrimary">
 
         <ProgressBar
             android:id="@+id/progressbar"

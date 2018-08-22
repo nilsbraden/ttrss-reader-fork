@@ -21,8 +21,8 @@
 
     <style name="TTRSS.Base.Black" parent="TTRSS.Dark">
 
-        <item name="colorAccent">@color/themeBlackAccent</item>
-        <item name="colorBackground">@color/themeBlackBackground</item>
+        <item name="android:colorAccent">@color/themeBlackAccent</item>
+        <item name="android:colorBackground">@color/themeBlackBackground</item>
 
     </style>
 

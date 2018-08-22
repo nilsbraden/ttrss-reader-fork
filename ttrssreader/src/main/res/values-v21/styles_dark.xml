@@ -28,7 +28,7 @@
 
     </style>
 
-    <style name="TTRSS.Light.Dialog.Alert.Dark" parent="Theme.AppCompat.Dialog">
+    <style name="TTRSS.Light.Dialog.Alert.Dark" parent="android:Theme.Material.Dialog">
         <item name="android:windowBackground">@color/themeDarkBackground</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowMinWidthMajor">@android:dimen/dialog_min_width_major</item>

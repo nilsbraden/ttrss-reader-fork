@@ -20,6 +20,7 @@ package org.ttrssreader.gui.fragments;
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.Fragment;
@@ -32,7 +33,6 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
 import android.text.Html;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -247,7 +247,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 
 			if (gestureDetector == null || gestureListener == null) {
-				ActionBar actionBar = ((MenuActivity) getActivity()).getSupportActionBar();
+				ActionBar actionBar = ((MenuActivity) getActivity()).getActionBar();
 
 				// Detect touch gestures like swipe and scroll down:
 				gestureDetector = new GestureDetector(getActivity(), new ArticleGestureDetector(actionBar, Controller.getInstance().hideActionbar()));
@@ -397,6 +397,8 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 				ST javascriptST = new ST(getString(R.string.JAVASCRIPT_HYPHENATION_TEMPLATE), '$', '$');
 				javascriptST.add("LANGUAGE", Controller.getInstance().hyphenationLanguage());
 				htmlTmpl.add("HYPHENATION", javascriptST.render());
+			} else {
+				htmlTmpl.add("HYPHENATION", "");
 			}
 
 			// Replace alignment-marker: align:left or align:justify
@@ -432,6 +434,8 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			// Navigation buttons
 			if (Controller.getInstance().showButtonsMode() == Constants.SHOW_BUTTONS_MODE_HTML) {
 				htmlTmpl.add("NAVIGATION", getString(R.string.BOTTOM_NAVIGATION_TEMPLATE));
+			} else {
+				htmlTmpl.add("NAVIGATION", "");
 			}
 
 			// Note of the article
@@ -439,6 +443,8 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 				ST noteST = new ST(getResources().getString(R.string.NOTE_TEMPLATE), '$', '$');
 				noteST.add("NOTE", getResources().getString(R.string.Commons_HtmlPrefixNote) + " " + article.note);
 				htmlTmpl.add("NOTE_TEMPLATE", noteST.render());
+			} else {
+				htmlTmpl.add("NOTE_TEMPLATE", "");
 			}
 
 			content = htmlTmpl.render();

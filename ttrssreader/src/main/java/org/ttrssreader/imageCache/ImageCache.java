@@ -150,7 +150,7 @@ public class ImageCache {
 
 	public boolean deleteAllCachedFiles() {
 		File f = new File(diskCacheDir);
-		return FileUtils.deleteFolderRcursive(f);
+		return FileUtils.deleteFolderRecursive(f);
 	}
 
 	public synchronized void clear() {

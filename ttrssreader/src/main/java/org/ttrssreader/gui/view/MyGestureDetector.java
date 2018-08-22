@@ -17,7 +17,7 @@
 
 package org.ttrssreader.gui.view;
 
-import android.support.v7.app.ActionBar;
+import android.app.ActionBar;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 

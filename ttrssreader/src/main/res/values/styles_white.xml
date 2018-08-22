@@ -22,8 +22,8 @@
 
     <style name="TTRSS.Base.White" parent="TTRSS.Light">
 
-        <item name="colorAccent">@color/themeWhiteAccent</item>
-        <item name="colorBackground">@color/themeWhiteBackground</item>
+        <item name="android:colorAccent">@color/themeWhiteAccent</item>
+        <item name="android:colorBackground">@color/themeWhiteBackground</item>
 
     </style>
 

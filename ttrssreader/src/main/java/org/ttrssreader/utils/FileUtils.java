@@ -110,7 +110,7 @@ public class FileUtils {
 	 *
 	 * @return false if delete() failed on any of the files
 	 */
-	public static boolean deleteFolderRcursive(final File dir) {
+	public static boolean deleteFolderRecursive(final File dir) {
 		boolean ret = true;
 		if (dir.isDirectory()) {
 			String[] children = dir.list();

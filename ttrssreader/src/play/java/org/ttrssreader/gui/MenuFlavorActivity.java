@@ -17,10 +17,10 @@
 
 package org.ttrssreader.gui;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -33,8 +33,7 @@ import org.ttrssreader.gui.dialogs.IgnorableErrorDialog;
 /**
  * This class provides functionality for using the play services library in the build flavour "play".
  */
-public abstract class MenuFlavorActivity extends AppCompatActivity
-		implements ProviderInstaller.ProviderInstallListener {
+public abstract class MenuFlavorActivity extends Activity implements ProviderInstaller.ProviderInstallListener {
 
 	private static final String TAG = MenuFlavorActivity.class.getSimpleName();
 
@@ -44,7 +43,8 @@ public abstract class MenuFlavorActivity extends AppCompatActivity
 	@Override
 	protected void onCreate(Bundle instance) {
 		super.onCreate(instance);
-		if (Controller.getInstance().useProviderInstaller()) ProviderInstaller.installIfNeededAsync(this, this);
+		if (Controller.getInstance().useProviderInstaller())
+			ProviderInstaller.installIfNeededAsync(this, this);
 	}
 
 	@Override
@@ -82,14 +82,13 @@ public abstract class MenuFlavorActivity extends AppCompatActivity
 	public void onProviderInstallFailed(int errorCode, Intent recoveryIntent) {
 		if (GooglePlayServicesUtil.isUserRecoverableError(errorCode)) {
 			// Recoverable error. Show a dialog prompting the user to install/update/enable Google Play services.
-			GooglePlayServicesUtil.showErrorDialogFragment(errorCode, this, ERROR_DIALOG_REQUEST_CODE,
-					new DialogInterface.OnCancelListener() {
-						@Override
-						public void onCancel(DialogInterface dialog) {
-							// The user chose not to take the recovery action
-							onProviderInstallerNotAvailable();
-						}
-					});
+			GooglePlayServicesUtil.showErrorDialogFragment(errorCode, this, ERROR_DIALOG_REQUEST_CODE, new DialogInterface.OnCancelListener() {
+				@Override
+				public void onCancel(DialogInterface dialog) {
+					// The user chose not to take the recovery action
+					onProviderInstallerNotAvailable();
+				}
+			});
 		} else {
 			// Google Play services is not available.
 			onProviderInstallerNotAvailable();
@@ -101,8 +100,7 @@ public abstract class MenuFlavorActivity extends AppCompatActivity
 		communication to be vulnerable, and take appropriate action. */
 		Log.w(TAG, getString(R.string.Error_UnsafeConnection));
 		if (!Controller.getInstance().ignoreUnsafeConnectionError()) {
-			IgnorableErrorDialog.getInstance(getString(R.string.Error_UnsafeConnection))
-					.show(getFragmentManager(), "error");
+			IgnorableErrorDialog.getInstance(getString(R.string.Error_UnsafeConnection)).show(getFragmentManager(), "error");
 		}
 	}
 

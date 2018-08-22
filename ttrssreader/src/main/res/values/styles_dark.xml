@@ -20,11 +20,11 @@
     <!-- Base application theme. -->
     <style name="TTRSS.Dark" parent="TTRSS.Base.Dark"/>
 
-    <style name="TTRSS.Base.Dark" parent="Theme.AppCompat.NoActionBar">
+    <style name="TTRSS.Base.Dark" parent="android:Theme.Material.NoActionBar">
 
-        <item name="colorPrimary">@color/themeDarkPrimary</item>
-        <item name="colorPrimaryDark">@color/themeDarkPrimaryDark</item>
-        <item name="colorAccent">@color/themeDarkAccent</item>
+        <item name="android:colorPrimary">@color/themeDarkPrimary</item>
+        <item name="android:colorPrimaryDark">@color/themeDarkPrimaryDark</item>
+        <item name="android:colorAccent">@color/themeDarkAccent</item>
         <item name="colorAccentDark">@color/themeDarkAccentDark</item>
         <item name="colorBackground">@color/themeDarkBackground</item>
         <item name="android:textColorPrimary">@color/themeDarkTextColorPrimary</item>
@@ -32,7 +32,7 @@
 
         <!-- Window settings -->
         <item name="android:windowNoTitle">true</item>
-        <item name="windowActionBar">false</item>
+        <item name="android:windowActionBar">false</item>
 
         <!-- Overall background -->
         <item name="android:windowBackground">?colorBackground</item>
@@ -46,7 +46,7 @@
 
     </style>
 
-    <style name="TTRSS.Light.Dialog.Alert.Dark" parent="Theme.AppCompat.Dialog">
+    <style name="TTRSS.Light.Dialog.Alert.Dark" parent="android:Theme.Material.Dialog">
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowMinWidthMajor">@android:dimen/dialog_min_width_major</item>

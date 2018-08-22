@@ -17,6 +17,7 @@
 
 package org.ttrssreader.gui;
 
+import android.app.ActionBar;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
@@ -24,8 +25,6 @@ import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -37,6 +36,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
@@ -201,7 +201,7 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 	private void initToolbar() {
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 		if (toolbar != null) {
-			setSupportActionBar(toolbar);
+			setActionBar(toolbar);
 
 			header_unread = (TextView) findViewById(R.id.head_unread);
 			header_title = (TextView) findViewById(R.id.head_title);
@@ -215,7 +215,7 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 	}
 
 	protected void showBackArrow() {
-		ActionBar ab = getSupportActionBar();
+		ActionBar ab = getActionBar();
 		if (ab != null) {
 			ab.setDisplayHomeAsUpEnabled(true);
 			ab.setDisplayShowTitleEnabled(false);
@@ -225,7 +225,7 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 	}
 
 	protected void hideBackArrow() {
-		ActionBar ab = getSupportActionBar();
+		ActionBar ab = getActionBar();
 		if (ab != null) {
 			ab.setDisplayHomeAsUpEnabled(false);
 			ab.setDisplayShowTitleEnabled(false);
@@ -505,9 +505,9 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 	@Override
 	public void onCacheProgress(int taskCount, int progress) {
 		if (taskCount == 0)
-			setSupportProgress(0);
+			setMyProgress(0);
 		else
-			setSupportProgress((10000 / taskCount) * progress);
+			setMyProgress((10000 / taskCount) * progress);
 	}
 
 	protected boolean isCacherRunning() {
@@ -578,7 +578,7 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 				return;
 			}
 			// Add 500 to make sure we are still within 10000 but never show an empty progressbar at 0
-			setSupportProgress((10000 / (taskCount + 1)) * values[0] + 500);
+			setMyProgress((10000 / (taskCount + 1)) * values[0] + 500);
 		}
 	}
 
@@ -694,23 +694,20 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 		}
 	}
 
-	@Override
-	public void setSupportProgress(int progress) {
-		setSupportProgressBarVisibility(progress > 1 && progress < 9999);
+	public void setMyProgress(int progress) {
+		setMyProgressBarVisibility(progress > 1 && progress < 9999);
 		progressbar.setProgress(progress);
-		super.setSupportProgress(progress);
+		super.setProgress(progress);
 	}
 
-	@Override
-	public void setSupportProgressBarVisibility(boolean visible) {
+	public void setMyProgressBarVisibility(boolean visible) {
 		progressbar.setVisibility(visible ? View.VISIBLE : View.GONE);
-		super.setSupportProgressBarVisibility(visible);
+		super.setProgressBarVisibility(visible);
 	}
 
-	@Override
-	public void setSupportProgressBarIndeterminateVisibility(boolean visible) {
+	public void setMyProgressBarIndeterminateVisibility(boolean visible) {
 		progressspinner.setVisibility(visible ? View.VISIBLE : View.GONE);
-		super.setSupportProgressBarIndeterminateVisibility(visible);
+		super.setProgressBarIndeterminateVisibility(visible);
 	}
 
 }

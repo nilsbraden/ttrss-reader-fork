@@ -17,6 +17,7 @@
 
 package org.ttrssreader.gui.fragments;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.CursorLoader;
@@ -26,7 +27,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
 import android.view.Menu;
@@ -125,7 +125,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
 		super.onActivityCreated(instance);
 
 		// Detect touch gestures like swipe and scroll down:
-		ActionBar actionBar = ((MenuActivity) getActivity()).getSupportActionBar();
+		ActionBar actionBar = ((MenuActivity) getActivity()).getActionBar();
 		gestureDetector = new GestureDetector(getActivity(), new HeadlineGestureDetector(actionBar, Controller.getInstance().hideActionbar()));
 		gestureListener = new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event) {

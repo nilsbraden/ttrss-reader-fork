@@ -39,22 +39,6 @@ public class MyWebView extends WebView {
 	private int mMinBottomDistance = 0;
 
 	/**
-	 * Set the listener which will be called when the WebView is scrolled to within some
-	 * margin of the top or bottom.
-	 *
-	 * @param bottomReachedListener
-	 * @param allowedDifference
-	 */
-	// public void setOnTopReachedListener(OnEdgeReachedListener topReachedListener, int allowedDifference) {
-	// mOnTopReachedListener = topReachedListener;
-	// mMinTopDistance = allowedDifference;
-	// }
-	// public void setOnBottomReachedListener(OnEdgeReachedListener bottomReachedListener, int allowedDifference) {
-	// mOnBottomReachedListener = bottomReachedListener;
-	// mMinBottomDistance = allowedDifference;
-	// }
-
-	/**
 	 * Implement this interface if you want to be notified when the WebView has scrolled to the top or bottom.
 	 */
 	private interface OnEdgeReachedListener {
