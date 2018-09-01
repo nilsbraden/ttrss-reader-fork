@@ -415,9 +415,13 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			htmlTmpl.add("CACHE_DIR", Controller.getInstance().cacheFolder());
 			htmlTmpl.add("LANGUAGE", Controller.getInstance().hyphenationLanguage());
 
+			// Article content values
+			htmlTmpl.add("ARTICLE_URL", article.url);
+			htmlTmpl.add("ARTICLE_TITLE", article.title);
+			htmlTmpl.add("ARTICLE_AUTHOR", article.author);
+			htmlTmpl.add("FEED_TITLE", feed.title);
+
 			// Special values for this article
-			htmlTmpl.add("article", article);
-			htmlTmpl.add("feed", feed);
 			htmlTmpl.add("CACHED_IMAGES", cachedImages);
 			htmlTmpl.add("LABELS", labels.toString());
 			htmlTmpl.add("UPDATED", DateUtils.getDateTimeCustom(getActivity(), article.updated));

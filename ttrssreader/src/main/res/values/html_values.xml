@@ -56,12 +56,12 @@
 </head>
 <body id=\"$THEME$\" class=\"hyphenate\" lang=\"$LANGUAGE$\">
 	<div id=\"header\">
-		<a href=\"$article.url$\" rel=\"alternate\">$article.title$</a>
+		<a href=\"$ARTICLE_URL$\" rel=\"alternate\">$ARTICLE_TITLE$</a>
 		<div id=\"header_small_text\">
-			<div id=\"subscription\">$feed.title$</div>
+			<div id=\"subscription\">$FEED_TITLE$</div>
 			<div id=\"datetime\">$UPDATED$</div>
 		</div>
-		<div id=\"author\">$article.author$</div>
+		<div id=\"author\">$ARTICLE_AUTHOR$</div>
 		<div id=\"labels\">$LABELS$</div>
 	</div>
 	<div id=\"zierleiste\"></div>
