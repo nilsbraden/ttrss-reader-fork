@@ -38,9 +38,8 @@ Please follow this [link](https://github.com/nilsbraden/ttrss-reader-fork/wiki/C
 Please feel free to contact me via E-Mail (ttrss /at/ nilsbraden.de) or via the Bugtracker (Issues). If you have questions specifically about Tiny Tiny RSS you may ask me or visit the [Tiny-Tiny-RSS-Forum](http://tt-rss.org/forum/) or #tt-rss at irc.tt-rss.org. If I don't answer fast enough or am not willing to implement your suggestion please keep in mind that this is only a hobby for me and I'm unwilling to implement every little feature just beacuse you suggested I do so. You may implement it and send me pull-requests so I can include the features but I can't guarantee I will do this for every thing you want to have.
 
 # Donations
-If you would like to support my work and the further developement of TTRSS-reader you may submit a donation via Paypal or flattr me here:
+If you would like to support my work and the further developement of TTRSS-reader you may submit a donation via Paypal here:
  * Paypal: [![paypal.com][1]][2]<br><br>
- * Flattr: [![flattr.com][6]][7]
 
 For more information you may want to visit [Donations](https://github.com/nilsbraden/ttrss-reader-fork/wiki/Donations).
 
