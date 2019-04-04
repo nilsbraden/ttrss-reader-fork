@@ -6,6 +6,8 @@
 /.idea/libraries/*
 .DS_Store
 /build
+localeapi/build/
+ttrssreader/build/
 /captures
 
 signingconfig.gradle
