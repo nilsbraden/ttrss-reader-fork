@@ -36,6 +36,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Vibrator;
 import android.support.v4.net.ConnectivityManagerCompat;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
@@ -57,6 +58,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -489,13 +491,19 @@ public class Utils {
 	public static byte[] download(URL url) {
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		try {
-			URLConnection connection = Controller.getInstance().openConnection(url);
-			connection.connect();
+			URLConnection con = Controller.getInstance().openConnection(url);
+
+			// HTTP-Basic Authentication
+			String base64NameAndPw = Controller.getInstance().getConnector().getBase64NameAndPw();
+			if (base64NameAndPw != null)
+				con.setRequestProperty("Authorization", "Basic " + base64NameAndPw);
+
+			con.connect();
 
 			// download the file
 			InputStream input = new BufferedInputStream(url.openStream(), 8192);
 
-			byte data[] = new byte[1024];
+			byte[] data = new byte[1024];
 			int count = -1;
 			while ((count = input.read(data)) != -1) {
 				// writing data to file
@@ -516,5 +524,15 @@ public class Utils {
 		} else {
 			return null;
 		}
+	}
+
+	/**
+	 * Returns a base64 encoded representation of the input string and considers the current android version to access the appropriate API.
+	 *
+	 * @param input the string to be encoded
+	 * @return the base64 encoded representation of the string
+	 */
+	public static String encodeBase64ToString(String input) {
+		return Base64.encodeToString(input.getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);
 	}
 }

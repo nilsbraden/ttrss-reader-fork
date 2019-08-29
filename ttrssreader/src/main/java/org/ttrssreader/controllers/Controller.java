@@ -201,7 +201,7 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 		valid &= checkNoEmulator();
 		valid &= checkDebuggableDisabled(context);
 		setValidInstallation(valid);
-		
+
 		if (initialized)
 			return;
 

@@ -18,8 +18,6 @@
 package org.ttrssreader.net;
 
 import android.content.Context;
-import android.os.Build;
-import android.util.Base64;
 import android.util.Log;
 
 import com.google.gson.JsonObject;
@@ -45,13 +43,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.InterruptedIOException;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.SocketException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -254,7 +250,7 @@ public class JSONConnector {
 		if (Controller.getInstance().useHttpAuth()) {
 			this.httpAuth = true;
 			String creds = Controller.getInstance().httpUsername() + ":" + Controller.getInstance().httpPassword();
-			this.base64NameAndPw = encodeBase64ToString(creds);
+			this.base64NameAndPw = Utils.encodeBase64ToString(creds);
 		} else {
 			this.httpAuth = false;
 			this.base64NameAndPw = null;
@@ -490,24 +486,6 @@ public class JSONConnector {
 	}
 
 	/**
-	 * Returns a base64 encoded representation of the input string and considers the current android version to access the appropriate API.
-	 *
-	 * @param input the string to be encoded
-	 * @return the base64 encoded representation of the string
-	 */
-	private static String encodeBase64ToString(String input) {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-			try {
-				return Base64.encodeToString(input.getBytes("UTF-8"), Base64.NO_WRAP);
-			} catch (UnsupportedEncodingException e) {
-				throw new RuntimeException("UnsupportedEncodingException: UTF-8 not supported. Should never happen.");
-			}
-		} else {
-			return Base64.encodeToString(input.getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);
-		}
-	}
-
-	/**
 	 * Tries to login to the ttrss-server with the base64-encoded password.
 	 *
 	 * @return true on success, false otherwise
@@ -528,7 +506,7 @@ public class JSONConnector {
 
 			if (!isSingleUser()) {
 				params.put(PARAM_USER, Controller.getInstance().username());
-				String pass = encodeBase64ToString(Controller.getInstance().password());
+				String pass = Utils.encodeBase64ToString(Controller.getInstance().password());
 				params.put(PARAM_PW, pass);
 			}
 
@@ -1307,6 +1285,10 @@ public class JSONConnector {
 		String msg = e.getMessage() != null ? "Exception-Message: " + e.getMessage() + " " : "No Exception-Message available. ";
 		String cause = e.getCause() != null ? "Exception-Cause: " + e.getCause() : "No Exception-Cause available.";
 		return msg + cause;
+	}
+
+	public String getBase64NameAndPw() {
+		return base64NameAndPw;
 	}
 
 }
