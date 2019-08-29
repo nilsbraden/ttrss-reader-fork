@@ -201,21 +201,26 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 		valid &= checkNoEmulator();
 		valid &= checkDebuggableDisabled(context);
 		setValidInstallation(valid);
+		
+		if (initialized)
+			return;
 
 		synchronized (lockInitialize) {
 
 			if (initialized)
 				return;
 
+			initialized = true;
+
 			/* Attempt to initialize some stuff in a background-thread to reduce loading time. Start a login-request
 			separately because this takes some time. Also initialize SSL-Stuff since the login needs this. */
 			new AsyncTask<Void, Void, Void>() {
 				protected Void doInBackground(Void... params) {
-					wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+					wifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
 					if (Controller.getInstance().useKeystore()) {
 						try {
-							// Trust certificates from keystore:
+							Log.i(TAG, "initialize SSL: Trust certificates from keystore");
 							SSLUtils.initPrivateKeystore(Controller.getInstance().getKeystorePassword());
 						} catch (GeneralSecurityException e) {
 							String msg = context.getString(R.string.Error_SSL_Keystore);
@@ -224,7 +229,7 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 						}
 					} else if (Controller.getInstance().trustAllSsl()) {
 						try {
-							// Trust all certificates:
+							Log.i(TAG, "initialize SSL: Trust all certificates");
 							SSLUtils.trustAllCert();
 						} catch (GeneralSecurityException e) {
 							String msg = context.getString(R.string.Error_SSL_TrustAllHosts);
@@ -233,7 +238,7 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 						}
 					} else if (useClientCertificate()) {
 						try {
-							// Trust only client certificates:
+							Log.i(TAG, "initialize SSL: Trust only client certificates");
 							SSLUtils.trustClientCert();
 						} catch (GeneralSecurityException e) {
 							String msg = context.getString(R.string.Error_SSL_TrustClientCerts);
@@ -242,7 +247,7 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 						}
 					} else {
 						try {
-							// Normal certificate-checks:
+							Log.i(TAG, "initialize SSL: Normal certificate-checks");
 							SSLUtils.initSslSocketFactory(null, null);
 						} catch (GeneralSecurityException e) {
 							String msg = context.getString(R.string.Error_SSL_SocketFactory);
@@ -252,7 +257,7 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 					}
 
 					if (Controller.getInstance().trustAllHosts()) {
-						// Ignore if Certificate matches host:
+						Log.i(TAG, "initialize SSL: Ignore if Certificate matches host");
 						SSLUtils.trustAllHost();
 					}
 
@@ -269,8 +274,6 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 					return null;
 				}
 			}.execute();
-
-			initialized = true;
 		}
 	}
 
