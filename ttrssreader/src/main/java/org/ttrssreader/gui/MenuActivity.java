@@ -31,6 +31,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -173,6 +174,9 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 	}
 
 	private void handleResize() {
+		if (frameMain == null || frameSub == null)
+			return;
+
 		int mainFrameSize;
 		if (isVertical) {
 			mainFrameSize = calculateSize(frameMain.getHeight() + mDeltaY);
@@ -195,7 +199,15 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 		frameMain.setLayoutParams(lpMain);
 		frameSub.setLayoutParams(lpSub);
 
-		getWindow().getDecorView().getRootView().invalidate();
+		// Add all the null-checks to this line:
+		//getWindow().getDecorView().getRootView().invalidate();
+		// Safe version:
+		Window window = getWindow();
+		if (window != null) {
+			View rv = window.getDecorView().getRootView();
+			if (rv != null)
+				rv.invalidate();
+		}
 	}
 
 	private void initToolbar() {
