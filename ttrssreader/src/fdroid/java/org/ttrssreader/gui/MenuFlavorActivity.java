@@ -18,6 +18,8 @@
 package org.ttrssreader.gui;
 
 
+import android.app.Activity;
+
 /**
  * This class is empty since we don't want to use the play services library here!
  */
