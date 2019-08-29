@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright (c) 2015, Nils Braden
 
   This file is part of ttrss-reader-fork. This program is free software; you
@@ -24,23 +23,28 @@
             android:entryValues="@array/themeValues"
             android:key="DisplayThemePreference"
             android:summary="@string/DisplayThemeSummary"
-            android:title="@string/DisplayThemeTitle"/>
+            android:title="@string/DisplayThemeTitle" />
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="DisplayAnimationsPreference"
             android:summary="@string/DisplayAnimationsSummary"
-            android:title="@string/DisplayAnimationsTitle"/>
+            android:title="@string/DisplayAnimationsTitle" />
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="DisplayAlignFlushLeftPreference"
             android:summary="@string/DisplayAlignFlushLeftSummary"
-            android:title="@string/DisplayAlignFlushLeftTitle"/>
+            android:title="@string/DisplayAlignFlushLeftTitle" />
         <CheckBoxPreference
             android:defaultValue="true"
             android:disableDependentsState="true"
             android:key="DisplayDateTimeFormatSystemPreference"
             android:summary="@string/DisplayDateTimeFormatSystemSummary"
-            android:title="@string/DisplayDateTimeFormatSystemTitle"/>
+            android:title="@string/DisplayDateTimeFormatSystemTitle" />
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="DisplayFeedIconsPreference"
+            android:summary="@string/DisplayFeedIconsPreferenceSummary"
+            android:title="@string/DisplayFeedIconsPreferenceTitle" />
 
         <EditTextPreference
             android:name="@string/DisplayDateFormatTitle"
@@ -49,7 +53,7 @@
             android:inputType="textFilter"
             android:key="DisplayDateFormatPreference"
             android:summary="@string/DisplayDateFormatSummary"
-            android:title="@string/DisplayDateFormatTitle"/>
+            android:title="@string/DisplayDateFormatTitle" />
         <EditTextPreference
             android:name="@string/DisplayTimeFormatTitle"
             android:defaultValue="@string/DisplayTimeFormatDefault"
@@ -57,7 +61,7 @@
             android:inputType="textFilter"
             android:key="DisplayTimeFormatPreference"
             android:summary="@string/DisplayTimeFormatSummary"
-            android:title="@string/DisplayTimeFormatTitle"/>
+            android:title="@string/DisplayTimeFormatTitle" />
         <EditTextPreference
             android:name="@string/DisplayDateTimeFormatTitle"
             android:defaultValue="@string/DisplayDateTimeFormatDefault"
@@ -65,7 +69,7 @@
             android:inputType="textFilter"
             android:key="DisplayDateTimeFormatPreference"
             android:summary="@string/DisplayDateTimeFormatSummary"
-            android:title="@string/DisplayDateTimeFormatTitle"/>
+            android:title="@string/DisplayDateTimeFormatTitle" />
 
         <org.ttrssreader.preferences.EditIntegerPreference
             android:name="@string/TextZoomTitle"
@@ -74,18 +78,18 @@
             android:key="TextZoomPreference"
             android:maxLength="3"
             android:summary="@string/TextZoomSummary"
-            android:title="@string/TextZoomTitle"/>
+            android:title="@string/TextZoomTitle" />
 
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="SupportZoomControlsPreference"
             android:summary="@string/SupportZoomControlsSummary"
-            android:title="@string/SupportZoomControlsTitle"/>
+            android:title="@string/SupportZoomControlsTitle" />
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="AllowHyphenationPreference"
             android:summary="@string/AllowHyphenationSummary"
-            android:title="@string/AllowHyphenationTitle"/>
+            android:title="@string/AllowHyphenationTitle" />
 
         <ListPreference
             android:defaultValue="en-gb"
@@ -93,14 +97,14 @@
             android:entryValues="@array/HyphenationLanguageValues"
             android:key="HyphenationLanguagePreference"
             android:summary="@string/HyphenationLanguageSummary"
-            android:title="@string/HyphenationLanguageTitle"/>
+            android:title="@string/HyphenationLanguageTitle" />
 
         <CheckBoxPreference
             android:defaultValue="false"
             android:enabled="true"
             android:key="AllowTabletLayoutPreference"
             android:summary="@string/AllowTabletLayoutSummary"
-            android:title="@string/AllowTabletLayoutTitle"/>
+            android:title="@string/AllowTabletLayoutTitle" />
     </PreferenceCategory>
 
 </PreferenceScreen>

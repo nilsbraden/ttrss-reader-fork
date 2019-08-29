@@ -166,8 +166,9 @@ public class Data {
 	public void updateFeedIcon(int feedId) {
 		if (!Controller.getInstance().displayFeedIcons())
 			return;
+		if (feedId <= VCAT_UNCAT) // Virtual feeds don't have icons...
+			return;
 
-		Log.d(TAG, "Updating icon for feed #" + feedId);
 		try {
 			byte[] icon = downloadFeedIcon(feedId);
 			DBHelper.getInstance().insertFeedIcon(feedId, icon);
@@ -359,14 +360,6 @@ public class Data {
 						ret.add(f);
 
 					feedsChanged.put(f.categoryId, System.currentTimeMillis());
-
-					if (Controller.getInstance().displayFeedIcons()) {
-						try {
-							f.icon = downloadFeedIcon(f.id);
-						} catch (MalformedURLException e) {
-							Log.e(TAG, "Error while downloading icon for feed #" + f.id, e);
-						}
-					}
 				}
 				DBHelper.getInstance().deleteFeeds();
 				DBHelper.getInstance().insertFeeds(feeds);

@@ -266,16 +266,23 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 			Data.getInstance().updateCategories(false);
 			publishProgress(++progress);
 
-			Data.getInstance().updateFeeds(Data.VCAT_ALL, false);
+			Set<Feed> feeds = Data.getInstance().updateFeeds(Data.VCAT_ALL, false);
 			publishProgress(++progress);
 
 			Data.getInstance().calculateCounters();
 			Data.getInstance().notifyListeners();
-			publishProgress(++progress);
+			publishProgress(Integer.MAX_VALUE); // Move progress forward to 100%
 
 			// Silently remove articles which belong to feeds which do not exist on the server anymore:
 			Data.getInstance().purgeOrphanedArticles();
-			publishProgress(Integer.MAX_VALUE); // Move progress forward to 100%
+
+			// Silently update all feed-icons
+			for (Feed f : feeds) {
+				if (Controller.getInstance().displayFeedIcons()) {
+					// Virtual feeds don't have icons...
+					Data.getInstance().updateFeedIcon(f.id);
+				}
+			}
 			return null;
 		}
 	}
