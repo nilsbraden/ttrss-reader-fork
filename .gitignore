@@ -1,11 +1,11 @@
 .gradle
 /local.properties
-/.idea/workspace.xml
-/.idea/gradle.xml
-/.idea/misc.xml
-/.idea/libraries/*
+.idea
+*.iml
 .DS_Store
 /build
+localeapi/build/
+ttrssreader/build/
 /captures
 
 signingconfig.gradle
