@@ -36,16 +36,16 @@
             android:title="@string/DisplayAlignFlushLeftTitle" />
         <CheckBoxPreference
             android:defaultValue="true"
-            android:disableDependentsState="true"
-            android:key="DisplayDateTimeFormatSystemPreference"
-            android:summary="@string/DisplayDateTimeFormatSystemSummary"
-            android:title="@string/DisplayDateTimeFormatSystemTitle" />
-        <CheckBoxPreference
-            android:defaultValue="true"
             android:key="DisplayFeedIconsPreference"
             android:summary="@string/DisplayFeedIconsPreferenceSummary"
             android:title="@string/DisplayFeedIconsPreferenceTitle" />
 
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:disableDependentsState="true"
+            android:key="DisplayDateTimeFormatSystemPreference"
+            android:summary="@string/DisplayDateTimeFormatSystemSummary"
+            android:title="@string/DisplayDateTimeFormatSystemTitle" />
         <EditTextPreference
             android:name="@string/DisplayDateFormatTitle"
             android:defaultValue="@string/DisplayDateFormatDefault"
