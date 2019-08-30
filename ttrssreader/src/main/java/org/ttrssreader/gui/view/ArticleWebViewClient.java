@@ -17,11 +17,13 @@
 
 package org.ttrssreader.gui.view;
 
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
 import android.webkit.URLUtil;
@@ -98,15 +100,17 @@ public class ArticleWebViewClient extends WebViewClient {
 
 				public void onClick(DialogInterface dialog, int item) {
 
+					Intent intent = new Intent();
 					switch (item) {
 						case 0:
 							Log.i(TAG, "Displaying file in mediaplayer: " + url);
-							Intent i = new Intent(context, MediaPlayerActivity.class);
-							i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-							i.putExtra(MediaPlayerActivity.URL, url);
-							context.startActivity(i);
+							intent.setClass(context, MediaPlayerActivity.class);
+							intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+							intent.putExtra(MediaPlayerActivity.URL, url);
+							context.startActivity(intent);
 							break;
 						case 1:
+							Log.i(TAG, "Downloading file: " + url);
 							try {
 								new AsyncMediaDownloader(context).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, new URL(url));
 							} catch (MalformedURLException e) {
@@ -114,7 +118,6 @@ public class ArticleWebViewClient extends WebViewClient {
 							}
 							break;
 						case 2:
-							Intent intent = new Intent();
 							intent.setAction(android.content.Intent.ACTION_VIEW);
 							intent.setDataAndType(Uri.parse(url), contentType);
 							context.startActivity(intent);
@@ -143,8 +146,8 @@ public class ArticleWebViewClient extends WebViewClient {
 	}
 
 	private class AsyncMediaDownloader extends AsyncTask<URL, Void, Void> {
+		private final String TAG = AsyncMediaDownloader.class.getSimpleName();
 		private final static int BUFFER = (int) Utils.KB;
-
 		private WeakReference<Context> contextRef;
 
 		AsyncMediaDownloader(Context context) {
@@ -165,6 +168,21 @@ public class ArticleWebViewClient extends WebViewClient {
 				return null;
 			}
 
+			if (Build.VERSION.SDK_INT >= 100000) { //Build.VERSION_CODES.N) {// TODO Use proper VERSION_CODE
+				downloadApi24(urls[0]);
+			} else {
+				download(urls[0]);
+			}
+
+			return null;
+		}
+
+		@TargetApi(Build.VERSION_CODES.N)
+		private void downloadApi24(URL url) {
+			// Use Controller.getInstance().saveAttachmentUri(); to get Uri instead of file path
+		}
+
+		private void download(URL url) {
 			long start = System.currentTimeMillis();
 			Utils.showRunningNotification(contextRef.get(), false);
 
@@ -180,33 +198,31 @@ public class ArticleWebViewClient extends WebViewClient {
 				}
 			}
 
-			BufferedInputStream in;
+			BufferedInputStream bis;
 			FileOutputStream fos;
-			BufferedOutputStream bout = null;
+			BufferedOutputStream bos = null;
 
 			int size = -1;
-
 			File file;
 			try {
-				URL url = urls[0];
-				URLConnection c;
+				URLConnection con;
 
-				c = Controller.getInstance().openConnection(url);
+				con = Controller.getInstance().openConnection(url);
 
 				file = new File(folder, URLUtil.guessFileName(url.toString(), null, ".mp3"));
 				if (file.exists()) {
 					size = (int) file.length();
-					c.setRequestProperty("Range", "bytes=" + size + "-"); // try to resume downloads
+					con.setRequestProperty("Range", "bytes=" + size + "-"); // try to resume downloads
 				}
 
-				in = new BufferedInputStream(c.getInputStream());
+				bis = new BufferedInputStream(con.getInputStream());
 				fos = (size == 0) ? new FileOutputStream(file) : new FileOutputStream(file, true);
-				bout = new BufferedOutputStream(fos, BUFFER);
+				bos = new BufferedOutputStream(fos, BUFFER);
 
 				byte[] data = new byte[BUFFER];
 				int count;
-				while ((count = in.read(data, 0, BUFFER)) >= 0) {
-					bout.write(data, 0, count);
+				while ((count = bis.read(data, 0, BUFFER)) >= 0) {
+					bos.write(data, 0, count);
 					size += count;
 				}
 
@@ -227,15 +243,14 @@ public class ArticleWebViewClient extends WebViewClient {
 			} finally {
 				// Remove "running"-notification
 				Utils.showRunningNotification(contextRef.get(), true);
-				if (bout != null) {
+				if (bos != null) {
 					try {
-						bout.close();
+						bos.close();
 					} catch (IOException e) {
 						// Empty!
 					}
 				}
 			}
-			return null;
 		}
 	}
 

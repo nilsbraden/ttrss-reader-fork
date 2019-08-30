@@ -277,10 +277,12 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 			Data.getInstance().purgeOrphanedArticles();
 
 			// Silently update all feed-icons
-			for (Feed f : feeds) {
-				if (Controller.getInstance().displayFeedIcons()) {
-					// Virtual feeds don't have icons...
-					Data.getInstance().updateFeedIcon(f.id);
+			if (feeds != null) {
+				for (Feed f : feeds) {
+					if (Controller.getInstance().displayFeedIcons()) {
+						// Virtual feeds don't have icons...
+						Data.getInstance().updateFeedIcon(f.id);
+					}
 				}
 			}
 			return null;

@@ -127,7 +127,7 @@ public class Constants {
 
 	// System
 	public static final String SAVE_ATTACHMENT = "SaveAttachmentPreference";
-	public static final String CACHE_FOLDER = "CacheFolderPreference";
+	public static final String SAVE_ATTACHMENT_URI = "SaveAttachmentUriPreference";
 	public static final String CACHE_FOLDER_MAX_SIZE = "CacheFolderMaxSizePreference";
 	public static final String CACHE_IMAGE_MAX_SIZE = "CacheImageMaxSizePreference";
 	public static final String CACHE_IMAGE_MIN_SIZE = "CacheImageMinSizePreference";

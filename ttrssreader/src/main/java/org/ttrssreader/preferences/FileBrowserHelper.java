@@ -20,18 +20,14 @@ package org.ttrssreader.preferences;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
-import android.content.ActivityNotFoundException;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
-import android.support.v4.content.FileProvider;
+import android.os.Environment;
 import android.text.InputType;
 import android.widget.EditText;
 
-import org.ttrssreader.BuildConfig;
 import org.ttrssreader.R;
-import org.ttrssreader.controllers.Controller;
 
 import java.io.File;
 
@@ -39,15 +35,6 @@ import java.io.File;
  * Copied from https://code.google.com/p/k9mail/
  */
 public class FileBrowserHelper {
-	/**
-	 * A string array that specifies the name of the intent to use, and the scheme to use with it
-	 * when setting the data for the intent.
-	 */
-	private static final String[][] PICK_DIRECTORY_INTENTS = {{"org.openintents.action.PICK_DIRECTORY", "file://"}, // OI File Manager
-			{"com.estrongs.action.PICK_DIRECTORY", "file://"}, // ES File Explorer
-			{Intent.ACTION_PICK, "folder://"}, // Blackmoon File Browser (maybe others)
-			{"com.androidworkz.action.PICK_DIRECTORY", "file://"} // SystemExplorer
-	};
 
 	private static FileBrowserHelper instance;
 
@@ -83,7 +70,7 @@ public class FileBrowserHelper {
 	 * tries to open known filebrowsers.
 	 * If no filebrowser is found and fallback textdialog is shown
 	 *
-	 * @param c           the context as activity
+	 * @param fragment    the context as activity
 	 * @param startPath   : the default value, where the filebrowser will start.
 	 *                    if startPath = null => the default path is used
 	 * @param requestcode : the int you will get as requestcode in onActivityResult
@@ -93,37 +80,33 @@ public class FileBrowserHelper {
 	 * @return true: if a filebrowser has been found (the result will be in the onActivityResult
 	 * false: a fallback textinput has been shown. The Result will be sent with the callbackDownloadPath method
 	 */
-	public boolean showFileBrowserActivity(Fragment c, File startPath, int requestcode, FileBrowserFailOverCallback callback) {
+	public boolean showFileBrowserActivity(Fragment fragment, File startPath, int requestcode, FileBrowserFailOverCallback callback) {
 		boolean success = false;
 
-		if (startPath == null) {
-			startPath = new File(Controller.getInstance().saveAttachmentPath());
+		Intent intent;
+		if (Build.VERSION.SDK_INT >= 100000) { //Build.VERSION_CODES.N) { // TODO Use proper VERSION_CODE
+			intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+			intent.addFlags(Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
+			intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+			intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+
+			// Reset startPath to avoid people trying to change Uri:
+			startPath = Environment.getExternalStorageDirectory();
+		} else {
+			intent = new Intent(Intent.ACTION_PICK);
+			intent.setData(Uri.parse("folder://" + startPath.getPath()));
 		}
 
-		int listIndex = 0;
-		do {
-			String intentAction = PICK_DIRECTORY_INTENTS[listIndex][0];
-			String uriPrefix = PICK_DIRECTORY_INTENTS[listIndex][1];
-			Intent intent = new Intent(intentAction);
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-				String authority = BuildConfig.APPLICATION_ID + ".provider";
-				Uri uri = FileProvider.getUriForFile(c.getContext(), authority, startPath);
-				intent.setData(uri);
-			} else {
-				intent.setData(Uri.parse(uriPrefix + startPath.getPath()));
-			}
-			try {
-				c.startActivityForResult(intent, requestcode);
-				success = true;
-			} catch (ActivityNotFoundException e) {
-				// Try the next intent in the list
-				listIndex++;
-			}
-		} while (!success && (listIndex < PICK_DIRECTORY_INTENTS.length));
+		try {
+			fragment.startActivityForResult(intent, requestcode);
+			success = true;
+		} catch (Exception e) {
+			// Empty, try next intent
+		}
 
-		if (listIndex == PICK_DIRECTORY_INTENTS.length) {
+		if (!success) {
 			// No Filebrowser is installed => show a fallback textdialog
-			showPathTextInput(c.getActivity(), startPath, callback);
+			showPathTextInput(fragment.getActivity(), startPath, callback);
 			success = false;
 		}
 
@@ -141,18 +124,12 @@ public class FileBrowserHelper {
 			input.setText(startPath.toString());
 		alert.setView(input);
 
-		alert.setPositiveButton(c.getString(R.string.Utils_OkayAction), new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int whichButton) {
-				String path = input.getText().toString();
-				callback.onPathEntered(path);
-			}
+		alert.setPositiveButton(c.getString(R.string.Utils_OkayAction), (dialog, whichButton) -> {
+			String path = input.getText().toString();
+			callback.onPathEntered(path);
 		});
 
-		alert.setNegativeButton(c.getString(R.string.Utils_CancelAction), new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int whichButton) {
-				callback.onCancel();
-			}
-		});
+		alert.setNegativeButton(c.getString(R.string.Utils_CancelAction), (dialog, whichButton) -> callback.onCancel());
 
 		alert.show();
 	}

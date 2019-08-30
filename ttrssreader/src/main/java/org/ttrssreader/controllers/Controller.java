@@ -29,6 +29,7 @@ import android.net.http.HttpResponseCache;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Base64;
 import android.util.DisplayMetrics;
@@ -38,6 +39,7 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import org.stringtemplate.v4.ST;
+import org.ttrssreader.MyApplication;
 import org.ttrssreader.R;
 import org.ttrssreader.gui.CategoryActivity;
 import org.ttrssreader.gui.FeedHeadlineActivity;
@@ -133,6 +135,7 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	private Integer theme = null;
 
 	private String saveAttachment = null;
+	private String saveAttachmentUri = null;
 	private String cacheFolder = null;
 	private Integer cacheFolderMaxSize = null;
 	private Integer cacheImageMaxSize = null;
@@ -998,28 +1001,47 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 
 	// SYSTEM
 
+	public void setSaveAttachmentGeneric(String saveAttachment) {
+		if (Build.VERSION.SDK_INT >= 100000) { //Build.VERSION_CODES.N) {// TODO Use proper VERSION_CODE
+			setSaveAttachmentUri(saveAttachment);
+			setSaveAttachmentPath(Constants.EMPTY);
+		} else {
+			setSaveAttachmentUri(Constants.EMPTY);
+			setSaveAttachmentPath(saveAttachment);
+		}
+	}
+
 	public String saveAttachmentPath() {
 		if (saveAttachment == null)
 			saveAttachment = prefs.getString(SAVE_ATTACHMENT, Constants.EMPTY);
 		return saveAttachment;
 	}
 
-	public void setSaveAttachmentPath(String saveAttachment) {
+	private void setSaveAttachmentPath(String saveAttachment) {
 		put(SAVE_ATTACHMENT, saveAttachment);
 		this.saveAttachment = saveAttachment;
 	}
 
-	public String cacheFolder() {
-		if (cacheFolder == null)
-			cacheFolder = prefs.getString(CACHE_FOLDER, Constants.EMPTY);
-		return cacheFolder;
+	public String saveAttachmentUri() {
+		if (saveAttachmentUri == null)
+			saveAttachmentUri = prefs.getString(SAVE_ATTACHMENT_URI, Constants.EMPTY);
+		return saveAttachmentUri;
 	}
 
-	public void setCacheFolder(String cacheFolder) {
-		if (!cacheFolder.endsWith("/"))
-			cacheFolder = cacheFolder + "/";
-		put(CACHE_FOLDER, cacheFolder);
-		this.cacheFolder = cacheFolder;
+	private void setSaveAttachmentUri(String saveAttachmentUri) {
+		put(SAVE_ATTACHMENT_URI, saveAttachmentUri);
+		this.saveAttachmentUri = saveAttachmentUri;
+	}
+
+	public String cacheFolder() {
+		if (cacheFolder == null) {
+			File folder = MyApplication.context().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+			if (folder != null)
+				cacheFolder = folder.getAbsolutePath();
+			else
+				cacheFolder = "";
+		}
+		return cacheFolder;
 	}
 
 	public Integer cacheFolderMaxSize() {

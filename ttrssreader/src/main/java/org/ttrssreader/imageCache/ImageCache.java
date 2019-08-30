@@ -53,15 +53,6 @@ public class ImageCache {
 			File folder = new File(cacheDir);
 
 			boolean OK = folder.isDirectory() || folder.mkdirs();
-			if (!OK) {
-				// Folder could not be created, fallback to internal directory on sdcard
-				// Path: /sdcard/Android/data/org.ttrssreader/cache/
-
-				folder = MyApplication.context().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-				if (folder != null) {
-					OK = folder.isDirectory() || folder.mkdirs();
-				}
-			}
 
 			// Create .nomedia File in Cache-Folder so android doesn't generate thumbnails
 			File nomediaFile = new File(folder + File.separator + ".nomedia");
@@ -119,7 +110,7 @@ public class ImageCache {
 	 * @return calculated hash
 	 */
 	public static String getHashForKey(String imageUrl) {
-		return imageUrl.replaceAll("[:;#~%$\"!<>|+*\\()^/,?&=]+", "+");
+		return imageUrl.replaceAll("[:;#~%$\"!<>|+*()^/,?&=]+", "+");
 	}
 
 	private String getFileNameForKey(String imageUrl) {

@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright (c) 2015, Nils Braden
 
   This file is part of ttrss-reader-fork. This program is free software; you
@@ -24,24 +23,19 @@
             android:disableDependentsState="false"
             android:key="CacheImagesOnStartupPreference"
             android:summary="@string/CacheImagesOnStartupSummary"
-            android:title="@string/CacheImagesOnStartupTitle"/>
+            android:title="@string/CacheImagesOnStartupTitle" />
         <CheckBoxPreference
             android:defaultValue="false"
             android:dependency="CacheImagesOnStartupPreference"
             android:key="CacheImagesOnlyWifiPreference"
             android:summary="@string/CacheImagesOnlyWifiSummary"
-            android:title="@string/CacheImagesOnlyWifiTitle"/>
+            android:title="@string/CacheImagesOnlyWifiTitle" />
 
         <Preference
             android:key="SaveAttachmentPreference"
             android:persistent="false"
             android:summary="- PATH - set by activity -"
-            android:title="@string/SaveAttachmentTitle"/>
-        <Preference
-            android:key="CacheFolderPreference"
-            android:persistent="false"
-            android:summary="- PATH - set by activity -"
-            android:title="@string/CacheFolderTitle"/>
+            android:title="@string/SaveAttachmentTitle" />
 
         <org.ttrssreader.preferences.EditIntegerPreference
             android:name="@string/CacheFolderMaxSizeTitle"
@@ -50,7 +44,7 @@
             android:key="CacheFolderMaxSizePreference"
             android:maxLength="4"
             android:summary="@string/CacheFolderMaxSizeSummary"
-            android:title="@string/CacheFolderMaxSizeTitle"/>
+            android:title="@string/CacheFolderMaxSizeTitle" />
         <org.ttrssreader.preferences.EditIntegerPreference
             android:name="@string/CacheImageMaxSizeTitle"
             android:defaultValue="6000"
@@ -58,7 +52,7 @@
             android:key="CacheImageMaxSizePreference"
             android:maxLength="5"
             android:summary="@string/CacheImageMaxSizeSummary"
-            android:title="@string/CacheImageMaxSizeTitle"/>
+            android:title="@string/CacheImageMaxSizeTitle" />
         <org.ttrssreader.preferences.EditIntegerPreference
             android:name="@string/CacheImageMinSizeTitle"
             android:defaultValue="32"
@@ -66,28 +60,28 @@
             android:key="CacheImageMinSizePreference"
             android:maxLength="4"
             android:summary="@string/CacheImageMinSizeSummary"
-            android:title="@string/CacheImageMinSizeTitle"/>
+            android:title="@string/CacheImageMinSizeTitle" />
 
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="DeleteDBScheduledPreference"
             android:summary="@string/DeleteDBOnNextStartupSummary"
-            android:title="@string/DeleteDBOnNextStartupTitle"/>
+            android:title="@string/DeleteDBOnNextStartupTitle" />
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="OnlyUseWifiPreference"
             android:summary="@string/OnlyUseWifiSummary"
-            android:title="@string/OnlyUseWifiTitle"/>
+            android:title="@string/OnlyUseWifiTitle" />
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="NoCrashreportsPreference"
             android:summary="@string/NoCrashreportsSummary"
-            android:title="@string/NoCrashreportsTitle"/>
+            android:title="@string/NoCrashreportsTitle" />
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="NoCrashreportsUntilUpdatePreference"
             android:summary="@string/NoCrashreportsUntilUpdateSummary"
-            android:title="@string/NoCrashreportsUntilUpdateTitle"/>
+            android:title="@string/NoCrashreportsUntilUpdateTitle" />
     </PreferenceCategory>
 
 </PreferenceScreen>

@@ -1,22 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  Copyright (c) 2015, Nils Braden
-
-  This file is part of ttrss-reader-fork. This program is free software; you
-  can redistribute it and/or modify it under the terms of the GNU
-  General Public License as published by the Free Software Foundation;
-  either version 3 of the License, or (at your option) any later
-  version.
-
-  This program is distributed in the hope that it will be useful, but
-  WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-  General Public License for more details. You should have received a
-  copy of the GNU General Public License along with this program; If
-  not, see http://www.gnu.org/licenses/.
-  -->
-<manifest
-    package="org.ttrssreader"
+<manifest package="org.ttrssreader"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="internalOnly"
@@ -50,7 +33,7 @@
         android:xlargeScreens="true"/>
 
     <application
-        android:name="org.ttrssreader.MyApplication"
+        android:name=".MyApplication"
         android:allowBackup="true"
         android:backupAgent=".preferences.MyPrefsBackupAgent"
         android:description="@string/ApplicationDescription"
@@ -60,46 +43,33 @@
         android:label="@string/ApplicationName"
         android:networkSecurityConfig="@xml/network_security_config"
         android:supportsRtl="true">
-        <provider
-            android:name=".model.ListContentProvider"
-            android:authorities="org.ttrssreader"
-            android:exported="false">
-        </provider>
-        <provider
-            android:name="android.support.v4.content.FileProvider"
-            android:authorities="${applicationId}.provider"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths"/>
-        </provider>
 
         <activity
             android:name=".gui.CategoryActivity"
             android:label="@string/ApplicationName"
             android:theme="@style/TTRSS.Light">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".gui.FeedHeadlineActivity"/>
-        <activity android:name=".gui.PreferencesActivity"/>
+        <activity android:name=".gui.FeedHeadlineActivity" />
+
+        <activity android:name=".gui.PreferencesActivity" />
         <activity android:name=".gui.WifiPreferencesActivity">
             <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
+                <action android:name="android.intent.action.VIEW" />
             </intent-filter>
         </activity>
-        <activity android:name=".gui.MediaPlayerActivity"/>
-        <activity android:name=".gui.ErrorActivity"/>
+        <activity android:name=".gui.MediaPlayerActivity" />
+        <activity android:name=".gui.ErrorActivity" />
         <activity
             android:name=".gui.AboutActivity"
             android:label="@string/AboutActivity.Title"
             android:theme="@android:style/Theme.Dialog">
             <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
+                <action android:name="android.intent.action.VIEW" />
             </intent-filter>
         </activity>
         <activity
@@ -107,11 +77,11 @@
             android:excludeFromRecents="true"
             android:label="@string/IntentPublish">
             <intent-filter>
-                <action android:name="android.intent.action.SEND"/>
+                <action android:name="android.intent.action.SEND" />
 
-                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.DEFAULT" />
 
-                <data android:mimeType="text/plain"/>
+                <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
         <activity
@@ -120,22 +90,13 @@
 
             <!-- android:excludeFromRecents="true" -->
             <intent-filter>
-                <action android:name="android.intent.action.SEND"/>
+                <action android:name="android.intent.action.SEND" />
 
-                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.DEFAULT" />
 
-                <data android:mimeType="text/plain"/>
+                <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
-
-        <!--
-             Locale will reject plug-in Activities for the following reasons:
-                 - Missing "android:label=[...]"
-                 - Missing "android:icon=[...]"
-                 - The Activity isn't exported (e.g. android:exported="false")
-                 - The Activity isn't enabled (e.g. android:enabled="false")
-                 - The Activity requires permissions not available to Locale
-        -->
         <activity
             android:name=".gui.EditPluginActivity"
             android:exported="true"
@@ -145,9 +106,28 @@
             android:windowSoftInputMode="adjustResize"
             tools:ignore="ExportedActivity">
             <intent-filter>
-                <action android:name="com.twofortyfouram.locale.intent.action.EDIT_SETTING"/>
+                <action android:name="com.twofortyfouram.locale.intent.action.EDIT_SETTING" />
             </intent-filter>
         </activity>
+
+        <meta-data
+            android:name="com.google.android.backup.api_key"
+            android:value="AEdPqrEAAAAIcba0w17UjQDmiw77rvOrW7sum0Q9WDKOSZ2m8Q" />
+
+        <provider
+            android:name=".model.ListContentProvider"
+            android:authorities="org.ttrssreader"
+            android:exported="false" />
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
         <!--
              Note that Locale will reject plug-in BroadcastReceivers for the following reasons:
                 - The BroadcastReceiver isn't exported (e.g. android:exported="false")
@@ -160,17 +140,13 @@
             android:exported="true"
             tools:ignore="ExportedReceiver">
             <intent-filter>
-                <action android:name="com.twofortyfouram.locale.intent.action.FIRE_SETTING"/>
+                <action android:name="com.twofortyfouram.locale.intent.action.FIRE_SETTING" />
             </intent-filter>
         </receiver>
 
         <service
             android:name=".imageCache.ForegroundService"
-            android:exported="false"/>
-
-        <meta-data
-            android:name="com.google.android.backup.api_key"
-            android:value="AEdPqrEAAAAIcba0w17UjQDmiw77rvOrW7sum0Q9WDKOSZ2m8Q"/>
+            android:exported="false" />
     </application>
 
 </manifest>

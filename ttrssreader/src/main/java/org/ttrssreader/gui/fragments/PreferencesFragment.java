@@ -18,11 +18,13 @@
 package org.ttrssreader.gui.fragments;
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
@@ -86,7 +88,6 @@ public class PreferencesFragment extends PreferenceFragment {
 
 	public static void initializePreferences(final PreferencesFragment fragment) {
 		final Preference downloadPath = fragment.findPreference(Constants.SAVE_ATTACHMENT);
-		final Preference cachePath = fragment.findPreference(Constants.CACHE_FOLDER);
 
 		if (downloadPath != null) {
 			downloadPath.setSummary(Controller.getInstance().saveAttachmentPath());
@@ -102,31 +103,7 @@ public class PreferencesFragment extends PreferenceFragment {
 					@Override
 					public void onPathEntered(String path) {
 						downloadPath.setSummary(path);
-						Controller.getInstance().setSaveAttachmentPath(path);
-					}
-
-					@Override
-					public void onCancel() {
-					}
-				};
-			});
-		}
-
-		if (cachePath != null) {
-			cachePath.setSummary(Controller.getInstance().cacheFolder());
-			cachePath.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-				@Override
-				public boolean onPreferenceClick(Preference preference) {
-					FileBrowserHelper.getInstance().showFileBrowserActivity(fragment, new File(Controller.getInstance().cacheFolder()), ACTIVITY_CHOOSE_CACHE_FOLDER, callbackCachePath);
-					return true;
-				}
-
-				// Fail-Safe Dialog for when there is no filebrowser installed:
-				FileBrowserFailOverCallback callbackCachePath = new FileBrowserFailOverCallback() {
-					@Override
-					public void onPathEntered(String path) {
-						cachePath.setSummary(path);
-						Controller.getInstance().setCacheFolder(path);
+						Controller.getInstance().setSaveAttachmentGeneric(path);
 					}
 
 					@Override
@@ -141,6 +118,8 @@ public class PreferencesFragment extends PreferenceFragment {
 		addPreferencesFromResource(R.xml.prefs_wifibased);
 		PreferenceCategory mWifibasedCategory = (PreferenceCategory) findPreference("wifibasedCategory");
 		WifiManager mWifiManager = (WifiManager) getActivity().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+		if (mWifiManager == null)
+			return;
 
 		List<WifiConfiguration> mWifiList = mWifiManager.getConfiguredNetworks();
 		if (mWifiList == null)
@@ -187,28 +166,29 @@ public class PreferencesFragment extends PreferenceFragment {
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		String path = null;
-		if (resultCode == Activity.RESULT_OK && data != null) {
-			// obtain the filename
-			Uri fileUri = data.getData();
-			if (fileUri != null)
-				path = fileUri.getPath();
+		if (resultCode != Activity.RESULT_OK || requestCode != ACTIVITY_CHOOSE_ATTACHMENT_FOLDER || data == null) {
+			super.onActivityResult(requestCode, resultCode, data);
+			return;
 		}
-		if (path != null) {
-			switch (requestCode) {
-				case ACTIVITY_CHOOSE_ATTACHMENT_FOLDER:
-					Preference downloadPath = findPreference(Constants.SAVE_ATTACHMENT);
-					downloadPath.setSummary(path);
-					Controller.getInstance().setSaveAttachmentPath(path);
-					break;
 
-				case ACTIVITY_CHOOSE_CACHE_FOLDER:
-					Preference cachePath = findPreference(Constants.CACHE_FOLDER);
-					cachePath.setSummary(path);
-					Controller.getInstance().setCacheFolder(path);
-					break;
+		// obtain the filename
+		Uri fileUri = data.getData();
+		if (fileUri != null) {
+			Preference downloadPath = findPreference(Constants.SAVE_ATTACHMENT);
+			downloadPath.setSummary(fileUri.getPath());
+
+			// Use takePersistableUriPermission
+			if (Build.VERSION.SDK_INT >= 100000) { //Build.VERSION_CODES.LOLLIPOP) { // TODO Use proper VERSION_CODE
+				ContentResolver resolver = getContext().getContentResolver();
+				int flags = Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
+				resolver.takePersistableUriPermission(fileUri, flags);
+
+				Controller.getInstance().setSaveAttachmentGeneric(fileUri.toString());
+			} else {
+				Controller.getInstance().setSaveAttachmentGeneric(fileUri.getPath());
 			}
 		}
+
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 

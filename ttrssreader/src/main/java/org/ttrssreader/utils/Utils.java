@@ -255,7 +255,7 @@ public class Utils {
 	}
 
 	private static boolean isNetworkMetered(ConnectivityManager cm) {
-		if (Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN)
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)
 			return ConnectivityManagerCompat.isActiveNetworkMetered(cm);
 		else
 			return cm.isActiveNetworkMetered();
@@ -295,6 +295,8 @@ public class Utils {
 			return;
 
 		NotificationManager mNotMan = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+		if (mNotMan == null)
+			return;
 
 		int icon = R.drawable.icon;
 		CharSequence title = String.format((String) context.getText(R.string.Utils_DownloadFinishedTitle), time);
@@ -305,7 +307,6 @@ public class Utils {
 			text = context.getText(R.string.Utils_DownloadFinishedText);
 
 		if (error) {
-			icon = R.drawable.icon;
 			title = context.getText(R.string.Utils_DownloadErrorTitle);
 			ticker = context.getText(R.string.Utils_DownloadErrorTicker);
 		}
@@ -330,6 +331,8 @@ public class Utils {
 			return;
 
 		NotificationManager mNotMan = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+		if (mNotMan == null)
+			return;
 
 		// if finished remove notification and return, else display notification
 		if (finished) {
@@ -440,19 +443,23 @@ public class Utils {
 	public static String getTextFromClipboard(Context context) {
 		// New Clipboard API
 		ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-		if (clipboard.hasPrimaryClip()) {
+		if (clipboard != null && clipboard.hasPrimaryClip()) {
 
-			if (!clipboard.getPrimaryClipDescription().hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN))
+			ClipDescription cd = clipboard.getPrimaryClipDescription();
+			if (cd != null && !cd.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN))
 				return null;
 
-			ClipData.Item item = clipboard.getPrimaryClip().getItemAt(0);
-			CharSequence chars = item.getText();
-			if (chars != null && chars.length() > 0) {
-				return chars.toString();
-			} else {
-				Uri pasteUri = item.getUri();
-				if (pasteUri != null) {
-					return pasteUri.toString();
+			ClipData cData = clipboard.getPrimaryClip();
+			if (cData != null) {
+				ClipData.Item item = cData.getItemAt(0);
+				CharSequence chars = item.getText();
+				if (chars != null && chars.length() > 0) {
+					return chars.toString();
+				} else {
+					Uri pasteUri = item.getUri();
+					if (pasteUri != null) {
+						return pasteUri.toString();
+					}
 				}
 			}
 		}
@@ -472,7 +479,7 @@ public class Utils {
 	 */
 	public static void alert(Activity activity, boolean error) {
 		Vibrator vib = ((Vibrator) activity.getSystemService(Context.VIBRATOR_SERVICE));
-		if (vib.hasVibrator()) {
+		if (vib != null && vib.hasVibrator()) {
 			vib.vibrate(Utils.SHORT_VIBRATE);
 		} else if (error) {
 			// Only flash when user tried to move forward, flashing when reaching the last article looks just wrong.
@@ -504,7 +511,7 @@ public class Utils {
 			InputStream input = new BufferedInputStream(url.openStream(), 8192);
 
 			byte[] data = new byte[1024];
-			int count = -1;
+			int count;
 			while ((count = input.read(data)) != -1) {
 				// writing data to file
 				output.write(data, 0, count);
