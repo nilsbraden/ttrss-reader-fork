@@ -205,9 +205,7 @@ public class ArticleWebViewClient extends WebViewClient {
 			int size = -1;
 			File file;
 			try {
-				URLConnection con;
-
-				con = Controller.getInstance().openConnection(url);
+				URLConnection con = Controller.getInstance().openConnection(url);
 
 				file = new File(folder, URLUtil.guessFileName(url.toString(), null, ".mp3"));
 				if (file.exists()) {
@@ -231,7 +229,10 @@ public class ArticleWebViewClient extends WebViewClient {
 				// Show Intent which opens the file
 				Intent intent = new Intent();
 				intent.setAction(android.content.Intent.ACTION_VIEW);
-				intent.setDataAndType(Uri.fromFile(file), FileUtils.getMimeType(file.getName()));
+
+				// Only expose uri if allowed:
+				if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N)
+					intent.setDataAndType(Uri.fromFile(file), FileUtils.getMimeType(file.getName()));
 
 				Log.i(TAG, "Finished. Path: " + file.getAbsolutePath() + " Time: " + time + "s Bytes: " + size);
 				Utils.showFinishedNotification(file.getAbsolutePath(), time, false, contextRef.get(), intent);
