@@ -19,9 +19,9 @@ package org.ttrssreader.gui.dialogs;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.FragmentManager;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 
 import org.ttrssreader.R;
 import org.ttrssreader.model.updaters.IUpdatable;

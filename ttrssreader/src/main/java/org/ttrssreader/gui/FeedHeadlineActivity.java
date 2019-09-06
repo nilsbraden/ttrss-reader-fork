@@ -17,9 +17,9 @@
 
 package org.ttrssreader.gui;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -70,7 +70,7 @@ public class FeedHeadlineActivity extends MenuActivity {
 			articleId = extras.getInt(FeedHeadlineListFragment.ARTICLE_ID, Integer.MIN_VALUE);
 		}
 
-		FragmentManager fm = getFragmentManager();
+		FragmentManager fm = getSupportFragmentManager();
 		FeedListFragment feedFragment = (FeedListFragment) fm.findFragmentByTag(FeedListFragment.FRAGMENT);
 		if (feedFragment == null) {
 			feedFragment = FeedListFragment.newInstance(categoryId);
@@ -115,7 +115,7 @@ public class FeedHeadlineActivity extends MenuActivity {
 	protected void doRefresh() {
 		super.doRefresh();
 
-		FeedHeadlineListFragment headlineFragment = (FeedHeadlineListFragment) getFragmentManager().findFragmentByTag(FeedHeadlineListFragment.FRAGMENT);
+		FeedHeadlineListFragment headlineFragment = (FeedHeadlineListFragment) getSupportFragmentManager().findFragmentByTag(FeedHeadlineListFragment.FRAGMENT);
 		if (headlineFragment != null)
 			headlineFragment.doRefresh();
 
@@ -124,7 +124,7 @@ public class FeedHeadlineActivity extends MenuActivity {
 
 	private void setTitleAndUnread() {
 		// Title and unread information:
-		FeedHeadlineListFragment headlineFragment = (FeedHeadlineListFragment) getFragmentManager().findFragmentByTag(FeedHeadlineListFragment.FRAGMENT);
+		FeedHeadlineListFragment headlineFragment = (FeedHeadlineListFragment) getSupportFragmentManager().findFragmentByTag(FeedHeadlineListFragment.FRAGMENT);
 		if (headlineFragment != null) {
 			setTitle(headlineFragment.getTitle());
 			setUnread(headlineFragment.getUnread());
@@ -223,7 +223,7 @@ public class FeedHeadlineActivity extends MenuActivity {
 	}
 
 	public void openNextFeed(int direction) {
-		FeedListFragment feedFragment = (FeedListFragment) getFragmentManager().findFragmentByTag(FeedListFragment.FRAGMENT);
+		FeedListFragment feedFragment = (FeedListFragment) getSupportFragmentManager().findFragmentByTag(FeedListFragment.FRAGMENT);
 		int newId = findNext(feedFragment.getFeedIds(), feedId, direction);
 		if (newId == Integer.MIN_VALUE) {
 			Utils.alert(this, true);
@@ -234,7 +234,7 @@ public class FeedHeadlineActivity extends MenuActivity {
 	}
 
 	public void openNextArticle(int direction) {
-		FeedHeadlineListFragment headlineFragment = (FeedHeadlineListFragment) getFragmentManager().findFragmentByTag(FeedHeadlineListFragment.FRAGMENT);
+		FeedHeadlineListFragment headlineFragment = (FeedHeadlineListFragment) getSupportFragmentManager().findFragmentByTag(FeedHeadlineListFragment.FRAGMENT);
 		int newId = findNext(headlineFragment.getArticleIds(), articleId, direction);
 		if (newId == Integer.MIN_VALUE) {
 			Utils.alert(this, true);
@@ -311,7 +311,7 @@ public class FeedHeadlineActivity extends MenuActivity {
 		Log.w(TAG, "displayFeed() has been called, newArticleId: " + newFeedId + ", direction: " + direction);
 		feedId = newFeedId;
 		FeedHeadlineListFragment headlineFragment = FeedHeadlineListFragment.newInstance(feedId, categoryId, selectArticlesForCategory);
-		FragmentManager fm = getFragmentManager();
+		FragmentManager fm = getSupportFragmentManager();
 
 		FragmentTransaction ft = fm.beginTransaction();
 		setAnimationForDirection(ft, direction);
@@ -339,14 +339,14 @@ public class FeedHeadlineActivity extends MenuActivity {
 
 		Log.w(TAG, "displayArticle() has been called, newArticleId: " + newArticleId + ", direction: " + direction);
 		articleId = newArticleId;
-		FeedHeadlineListFragment headlineFragment = (FeedHeadlineListFragment) getFragmentManager().findFragmentByTag(FeedHeadlineListFragment.FRAGMENT);
+		FeedHeadlineListFragment headlineFragment = (FeedHeadlineListFragment) getSupportFragmentManager().findFragmentByTag(FeedHeadlineListFragment.FRAGMENT);
 		headlineFragment.setSelectedId(articleId);
 
 		// Clear back stack
 		Controller.sFragmentAnimationDirection = direction;
 
 		ArticleFragment articleFragment = ArticleFragment.newInstance(articleId, feedId, categoryId, selectArticlesForCategory, direction);
-		FragmentManager fm = getFragmentManager();
+		FragmentManager fm = getSupportFragmentManager();
 
 		// Clear back stack
 		fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
@@ -381,8 +381,8 @@ public class FeedHeadlineActivity extends MenuActivity {
 	public void onBackPressed() {
 		articleId = Integer.MIN_VALUE;
 		// Back button automatically finishes the activity since Lollipop so we have to work around by checking the backstack before
-		if (getFragmentManager().getBackStackEntryCount() > 0) {
-			getFragmentManager().popBackStack();
+		if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+			getSupportFragmentManager().popBackStack();
 		} else {
 			super.onBackPressed();
 		}

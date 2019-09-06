@@ -18,12 +18,12 @@
 package org.ttrssreader.gui;
 
 
-import android.app.Activity;
+import android.support.v4.app.FragmentActivity;
 
 
 /**
  * This class is empty since we don't want to use the play services library here!
  */
-public abstract class MenuFlavorActivity extends Activity {
+public abstract class MenuFlavorActivity extends FragmentActivity {
 
 }

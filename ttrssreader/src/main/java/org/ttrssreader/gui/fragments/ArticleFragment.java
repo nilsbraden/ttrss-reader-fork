@@ -22,8 +22,6 @@ import android.animation.AnimatorInflater;
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
-import android.app.DialogFragment;
-import android.app.Fragment;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -33,6 +31,8 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.text.Html;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -620,7 +620,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			}
 			case R.id.Article_Menu_AddArticleLabel: {
 				DialogFragment dialog = ArticleLabelDialog.newInstance(article.id);
-				dialog.show(getFragmentManager(), "Edit Labels");
+				dialog.show(getActivity().getSupportFragmentManager(), "Edit Labels");
 				return true;
 			}
 			case R.id.Article_Menu_ShareLink: {

@@ -17,12 +17,12 @@
 
 package org.ttrssreader.gui;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -80,7 +80,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 			selectedCategoryId = instance.getInt(SELECTED, Integer.MIN_VALUE);
 		}
 
-		FragmentManager fm = getFragmentManager();
+		FragmentManager fm = getSupportFragmentManager();
 		CategoryListFragment categoryFragment = (CategoryListFragment) fm.findFragmentByTag(CategoryListFragment.FRAGMENT);
 
 		if (categoryFragment == null) {
@@ -337,7 +337,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 
 		selectedCategoryId = categoryId;
 		FeedListFragment feedFragment = FeedListFragment.newInstance(categoryId);
-		FragmentManager fm = getFragmentManager();
+		FragmentManager fm = getSupportFragmentManager();
 
 		// Clear back stack
 		fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
@@ -371,7 +371,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 		selectedCategoryId = Integer.MIN_VALUE;
 		// Back button automatically finishes the activity since Lollipop
 		// so we have to work around by checking the backstack before
-		FragmentManager fm = getFragmentManager();
+		FragmentManager fm = getSupportFragmentManager();
 		if (fm.getBackStackEntryCount() > 0) {
 			fm.popBackStack();
 			CategoryListFragment fragment = getCategoryListFragment();
@@ -384,11 +384,11 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 	}
 
 	private FeedListFragment getFeedListFragment() {
-		return (FeedListFragment) getFragmentManager().findFragmentByTag(FeedListFragment.FRAGMENT);
+		return (FeedListFragment) getSupportFragmentManager().findFragmentByTag(FeedListFragment.FRAGMENT);
 	}
 
 	private CategoryListFragment getCategoryListFragment() {
-		return (CategoryListFragment) getFragmentManager().findFragmentByTag(CategoryListFragment.FRAGMENT);
+		return (CategoryListFragment) getSupportFragmentManager().findFragmentByTag(CategoryListFragment.FRAGMENT);
 	}
 
 }

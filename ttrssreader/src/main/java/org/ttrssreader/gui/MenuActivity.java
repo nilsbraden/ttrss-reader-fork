@@ -18,13 +18,13 @@
 package org.ttrssreader.gui;
 
 import android.app.ActionBar;
-import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -455,7 +455,7 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 	protected void doStartImageCache() {
 		ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 		final int title = R.string.Main_ImageCache_YesNoTitle;
-		final FragmentManager fm = getFragmentManager();
+		final FragmentManager fm = getSupportFragmentManager();
 
 		switch (Utils.getNetworkType(cm)) {
 			case Utils.NETWORK_MOBILE:
@@ -540,7 +540,7 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 	}
 
 	protected void showErrorDialog(String message) {
-		ErrorDialog.getInstance(message).show(getFragmentManager(), "error");
+		ErrorDialog.getInstance(message).show(getSupportFragmentManager(), "error");
 	}
 
 	private void refreshAndUpdate() {

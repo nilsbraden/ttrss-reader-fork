@@ -17,6 +17,7 @@
 
 package org.ttrssreader.model.updaters;
 
+
 import android.app.Activity;
 
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
