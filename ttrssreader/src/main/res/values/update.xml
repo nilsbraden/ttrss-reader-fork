@@ -18,7 +18,13 @@
 
     <string-array name="updates">
 		<item>Version 1.94
-			 * TODO
+			 * Fixed Issue #348: NullPointerException
+			 * Fixed Issue #382: feed icons not working with HTTP basic auth
+			 * Add option to disable loading/display of feed icons
+			 * Fixed progressbar appearing when opening feeds
+			 * Fixed Issue #387: Fix gradle wrapper
+			 * Removed lots of unnecessary compatibility libraries and external resources
+			 * Update internal stuff (use libraries for AndroidX, fix lots of lint warnings, remove deprecated API usage, fix minor security issues, removed unused parts)
 		</item>
         <item>Version 1.93.3
 			 * Note for users on Android Oreo (8.x): I reverted some changes (new library versions mainly) and forcibly disabled the animations preference to make sure moving between articles works again. This currently is the only solution I have for #374.
