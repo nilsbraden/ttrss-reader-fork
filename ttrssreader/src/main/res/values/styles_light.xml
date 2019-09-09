@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright (c) 2015, Nils Braden
 
   This file is part of ttrss-reader-fork. This program is free software; you
@@ -18,9 +17,9 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- Base application theme. -->
-    <style name="TTRSS.Light" parent="TTRSS.Base.Light"/>
+    <style name="TTRSS.Light" parent="TTRSS.Base.Light" />
 
-    <style name="TTRSS.Base.Light" parent="android:Theme.Material.Light.NoActionBar">
+    <style name="TTRSS.Base.Light" parent="Theme.AppCompat.Light">
 
         <item name="android:colorPrimary">@color/themeLightPrimary</item>
         <item name="android:colorPrimaryDark">@color/themeLightPrimaryDark</item>
@@ -42,7 +41,8 @@
         <!-- Color for Navigation-Buttons in ArticleView -->
         <item name="htmlHeaderBackgound">@color/themeLightHtmlHeaderBackgound</item>
         <!-- Theme for preferences -->
-        <item name="android:alertDialogTheme">@style/TTRSS.Light.Dialog.Alert.Light</item>
+        <!--        <item name="android:alertDialogTheme">@style/TTRSS.Light.Dialog.Alert.Light</item>-->
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
 
     </style>
 

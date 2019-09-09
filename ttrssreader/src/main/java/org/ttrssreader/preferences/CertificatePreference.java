@@ -21,13 +21,14 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.net.Uri;
-import android.preference.Preference;
 import android.security.KeyChain;
 import android.security.KeyChainAliasCallback;
 import android.util.AttributeSet;
 import android.util.Log;
 
 import org.ttrssreader.controllers.Controller;
+
+import androidx.preference.Preference;
 
 /**
  * Preference that uses the Android certificate selection dialog to select and authorize a cert

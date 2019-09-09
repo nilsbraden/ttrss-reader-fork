@@ -18,8 +18,9 @@
 package org.ttrssreader.preferences;
 
 import android.content.Context;
-import android.preference.EditTextPreference;
 import android.util.AttributeSet;
+
+import androidx.preference.EditTextPreference;
 
 @SuppressWarnings("UnusedDeclaration")
 public class EditIntegerPreference extends EditTextPreference {

@@ -50,6 +50,8 @@ public class MyApplication extends Application {
 		PRNGFixes.apply();
 		initSingletons();
 		Data.getInstance().notifyListeners(); // Notify once to make sure the handler is initialized
+
+		//AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
 	}
 
 	protected void initSingletons() {
