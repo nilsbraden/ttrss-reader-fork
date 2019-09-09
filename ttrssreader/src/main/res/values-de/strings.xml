@@ -36,7 +36,6 @@ not, see http://www.gnu.org/licenses/.
     <string name="Changelog.Suffix"><![CDATA[Alle weiteren Einträge sind hier nicht aufgeführt. Das komplette Changelog finden Sie auf der Projektseite unter <a href="%s">github.com</a>.]]></string>
     <string name="Welcome.Title">Willkommen</string>
     <string name="Welcome.Message">Willkommen zum TTRSS-Reader!\n\nBitte beachten Sie, dass dieser Reader nur mit einem \"Tiny Tiny RSS\"-Server arbeiten kann.\n\nWenn dies der erste Start dieser Anwendung ist, sollten Sie Ihre Server- und Benutzer-Einstellungen setzen. Drücken Sie \"Einstellungen\", um fortzufahren.</string>
-    <string name="Check.Crash">Es wurde ein Fehlerbericht gespeichert. Soll dieser per E-Mail an den Entwickler der Anwendung gesendet werden?</string>
     <string name="AboutActivity.Title">Info…</string>
     <string name="AboutActivity.CloseBtn">Schließen</string>
     <string name="AboutActivity.DonateBtn">Möchten Sie spenden?</string>
@@ -45,12 +44,10 @@ not, see http://www.gnu.org/licenses/.
     <string name="AboutActivity.LicenseText">Lizenz:</string>
     <string name="AboutActivity.LicenseTextValue">GPL v3</string>
     <string name="AboutActivity.LastSyncText">Letzter Abgleich:</string>
-    <string name="ArticleActivity.OpenLink">Artikel</string>
     <string name="ArticleActivity.ShareLink">Teilen</string>
     <string name="ArticleActivity.ShareTitle">Link senden…</string>
     <string name="ArticleActivity.MediaPlay">Angehängte Mediendatei abspielen</string>
     <string name="ArticleActivity.MediaDisplayLink">Anhang öffnen</string>
-    <string name="ArticleActivity.ArticleLink">-> Artikel-Link</string>
     <string name="ArticleActivity.ShareURL">URL teilen</string>
     <string name="ArticleActivity.CopyURL">URL kopieren</string>
     <string name="ArticleActivity.CopyContent">Inhalt kopieren</string>
@@ -58,7 +55,6 @@ not, see http://www.gnu.org/licenses/.
     <string name="ArticleActivity.ShowCaption">Bildbeschriftung anzeigen</string>
     <string name="SubscribeActivity.offline">Arbeite offline, Server kann nicht kontaktiert werden.</string>
     <string name="SubscribeActivity.invalidUrl">Die Adresse ist ungültig.</string>
-    <string name="SubscribeActivity.feedExists">Der Feed ist bereits abonniert.</string>
     <string name="SubscribeActivity.contentIsHTML">Seite enthält HTML, keine Feeds verfügbar.</string>
     <string name="SubscribeActivity.multipleFeeds">Seite enthält HTML mit mehreren Feeds. Hier muss extractfeedurls im RPC-Backend aufgerufen werden, um alle möglichen Feeds zu extrahieren.</string>
     <string name="SubscribeActivity.cannotDownload">Konnte die Seite nicht laden.</string>
@@ -145,8 +141,6 @@ not, see http://www.gnu.org/licenses/.
     <string name="ShowButtonsMode_none">Nicht anzeigen</string>
     <string name="ShowButtonsMode_allways">Immer sichtbar (verringert den Platz auf dem Bildschirm)</string>
     <string name="ShowButtonsMode_html">Am Ende des Artikels anzeigen</string>
-    <string name="HeadlineSizeTitle">Schriftgröße des Titels in Artikel-Kopfzeile</string>
-    <string name="HeadlineSizeSummary">Stellt die Schriftgröße des Titels in der Artikel-Kopfzeile ein (Standard: 16sp).</string>
     <string name="TextZoomTitle">Text-Zoom in Prozent</string>
     <string name="TextZoomSummary">Vergrößere (Text) Inhalt von Artikeln in n%.</string>
     <string name="SupportZoomControlsTitle">Zeige Zoom-Steuerelemente</string>
@@ -212,14 +206,11 @@ not, see http://www.gnu.org/licenses/.
     <string name="DisplayTimeFormatSummary">Anleitung zur Formatierung findet sich im Wiki des Projekts. Standard ist \"kk:mm\".</string>
     <string name="DisplayDateTimeFormatTitle">Eigenes Datums- und Zeitformat</string>
     <string name="DisplayDateTimeFormatSummary">Gibt ein eigenes Format für Datum mit Zeit an (siehe Wiki). Standard ist \"dd.MM.yyyy kk:mm\". Ungültige Werte werden stillschweigend ignoriert und die Standardwerte gesetzt.</string>
-    <string name="DisplayDarkBackgroundTitle">Dunklen Hintergrund verwenden?</string>
     <string name="DisplayThemeTitle">App-Theme auswählen</string>
     <string name="DisplayThemeSummary">Schwarz/Weiß verwendet schwarze Schrift auf weißem Hintergrund (oder umgekehrt), um das Lesen auf E-Book-Readern zu ermöglichen.</string>
     <string name="DisplayAnimationsTitle">Nutze Animationen</string>
     <string name="DisplayAnimationsSummary">Aktiviert Animationen beim Anzeigen von Feeds und Artikeln.</string>
     <string name="SystemPreferenceCategoryTitle">System</string>
-    <string name="LogSensitiveDataTitle">Persönliche Informationen loggen?</string>
-    <string name="LogSensitiveDataSummary">Wenn dies aktiviert wird, kann die Log-Ausgabe der Anwendung persönliche Daten wie Passwörter oder Sitzungs-IDs im Klartext enthalten. Nur bei Bedarf aktivieren. Nur für Debugging-Zwecke.</string>
     <string name="DeleteDBOnNextStartupTitle">Datenbank beim nächsten Start löschen?</string>
     <string name="DeleteDBOnNextStartupSummary">Löscht die Datenbank beim nächsten Start der Anwendung.</string>
     <string name="OnlyUseWifiTitle">Nur mit WLAN verbinden</string>
@@ -228,15 +219,12 @@ not, see http://www.gnu.org/licenses/.
     <string name="NoCrashreportsSummary">Deaktiviert das Senden von Fehlerberichten vollständig. Bitte beachten Sie, dass ohnehin in KEINEM Fall irgendwelche Daten ohne Ihre Erlaubnis übermittelt werden. Es wird nur die E-Mail-App geöffnet und Sie können die Daten prüfen, bevor sie an mich verschickt werden.</string>
     <string name="NoCrashreportsUntilUpdateTitle">Fehlerberichte bis zum nächsten Update deaktivieren.</string>
     <string name="NoCrashreportsUntilUpdateSummary">Deaktiviert das Senden von Fehlerberichten bis zum nächsten Update. Bitte beachten Sie, dass ohnehin in KEINEM Fall irgendwelche Daten ohne Ihre Erlaubnis übermittelt werden. Es wird nur die E-Mail-App geöffnet und Sie können die Daten prüfen, bevor sie an mich verschickt werden.</string>
-    <string name="DeleteDBOnStartupTitle">Datenbank bei jedem Start löschen?</string>
-    <string name="DeleteDBOnStartupSummary">Löscht die Datenbank bei JEDEM Start der Anwendung.</string>
     <string name="ConnectionWifiPrefScreenTitle">WLAN-Einstellungen pro Netzwerk</string>
     <string name="ConnectionWifiPrefScreenSummary">Spezielle Konfiguration für bestimmte WLAN-Netzwerke</string>
     <string name="ConnectionWifiPrefCatTitle">Verfügbare Netzwerke</string>
     <string name="ConnectionWifiPrefCatDescription">Hier können für jedes WLAN-Netz besondere Einstellungen zur Verbindung vorgenommen werden.</string>
     <string name="ConnectionWifiConnected">Verbunden</string>
     <string name="ConnectionWifiNotInRange">Nicht verfügbar</string>
-    <string name="ConnectionWifiDeletePref">Einstellungen für dieses Netz entfernen?</string>
     <string name="ErrorActivity.Title">Fehler</string>
     <string name="ErrorActivity.UserMessage">Ich konnte keine Verbindung zu Ihrer \"Tiny Tiny RSS"-Instanz herstellen, bitte prüfen Sie die Verbindung und/oder die Verbindungseinstellungen.</string>
     <string name="ErrorActivity.ErrorTitle">Fehler-Details:</string>
@@ -259,7 +247,6 @@ not, see http://www.gnu.org/licenses/.
     <string name="Utils.DownloadErrorTitle">Fehler</string>
     <string name="Utils.DownloadErrorTicker">Ein Fehler ist aufgetreten…</string>
     <string name="SaveAttachmentTitle">Speicherort für Anhang…</string>
-    <string name="CacheFolderTitle">Cache-Ordner…</string>
     <string name="CacheFolderMaxSizeTitle">Maximale Größe des Cache-Ordners</string>
     <string name="CacheFolderMaxSizeSummary">Maximale Größe alle zwischengespeicherten Dateien in MB</string>
     <string name="CacheImageMaxSizeTitle">Maximale Größe von zwischengespeicherten Bildern</string>
@@ -288,12 +275,10 @@ not, see http://www.gnu.org/licenses/.
     <string name="Dialog.imageCaptionTitle">Bildbeschriftung</string>
     <string name="Dialog.Title">Warnung</string>
     <string name="Dialog.MarkAllRead">Markiere alles als gelesen?</string>
-    <string name="Dialog.MarkFeedsRead">Diese Kategorie als gelesen markieren?</string>
     <string name="Yes">Yes</string>
     <string name="No">No</string>
     <string name="Ignore">Ignorieren</string>
     <string name="Close">Schließen</string>
-    <string name="NotNow">Jetzt nicht</string>
     <string name="Up">Hoch</string>
     <string name="Down">Runter</string>
     <string name="DarkTheme">Dunkles Theme</string>
@@ -305,7 +290,6 @@ not, see http://www.gnu.org/licenses/.
     <string name="Error.SSL.TrustClientCerts">SSL-Konfiguration konnte nicht geändert werden, Client-Zertifikat konnte nicht eingerichtet werden.</string>
     <string name="Error.SSL.SocketFactory">Die SSLSocketFactory konnte nicht erzeugt werden, SSL-Verbindungen sind nicht möglich.</string>
     <string name="Error.NotLoggedIn">Der Login ist fehlgeschlagen, bitte Benutzername/Passwort prüfen.</string>
-    <string name="Error.EncodePassword">Der Login ist fehlgeschlagen, das Password konnte nicht richtig enkodiert werden.</string>
     <string name="Error.ApiDisabled">Der API-Zugriff muss im Tiny Tiny RSS Server \"%s\" in den Einstellungen des Benutzers aktiviert werden.</string>
     <string name="Error.UnsafeConnection">Der Security-Provider konnte nicht durch die Google Play services aktualisiert werden. Die Verbindung zum Server ist möglicherweise nicht sicher.</string>
     <string name="Error.LoginFailed">Benutzername oder Passwort falsch</string>

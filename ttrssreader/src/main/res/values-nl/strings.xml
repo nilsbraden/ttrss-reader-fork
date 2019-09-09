@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="CacheFolderTitle">Cache-Folder…</string>
     <string name="ALIGN_LEFT">links</string>
     <string name="ALIGN_JUSTIFY">uitlijnen</string>
     <string name="About.about">Over</string>
@@ -29,12 +28,10 @@
     <string name="AllowTabletLayoutSummary">Indien aangevinkt zal de tablet layout gebruikt worden als uw scherm groter is dan 7\".</string>
     <string name="AllowTabletLayoutTitle">Activeer tablet layout</string>
     <string name="ApplicationDescription">Tiny Tiny Rss Reader is een app om de feeds van je Tiny Tiny RSS installatie te lezen.</string>
-    <string name="ArticleActivity.ArticleLink">-> Artikel link</string>
     <string name="ArticleActivity.CopyContent">Kopieer inhoud</string>
     <string name="ArticleActivity.CopyURL">Kopieer URL</string>
     <string name="ArticleActivity.MediaDisplayLink">Open bijlage</string>
     <string name="ArticleActivity.MediaPlay">Open media bestand in bijlage</string>
-    <string name="ArticleActivity.OpenLink">Artikel</string>
     <string name="ArticleActivity.ShareArticle">Deel artikel</string>
     <string name="ArticleActivity.ShareLink">Delen</string>
     <string name="ArticleActivity.ShareTitle">Stuur link</string>
@@ -75,7 +72,6 @@
     <string name="CacheImagesOnlyWifiSummary">Stelt de automatische beeldcache in om enkel bij wifi te starten</string>
     <string name="Changelog.Title">Wjizigingen</string>
     <string name="Changelog.Suffix"><![CDATA[Oudere wijzigingen zijn hier weggelaten. Voor de volledige lijst, zie de projectpagina op <a href="%s">github.com</a>.]]></string>
-    <string name="Check.Crash">Een crashverslag werd automatisch aangemaakt. Wenst u dit naar de ontwikkelaar te mailen?</string>
     <string name="Commons.AddArticleLabel">Voeg label toe</string>
     <string name="Commons.DisplayOnlyCachedImages">Enkele gecachte artikelen</string>
     <string name="Commons.MarkStar">Markeren</string>
@@ -111,7 +107,6 @@
     <string name="ConnectionUsernamePreferenceSummary">Gebruiker van uw Tiny Tiny RSS installatie</string>
     <string name="ConnectionUsernamePreferenceTitle">Gebruiker</string>
     <string name="ConnectionWifiConnected">Verbonden</string>
-    <string name="ConnectionWifiDeletePref">Verwjder instellingen voor dit netwerk?</string>
     <string name="ConnectionWifiNotInRange">Buiten bereik</string>
     <string name="ConnectionWifiPrefCatDescription">Kies een netwerk en definiëer instellingen voor de verbinding</string>
     <string name="ConnectionWifiPrefCatTitle">Beschikbare netwerken</string>
@@ -175,11 +170,8 @@
     <string name="HyphenationLanguage_bn">Bengaals</string>
     <string name="HyphenationLanguage_ca">Catalaans</string>
     <string name="DeleteDBOnNextStartupSummary">Indien aangevinkt zal de interne database gewist worden bij de volgende start van dit programma</string>
-    <string name="DeleteDBOnStartupSummary">Indien aangevinkt zal de interne database gewist worden bij elke start van dit programma</string>
     <string name="DeleteDBOnNextStartupTitle">Wis database bij volgende start van dit programma</string>
-    <string name="DeleteDBOnStartupTitle">Wis database bij opstarten</string>
     <string name="Dialog.MarkAllRead">Markeer alles als gelezen</string>
-    <string name="Dialog.MarkFeedsRead">Markeer deze categorie als gelezen</string>
     <string name="Dialog.Title">Waarschuwing</string>
     <string name="Dialog.imageCaptionTitle">Beeld opschrift</string>
     <string name="Dialog.unsubscribeText">Weet u zeker dat u deze feed wilt verwijderen?</string>
@@ -189,8 +181,6 @@
     <string name="DisplayAnimationsSummary">Aktiveer animaties bij het wisselen van feeds en artikelen</string>
     <string name="DisplayAnimationsTitle">Aktiveer animaties</string>
     <string name="OnlyUseWifiSummary">Indien aktief zal de app enkel verbinding maken via wifi</string>
-    <string name="Ok">OK</string>
-    <string name="NotNow">Niet nu</string>
     <string name="NoCrashreportsUntilUpdateTitle">Zet crash berichten uit tot volgende update</string>
     <string name="NoCrashreportsUntilUpdateSummary">Zet crash berichten uit tot de volgende update van de app geïnstalleerd is. Noteer dat in elk geval nooit ongevraag data wordt doorgestuurd naar de ontwikkelaar: crash berichten worden getoond en u behoudt de keuze om ze al dan niet te versturen.</string>
     <string name="NoCrashreportsTitle">Zet crash berichten uit.</string>
@@ -205,12 +195,10 @@
     <string name="Main.ImageCache.NetworkMetered">U bent op een beperkt netwerk en dit kan een aanzienlijke hoeveelheid data gebruiken. Bent u zeker?</string>
     <string name="Main.ImageCache.ConnectivityLost">De verbinding is verloren. Om verspilling van uw data te vermijden is deze download gestopt.</string>
     <string name="Main.ImageCache">Beeldcache</string>
-    <string name="LogSensitiveDataTitle">Log gevoelige info?</string>
     <string name="Locale.Show_notification">Toon melding</string>
     <string name="Locale.Load_images">Laad beelden</string>
     <string name="LightTheme">Lichte layout</string>
     <string name="Labels.NoLabels">Geen labels</string>
-    <string name="LogSensitiveDataSummary">Indien aangevinkt kunnen de logs van deze app gevoelige informatie zoals paswoorden en sessie ids bevatten. Vink enkel aan indien noodzakelijk, zoals voor het opsporen van programmafouten.</string>
     <string name="Ignore">Negeren</string>
     <string name="IntentPublish">Publiceer inhoud</string>
     <string name="IntentSubscribe">Abonneer op feed</string>
@@ -255,21 +243,16 @@
     <string name="HideFeedReadButtonsTitle">Verberg Feed gelezen optie</string>
     <string name="HideActionbarSummary">Verberg ActionBar op kleine schermen indien weggescrolld. Noteer dat het altijd getoond wordt wanneer u omhoog scrollt.</string>
     <string name="HideActionbarTitle">Verberg ActionBar</string>
-    <string name="HeadlineSizeSummary">Veranderd de grootte (standaard is 16sp)</string>
-    <string name="HeadlineSizeTitle">Grootte van het titel veld in de artikel kop</string>
     <string name="Down">Beneden</string>
     <string name="Error.ApiDisabled">Aktiveer de API voor gebruiker \"%s\" in de voorkeuren van die gebruiker op de server</string>
     <string name="Error.ApiIncorrectUsage">Fout API gebruik</string>
     <string name="Error.ApiUnknownError">Onbekende API fout</string>
     <string name="Error.ApiUnknownMethod">Onbekende API aanroep</string>
-    <string name="Error.EncodePassword">Fout bij het inloggen. Uw paswoord kon niet omgezet worden.</string>
     <string name="Error.LoginFailed">Gebruiker en wachtwoord veranderen</string>
     <string name="Error.NotLoggedIn">Fout bij het inloggen. Check uw gebruikersnaam en wachtwoord.</string>
     <string name="Error.SSL.Keystore">Kon eigen sleutelring niet laden</string>
     <string name="Error.SSL.SocketFactory">Kon SSLSocketFactory niet aanmaken. SSL verbindingen kunnen niet gemaakt worden.</string>
     <string name="Error.SSL.TrustAllHosts">Kon SSL niet aktiveren voor alle servers.</string>
-    <string name="DisplayDarkBackgroundSummary">Akitveer om artikelen met een donkere achtergrond te tonen voor uw gemak \'s nachts.</string>
-    <string name="DisplayDarkBackgroundTitle">Gebruik donkere achtergrond?</string>
     <string name="DisplayDateFormatTitle">Eigen datum formaat</string>
     <string name="DisplayDateFormatSummary">Specifieer een DateFormat voor de datum (zie wiki). Standaard \"dd.MM.yyyy\". Ongeldige waarden zullen stilzwijgend genegeerd worden.</string>
     <string name="DisplayDateTimeFormatSystemTitle">Datum en tijd formaat</string>
@@ -279,7 +262,6 @@
     <string name="SubscribeActivity.cannotDownload">Kon de inhoud van de URL niet downloaden</string>
     <string name="SubscribeActivity.contentIsHTML">URL inhoud is HTML: geen feed beschikbaar</string>
     <string name="SubscribeActivity.errorCode">"Server gaf code %s en het volgende bericht: "</string>
-    <string name="SubscribeActivity.feedExists">Feed is reeds toegevoegd</string>
     <string name="SubscribeActivity.invalidUrl">URL is niet geldig</string>
     <string name="SubscribeActivity.multipleFeeds">URL inhoud is HTML met meerdere feeds. Gelieve alle feeds te extraheren.</string>
     <string name="SubscribeActivity.offline">Offline, kan geen verbinding maken met de server.</string>

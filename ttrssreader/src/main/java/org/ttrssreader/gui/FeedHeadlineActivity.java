@@ -282,7 +282,6 @@ public class FeedHeadlineActivity extends MenuActivity {
 				Data.getInstance().updateArticles(categoryId, displayUnread, true, false, forceUpdate);
 			} else {
 				Data.getInstance().updateArticles(feedId, displayUnread, false, false, forceUpdate);
-				Data.getInstance().updateFeedIcon(feedId);
 			}
 			publishProgress(++progress);
 

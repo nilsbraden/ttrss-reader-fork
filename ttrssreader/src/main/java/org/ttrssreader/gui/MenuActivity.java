@@ -308,6 +308,7 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 			finish();
 			startActivity(getIntent());
 		}
+		super.onActivityResult(requestCode, resultCode, data);
 	}
 
 	@Override

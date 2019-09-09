@@ -255,7 +255,6 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 			// Refresh articles for all labels
 			for (Feed f : labels) {
 				Data.getInstance().updateArticles(f.id, false, false, false, forceUpdate);
-				Data.getInstance().updateFeedIcon(f.id);
 				publishProgress(++progress);
 			}
 
@@ -278,12 +277,10 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 			Data.getInstance().purgeOrphanedArticles();
 
 			// Silently update all feed-icons
-			if (feeds != null) {
+			if (feeds != null && Controller.getInstance().displayFeedIcons()) {
 				for (Feed f : feeds) {
-					if (Controller.getInstance().displayFeedIcons()) {
-						// Virtual feeds don't have icons...
-						Data.getInstance().updateFeedIcon(f.id);
-					}
+					// Virtual feeds don't have icons...
+					Data.getInstance().updateFeedIcon(f.id);
 				}
 			}
 			return null;

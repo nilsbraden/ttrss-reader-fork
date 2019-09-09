@@ -292,13 +292,6 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 					return null;
 
 				feed = DBHelper.getInstance().getFeed(article.feedId);
-
-				// Mark as read if necessary, do it here because in doRefresh() it will be done several times even if
-				// you set it to "unread" in the meantime.
-				if (article.isUnread) {
-					article.isUnread = false;
-					new Updater(null, new ArticleReadStateUpdater(article, 0)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-				}
 				cachedImages = getCachedImagesJS(article.id);
 
 				// Reload content on next doRefresh()
@@ -309,6 +302,13 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			@Override
 			protected void onPostExecute(Void aVoid) {
 				super.onPostExecute(aVoid);
+
+				// Mark as read if necessary, do it here because in doRefresh() it will be done several times even if
+				// you set it to "unread" in the meantime.
+				if (article.isUnread) {
+					article.isUnread = false;
+					new Updater(null, new ArticleReadStateUpdater(article, 0)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+				}
 
 				// Has to be called from UI thread
 				if (getActivity() != null) {
@@ -656,7 +656,11 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 
 		if (tnv.alt == null)
 			return null;
-		return Html.fromHtml(tnv.alt, Html.FROM_HTML_MODE_COMPACT).toString();
+
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
+			return Html.fromHtml(tnv.alt).toString();
+		else
+			return Html.fromHtml(tnv.alt, Html.FROM_HTML_MODE_COMPACT).toString();
 	}
 
 	/**

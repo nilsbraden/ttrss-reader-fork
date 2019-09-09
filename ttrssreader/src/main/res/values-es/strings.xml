@@ -27,19 +27,16 @@
     <string name="Changelog.Title">Cambios</string>
     <string name="Welcome.Title">Bienvenido</string>
     <string name="Welcome.Message">Bienvenido a TTRSS-Reader!\n\nSepa que este lector solo funciona con servidores \"Tiny Tiny RSS\" .\n\nSi esta es la primera vez que ha iniciado TTRSS-Reader debería configurar el servidor y las credenciales. Pulse "Preferencias" para proceder.</string>
-    <string name="Check.Crash">Un reporte de error ha sido salvado, ¿Quiere mandarlo al desarrollador por mail?</string>
     <string name="AboutActivity.Title">Acerca de</string>
     <string name="AboutActivity.CloseBtn">Cerrar</string>
     <string name="AboutActivity.DonateBtn">¿Quiere donar?</string>
     <string name="AboutActivity.VersionText">Versión:</string>
     <string name="AboutActivity.LicenseText">Licencia:</string>
     <string name="AboutActivity.LicenseTextValue">GPL v3</string>
-    <string name="ArticleActivity.OpenLink">Artículo</string>
     <string name="ArticleActivity.ShareLink">Compartir</string>
     <string name="ArticleActivity.ShareTitle">Enviar enlace…</string>
     <string name="ArticleActivity.MediaPlay">Reproducir archivo multimedia adjunto</string>
     <string name="ArticleActivity.MediaDisplayLink">Abrir adjunto</string>
-    <string name="ArticleActivity.ArticleLink">-> Link del artículo</string>
     <string name="Commons.DisplayOnlyUnread">Mostrar sin leer</string>
     <string name="Commons.InvertSort">Invertir orden</string>
     <string name="Commons.DisplayAll">Mostrar todos</string>
@@ -70,7 +67,6 @@
     <string name="ConnectionPasswordPreferenceSummary">Contraseña de su cuenta Tiny Tiny RSS account.</string>
     <string name="ConnectionLazyServerPreferenceTitle">Servidor \"Lazy\"</string>
     <string name="ConnectionLazyServerPreferenceSummary">Configura el servidor para actualizar las fuentes antes que las cojamos.</string>
-    <string name="ConnectionProxyPreferenceCategoryTitle">Proxy SOCKS</string>
     <string name="ConnectionProxyPreferenceTitle">Utilizar un proxy SOCKS</string>
     <string name="ConnectionProxyPreferenceSummary"></string>
     <string name="ConnectionProxyHostPreferenceTitle">Dirección</string>
@@ -106,8 +102,6 @@
     <string name="DisplayVirtualPreferenceSummary">Desmarcar para esconder fuentes virtuales de TTRSS.</string>
     <string name="DisplayLoadImagesPreferenceTitle">Cargar imágenes</string>
     <string name="DisplayLoadImagesPreferenceSummary">Desmarcar para desactivar la carga de las imágenes desde recursos externos en vista web. (Audio, Video, Images)</string>
-    <string name="HeadlineSizeTitle">Tamaño del campo título de la cabecera del artículo</string>
-    <string name="HeadlineSizeSummary">Cambiar tamaño (por defecto: 16sp) al indicado.</string>
     <string name="TextZoomTitle">Porcentaje zoom del texto</string>
     <string name="TextZoomSummary">Zoom (textual) del contenido de los artículos en %.</string>
     <string name="CacheImagesOnStartupTitle">¿Iniciar cache de imágenes al comienzo?</string>
@@ -122,15 +116,9 @@
     <string name="DisplayDateFormatSummary">Especifique el formato de de fecha (ver Wiki). Por defecto es \"dd.MM.yyyy\". Valores inválidos serán ignorados y usados los predeterminados.</string>
     <string name="DisplayTimeFormatTitle">Formato de hora personalizado</string>
     <string name="DisplayTimeFormatSummary">Espeficique un formato de hora (ver Wiki). Por defecto es \"kk:mm\". Valores inválidos serán ignorados y usados los predeterminados.</string>
-    <string name="DisplayDarkBackgroundTitle">¿Usar fondo oscuro?</string>
-    <string name="DisplayDarkBackgroundSummary">Activar para mostrar los artículos con fondo oscuro para lectura por la noche.</string>
     <string name="SystemPreferenceCategoryTitle">Sistema</string>
-    <string name="LogSensitiveDataTitle">¿Registrar datos sensibles?</string>
-    <string name="LogSensitiveDataSummary">Si se activa, el registro del programa podría contener información como contraseñas o sesiones. Activar solo con fines de depuración.</string>
     <string name="DeleteDBOnNextStartupTitle">Borrar base de datos en el siguiente arranque</string>
     <string name="DeleteDBOnNextStartupSummary">Si se activa, la base de datos será borrada en el siguiente arranque.</string>
-    <string name="DeleteDBOnStartupTitle">Borrar base de datos en el arranque</string>
-    <string name="DeleteDBOnStartupSummary">Si se activa, la base de datos será borrada en TODOS los arranques de la aplicación.</string>
     <string name="ErrorActivity.Title">Error</string>
     <string name="ErrorActivity.UserMessage">No se pudo conectar con su servidor Tiny Tiny RSS, por favor, compruebe su conexión y/o los ajustes de conexión.</string>
     <string name="ErrorActivity.ErrorTitle">Detalles de error:</string>
@@ -152,7 +140,6 @@
     <string name="Utils.DownloadErrorTitle">Error</string>
     <string name="Utils.DownloadErrorTicker">Error…</string>
     <string name="SaveAttachmentTitle">Guardar adjuntos…</string>
-    <string name="CacheFolderTitle">Carpeta de la cache…</string>
     <string name="Utils.FileSaveTitle">Guardar adjunto</string>
     <string name="Utils.FileSaveMessage">No se ha encontrado visor de archivos. ¿Donde quiere guardar este adjunto?</string>
     <string name="Utils.OkayAction">OK</string>
@@ -174,6 +161,5 @@
     <string name="FeedUnsubscribeTitle">Desuscribirse a fuente</string>
     <string name="Yes">Si</string>
     <string name="No">No</string>
-    <string name="NotNow">Ahora no</string>
 
 </resources>

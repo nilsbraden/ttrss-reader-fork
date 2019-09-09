@@ -33,7 +33,7 @@ public abstract class WakeLocker {
 
 		PowerManager pm = (PowerManager) ctx.getSystemService(Context.POWER_SERVICE);
 		wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
-		wakeLock.acquire();
+		wakeLock.acquire(Utils.MINUTE * 10); // Timeout of 10 minutes?
 	}
 
 	public static void release() {

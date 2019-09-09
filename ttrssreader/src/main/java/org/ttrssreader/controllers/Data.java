@@ -144,8 +144,7 @@ public class Data {
 		}
 
 		if (!articles.isEmpty() || !filter.getOmittedArticles().isEmpty()) {
-			Set<Integer> articleUnreadIds = new HashSet<>();
-			articleUnreadIds.addAll(filter.getOmittedArticles());
+			Set<Integer> articleUnreadIds = new HashSet<>(filter.getOmittedArticles());
 			for (Article a : articles) {
 				if (a.isUnread)
 					articleUnreadIds.add(a.id);

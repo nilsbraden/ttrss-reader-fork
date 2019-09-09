@@ -26,14 +26,12 @@
     <string name="Changelog.Title">Changements</string>
     <string name="Welcome.Title">Bienvenue</string>
     <string name="Welcome.Message">Bienvenue sur TTRSS-Reader!\n\nNoter que ce lecteur ne fonctionne qu\'avec un serveur \"Tiny Tiny RSS\".\n\nSi c\'est la première fois que vous lancez TTRSS-Reader, vous devriez indiquer l\'adresse du serveur et configurer l\'utilisateur. Appuyer sur "Préférences" pour y accéder.</string>
-    <string name="Check.Crash">Un rapport de crash a été sauvé, voulez-vous l\'envoyer au développer par mail ?</string>
     <string name="AboutActivity.Title">A propos</string>
     <string name="AboutActivity.CloseBtn">Fermer</string>
     <string name="AboutActivity.DonateBtn">Faire un don ?</string>
     <string name="AboutActivity.VersionText">Version :</string>
     <string name="AboutActivity.LicenseText">License :</string>
     <string name="AboutActivity.LicenseTextValue">GPL v3</string>
-    <string name="ArticleActivity.OpenLink">Article</string>
     <string name="ArticleActivity.ShareLink">Partager</string>
     <string name="ArticleActivity.ShareTitle">Envoyer le lien…</string>
     <string name="ArticleActivity.MediaPlay">Lire la pièce jointe</string>
@@ -122,7 +120,6 @@
     <string name="BlackTheme">Thème noir</string>
     <string name="CacheFolderMaxSizeSummary">Taille maximale de tous les fichiers du cache (Mo)</string>
     <string name="CacheFolderMaxSizeTitle">Taille maximum du dossier du cache</string>
-    <string name="CacheFolderTitle">Dossier du cache</string>
     <string name="CacheImageMaxSizeSummary">Taille maximale des images qui devraient être mis en cache (Ko)</string>
     <string name="CacheImageMaxSizeTitle">Taille maximale des images à mettre en cache</string>
     <string name="CacheImageMinSizeSummary">Taille minimale des images qui devraient être mis en cache (Ko)</string>
@@ -133,7 +130,6 @@
     <string name="Commons.SelectFeeds">Afficher tous les flux</string>
     <string name="ConnectionLazyServerPreferenceSummary">Demander au serveur de mettre à jour les flux avant de les récupérer. </string>
     <string name="ConnectionLazyServerPreferenceTitle">Serveur paresseux</string>
-    <string name="ConnectionProxyPreferenceCategoryTitle">Proxy SOCKS</string>
     <string name="ConnectionProxyPreferenceTitle">Utiliser un proxy SOCKS</string>
     <string name="ConnectionProxyPreferenceSummary"></string>
     <string name="ConnectionProxyHostPreferenceTitle">Proxy hôte</string>
@@ -144,7 +140,6 @@
     <string name="ConnectionTrustHostsPreferenceSummary">Accépter les certificats de tous les hôtes</string>
     <string name="ConnectionTrustHostsPreferenceTitle">Faire confiance à tous les hôtes</string>
     <string name="ConnectionWifiConnected">Connecté</string>
-    <string name="ConnectionWifiDeletePref">Supprimer les paramètres de ce réseau ? </string>
     <string name="ConnectionWifiNotInRange">Hors de portée</string>
     <string name="ConnectionWifiPrefCatTitle">Réseaux disponibles</string>
     <string name="ConnectionWifiPrefCatDescription">Sélectioner un réseau et définir les paramètres de connexion spécifiques à utiliser quand connecté. </string>
@@ -154,7 +149,6 @@
     <string name="ConnectionWifiPrefSelectionTitle">Point d\'accès: \"%s\"</string>
     <string name="DarkTheme">Thème sombre</string>
     <string name="Dialog.MarkAllRead">Tout marquer comme lu ? </string>
-    <string name="Dialog.MarkFeedsRead">Marquer cette catégorie comme lue ? </string>
     <string name="Dialog.Title">Avertissement</string>
     <string name="Dialog.imageCaptionTitle">Légende</string>
     <string name="Dialog.unsubscribeText">Êtes-vous certain de vouloir vous désabonner du flux ?</string>
@@ -165,10 +159,7 @@
     <string name="FeedUnsubscribeTitle">Se désabonner</string>
     <string name="Locale.Load_images">Charger les images</string>
     <string name="Locale.Show_notification">Afficher notification</string>
-    <string name="LogSensitiveDataTitle">Inclure des données sensibles au journal ? </string>
     <string name="No">Non</string>
-    <string name="Ok">Ok</string>
-    <string name="NotNow">Pas maintenant</string>
     <string name="OnlyUseWifiTitle">Se connecter en WiFi seulement</string>
     <string name="SaveAttachmentTitle">Enregistrer les pièces jointes...</string>
     <string name="Share.ok_button">Envoyer</string>

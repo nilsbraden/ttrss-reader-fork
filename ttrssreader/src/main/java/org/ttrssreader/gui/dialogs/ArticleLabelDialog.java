@@ -71,10 +71,7 @@ public class ArticleLabelDialog extends MyDialogFragment {
 		}
 
 		// Put labels into list and sort by caption:
-		labels = new ArrayList<>();
-		for (Label label : Data.getInstance().getLabels(articleId)) {
-			labels.add(label);
-		}
+		labels = new ArrayList<>(Data.getInstance().getLabels(articleId));
 		Collections.sort(labels, LabelTitleComparator.LABELTITLE_COMPARATOR);
 
 		for (Label label : labels) {

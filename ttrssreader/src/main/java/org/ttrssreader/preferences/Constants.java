@@ -227,10 +227,11 @@ public class Constants {
 
 	public static String constant2Var(String s) {
 		String[] parts = s.split("_");
-		String camelCaseString = "";
+		StringBuilder sb = new StringBuilder();
 		for (String part : parts) {
-			camelCaseString = camelCaseString + toProperCase(part);
+			sb.append(toProperCase(part));
 		}
+		String camelCaseString = sb.toString();
 		// We want the String to starrt with a lower-case letter...
 		return camelCaseString.substring(0, 1).toLowerCase(Locale.getDefault()) + camelCaseString.substring(1);
 	}

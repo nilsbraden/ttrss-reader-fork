@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="CacheFolderTitle">缓存文件夹……</string>
     <string name="About.about">关于</string>
     <string name="About.about_hint">关于这款应用程序</string>
     <string name="Yes">确定</string>
@@ -21,7 +20,6 @@
     <string name="ArticleActivity.CopyURL">复制地址</string>
     <string name="ArticleActivity.MediaDisplayLink">打开附件</string>
     <string name="ArticleActivity.MediaPlay">播放附加的媒体文件</string>
-    <string name="ArticleActivity.OpenLink">文章</string>
     <string name="ArticleActivity.ShareArticle">分享文章</string>
     <string name="ArticleActivity.ShareLink">分享</string>
     <string name="ArticleActivity.ShareTitle">发送文章……</string>
@@ -80,7 +78,6 @@
     <string name="ConnectionUsernamePreferenceSummary">Tiny Tiny RSS帐号的用户名</string>
     <string name="ConnectionUsernamePreferenceTitle">用户名</string>
     <string name="ConnectionWifiConnected">已连接</string>
-    <string name="ConnectionWifiDeletePref">移除该网络设置？</string>
     <string name="ConnectionWifiNotInRange">不在范围内</string>
     <string name="ConnectionWifiPrefCatDescription">选择一个网络并定义当其连接时的一些特别设置</string>
     <string name="ConnectionWifiPrefCatTitle">已保存的网络</string>
@@ -93,10 +90,7 @@
     <string name="DarkTheme">暗色主题</string>
     <string name="DeleteDBOnNextStartupSummary">如果勾选，下次应用启动时，内部数据库将被删除</string>
     <string name="DeleteDBOnNextStartupTitle">下次启动时删除数据库</string>
-    <string name="DeleteDBOnStartupSummary">如果勾选，每次应用启动时，内部数据库都将被删除</string>
-    <string name="DeleteDBOnStartupTitle">启动时删除数据库</string>
     <string name="Dialog.MarkAllRead">将所有文章都标记为已读？</string>
-    <string name="Dialog.MarkFeedsRead">将该分类下的文章标记为已读？</string>
     <string name="Dialog.Title">警告</string>
     <string name="Dialog.imageCaptionTitle">图片标注</string>
     <string name="Dialog.unsubscribeText">您确定想要移除该订阅源？</string>
@@ -105,8 +99,6 @@
     <string name="DisplayAlignFlushLeftTitle">文本居左对齐</string>
     <string name="DisplayAnimationsSummary">切换文章和订阅源时使用动画</string>
     <string name="DisplayAnimationsTitle">启用动画</string>
-    <string name="DisplayDarkBackgroundSummary">启用该项为文章显示一个深色的背景，以便在晚间获得更好的阅读体验</string>
-    <string name="DisplayDarkBackgroundTitle">使用深色背景？</string>
     <string name="DisplayDateFormatSummary">为日期指定格式（见Wiki），默认是“dd.MM.yyyy”。无效的格式将会被默认的格式代替</string>
     <string name="DisplayDateFormatTitle">自定义日期格式</string>
     <string name="DisplayDateTimeFormatSummary">为日期和时间指定格式（见Wiki），默认是“dd.MM.yyyy kk:mm”。无效的格式将会被默认的格式代替</string>
@@ -127,7 +119,6 @@
     <string name="Error.ApiIncorrectUsage">API调用错误</string>
     <string name="Error.ApiUnknownError">未知的API错误（查看日志）</string>
     <string name="Error.ApiUnknownMethod">未知的API方法</string>
-    <string name="Error.EncodePassword">无法登录你的帐号，密码可能编码不正确</string>
     <string name="Error.LoginFailed">用户名或密码错误</string>
     <string name="Error.NotLoggedIn">无法登录你的帐号，请检查认证信息</string>
     <string name="Error.SSL.Keystore">无法加载私钥</string>
@@ -144,8 +135,6 @@
     <string name="FeedUnsubscribeTitle">取消订阅</string>
     <string name="GoBackAfterMarkAllReadPreferenceSummary">如果勾选，将所有当前列表中的所有文章标记为已读后，将自动返回上一级页面</string>
     <string name="GoBackAfterMarkAllReadPreferenceTitle">所有标记为已读后返回</string>
-    <string name="HeadlineSizeSummary">指定文字的大小（默认：16sp）</string>
-    <string name="HeadlineSizeTitle">标题区域到文章头部的距离</string>
     <string name="HideActionbarSummary">当标题栏不必要时，在小尺寸屏幕上将其隐藏。向上滑动时标题栏将一直显示</string>
     <string name="HideActionbarTitle">隐藏标题栏</string>
     <string name="HideFeedReadButtonsSummary">如果勾选，将禁止把某个订阅源的所有文章标记为已读，即在标题栏会隐藏标记为已读图标</string>
@@ -161,8 +150,6 @@
     <string name="LightTheme">浅色主题</string>
     <string name="Locale.Load_images">加载图片</string>
     <string name="Locale.Show_notification">显示通知</string>
-    <string name="LogSensitiveDataSummary">如果勾选，应用日志里将包含你的密码或会话id等敏感信息。仅在必要的时候勾选，这应该只用于调试目的</string>
-    <string name="LogSensitiveDataTitle">记录敏感数据？</string>
     <string name="Main.ImageCache">缓存图片</string>
     <string name="Main.ImageCache.ConnectivityLost">连接已丢失，为避免浪费流量下载已中断</string>
     <string name="Main.ImageCache.NetworkMetered">你正在使用按流量计费的网络连接，这可能将消耗大量数据流量。你确定吗？</string>
@@ -173,9 +160,7 @@
     <string name="Main.ShowPreferencesMenu">偏好设置</string>
     <string name="MiscellaneousPreferenceCategoryTitle">其他偏好</string>
     <string name="No">取消</string>
-    <string name="Ok">确定</string>
     <string name="NoCrashreportsTitle">禁用崩溃报告</string>
-    <string name="NotNow">以后再说</string>
     <string name="OnlyUseWifiTitle">只在Wi-Fi网络下连接</string>
     <string name="Preferences.Btn">偏好设置</string>
     <string name="Preferences.Reset">重置偏好设置</string>
@@ -202,7 +187,6 @@
     <string name="SubscribeActivity.cannotDownload">无法下载该地址的内容</string>
     <string name="SubscribeActivity.contentIsHTML">该地址指向HTML格式文本，未发现可用的订阅内容</string>
     <string name="SubscribeActivity.errorCode">服务器返回状态码%s，消息如下：</string>
-    <string name="SubscribeActivity.feedExists">该订阅源已经订阅过了</string>
     <string name="SubscribeActivity.invalidUrl">地址无效</string>
     <string name="SubscribeActivity.multipleFeeds">该地址指向包含多个订阅源的的HTML格式文本，你应该将其中所有可用的订阅源提取出来</string>
     <string name="SubscribeActivity.offline">进入离线模式，无法向服务器发出请求</string>
@@ -247,7 +231,6 @@
     <string name="ConnectionSslPreferenceCategoryTitle">SSL设置</string>
     <string name="ConnectionProviderInstallTitle">使用ProviderInstaller服务</string>
     <string name="ConnectionHttpPasswordPreferenceSummary">基于HTTP认证方式的密码</string>
-    <string name="Check.Crash">一份崩溃报告已保存，你想要通过邮件将其发送给开发者吗？</string>
     <string name="CacheImagesOnlyWifiTitle">只在Wi-Fi网络下缓存图片</string>
     <string name="CacheImagesOnlyWifiSummary">设置启动时即缓存图片只在Wi-Fi网络下可用</string>
     <string name="CacheImagesOnStartupTitle">启动时即缓存图片</string>
@@ -257,7 +240,6 @@
     <string name="CacheImageMaxSizeSummary">图片文件最大缓存量，用KB表示</string>
     <string name="CacheImageMinSizeSummary">图片文件最小缓存量，用KB表示</string>
     <string name="ArticleActivity.ShowCaption">显示图片标注</string>
-    <string name="ArticleActivity.ArticleLink">-> 文章链接</string>
     <string name="ApplicationDescription">Tiny Tiny RSS Reader是一款用于从你的Tiny Tiny RSS服务器获取订阅数据的应用程序。</string>
     <string name="AllowTabletLayoutTitle">启用表格布局</string>
     <string name="AllowHyphenationSummary">在文章中启用字词断句</string>

@@ -31,7 +31,6 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/space_left"
             android:layout_width="0px"
             android:layout_height="match_parent"
             android:layout_weight=".4"
@@ -94,7 +93,6 @@
         </RelativeLayout>
 
         <TextView
-            android:id="@+id/space_right"
             android:layout_width="0px"
             android:layout_height="match_parent"
             android:layout_weight=".4"

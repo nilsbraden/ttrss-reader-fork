@@ -126,8 +126,10 @@ public class SSLUtils {
 		Log.i(TAG, "Enabling SSLUtils to trust all HOSTS.");
 		try {
 			HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+				@SuppressLint("BadHostnameVerifier")
 				@Override
 				public boolean verify(String hostname, SSLSession session) {
+					// This thing is supposed to return true since it specifically ignores all errors!
 					return true;
 				}
 			});
