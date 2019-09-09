@@ -17,8 +17,6 @@
 
 package org.ttrssreader.gui;
 
-
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -31,6 +29,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
@@ -45,6 +44,8 @@ import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 import org.ttrssreader.utils.Utils;
 
 import java.util.ArrayList;
+
+import androidx.annotation.NonNull;
 
 public class SubscribeActivity extends MenuActivity {
 
@@ -61,15 +62,14 @@ public class SubscribeActivity extends MenuActivity {
 	private ArrayAdapter<Category> categoriesAdapter;
 	private Spinner categorieSpinner;
 
-	private ProgressDialog progress;
+	String m_UrlValue;
+	Category m_Category;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		setTheme(Controller.getInstance().getTheme());
 		super.onCreate(savedInstanceState);
 		mDamageReport.initialize();
-
-		final Context context = this;
 
 		setTitle(R.string.IntentSubscribe);
 		ProgressBarManager.getInstance().addProgress(activity);
@@ -81,27 +81,31 @@ public class SubscribeActivity extends MenuActivity {
 			urlValue = savedInstanceState.getString(PARAM_FEEDURL);
 		}
 
-		feedUrl = (EditText) findViewById(R.id.subscribe_url);
+		feedUrl = findViewById(R.id.subscribe_url);
 		feedUrl.setText(urlValue);
 
 		categoriesAdapter = new SimpleCategoryAdapter(getApplicationContext());
 		categoriesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
-		categorieSpinner = (Spinner) findViewById(R.id.subscribe_categories);
+		categorieSpinner = findViewById(R.id.subscribe_categories);
 		categorieSpinner.setAdapter(categoriesAdapter);
 
 		SubscribeCategoryUpdater categoryUpdater = new SubscribeCategoryUpdater();
 		categoryUpdater.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
-		Button okButton = (Button) findViewById(R.id.subscribe_ok_button);
+		Button okButton = findViewById(R.id.subscribe_ok_button);
 		okButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				progress = ProgressDialog.show(context, null, "Sending...");
+				Toast.makeText(getApplicationContext(), "Sending update...", Toast.LENGTH_SHORT).show();
+
+				m_UrlValue = feedUrl.getText().toString();
+				m_Category = categoriesAdapter.getItem((int) categorieSpinner.getSelectedItemId());
+
 				new MyPublisherTask().execute();
 			}
 		});
 
-		feedPasteButton = (Button) findViewById(R.id.subscribe_paste);
+		feedPasteButton = findViewById(R.id.subscribe_paste);
 		feedPasteButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -133,7 +137,7 @@ public class SubscribeActivity extends MenuActivity {
 	@Override
 	public void onSaveInstanceState(Bundle out) {
 		super.onSaveInstanceState(out);
-		EditText url = (EditText) findViewById(R.id.subscribe_url);
+		EditText url = findViewById(R.id.subscribe_url);
 		out.putString(PARAM_FEEDURL, url.getText().toString());
 	}
 
@@ -153,15 +157,12 @@ public class SubscribeActivity extends MenuActivity {
 					return null;
 				}
 
-				String urlValue = feedUrl.getText().toString();
-				Category category = categoriesAdapter.getItem((int) categorieSpinner.getSelectedItemId());
-
-				if (!Utils.validateURL(urlValue)) {
+				if (!Utils.validateURL(m_UrlValue)) {
 					showErrorDialog(getResources().getString(R.string.SubscribeActivity_invalidUrl));
 					return null;
 				}
 
-				SubscriptionResponse ret = Data.getInstance().feedSubscribe(urlValue, category.id);
+				SubscriptionResponse ret = Data.getInstance().feedSubscribe(m_UrlValue, m_Category.id);
 				String message = "\n\n(" + ret.message + ")";
 
 				if (ret.code == 0)
@@ -183,8 +184,6 @@ public class SubscribeActivity extends MenuActivity {
 
 			} catch (Exception e) {
 				showErrorDialog(e.getMessage());
-			} finally {
-				progress.dismiss();
 			}
 			return null;
 		}
@@ -211,20 +210,25 @@ public class SubscribeActivity extends MenuActivity {
 		}
 
 		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
+		public View getView(int position, View convertView, @NonNull ViewGroup parent) {
 			return initView(position, convertView, parent);
 		}
 
 		@Override
-		public View getDropDownView(int position, View convertView, ViewGroup parent) {
+		public View getDropDownView(int position, View convertView, @NonNull ViewGroup parent) {
 			return initView(position, convertView, parent);
 		}
 
 		private View initView(int position, View convertView, ViewGroup parent) {
 			if (convertView == null)
 				convertView = getLayoutInflater().inflate(android.R.layout.simple_list_item_1, parent, false);
-			TextView tvText1 = (TextView) convertView.findViewById(android.R.id.text1);
-			tvText1.setText(getItem(position).title);
+
+			TextView tvText1 = convertView.findViewById(android.R.id.text1);
+
+			Category cat = getItem(position);
+			if (cat != null)
+				tvText1.setText(cat.title);
+
 			return convertView;
 		}
 	}

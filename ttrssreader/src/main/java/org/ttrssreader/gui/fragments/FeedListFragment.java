@@ -42,6 +42,7 @@ import org.ttrssreader.utils.AsyncTask;
 
 import java.util.List;
 
+import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
 
@@ -84,7 +85,7 @@ public class FeedListFragment extends MainListFragment {
 	@Override
 	public void onActivityCreated(Bundle instance) {
 		adapter = new FeedAdapter(getActivity());
-		getLoaderManager().restartLoader(TYPE_FEED_ID, null, this);
+		LoaderManager.getInstance(this).restartLoader(TYPE_FEED_ID, null, this);
 		super.onActivityCreated(instance);
 	}
 

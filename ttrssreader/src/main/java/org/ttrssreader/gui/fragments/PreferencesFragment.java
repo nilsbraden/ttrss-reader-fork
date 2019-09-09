@@ -26,11 +26,6 @@ import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.Preference;
-import android.preference.Preference.OnPreferenceClickListener;
-import android.preference.PreferenceCategory;
-import android.preference.PreferenceFragment;
-import android.preference.PreferenceScreen;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
@@ -45,10 +40,14 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-public class PreferencesFragment extends PreferenceFragment {
+import androidx.preference.Preference;
+import androidx.preference.PreferenceCategory;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceScreen;
+
+public class PreferencesFragment extends PreferenceFragmentCompat {
 
 	private static final int ACTIVITY_CHOOSE_ATTACHMENT_FOLDER = 1;
-	private static final int ACTIVITY_CHOOSE_CACHE_FOLDER = 2;
 
 	private static final String PREFS_DISPLAY = "prefs_display";
 	private static final String PREFS_HEADERS = "prefs_headers";
@@ -59,39 +58,55 @@ public class PreferencesFragment extends PreferenceFragment {
 	private static final String PREFS_USAGE = "prefs_usage";
 	private static final String PREFS_WIFI = "prefs_wifibased";
 
+	private String m_CategoryName;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		String cat = getArguments().getString("cat");
-		if (PREFS_DISPLAY.equals(cat))
-			addPreferencesFromResource(R.xml.prefs_display);
-		if (PREFS_HEADERS.equals(cat))
-			addPreferencesFromResource(R.xml.prefs_headers);
-		if (PREFS_HTTP.equals(cat))
-			addPreferencesFromResource(R.xml.prefs_http);
-		if (PREFS_MAIN_TOP.equals(cat))
-			addPreferencesFromResource(R.xml.prefs_main_top);
-		if (PREFS_SSL.equals(cat))
-			addPreferencesFromResource(R.xml.prefs_ssl);
-		if (PREFS_SYSTEM.equals(cat)) {
-			addPreferencesFromResource(R.xml.prefs_system);
-			// Manually initialize Listeners for Download- and CachePath
-			initializePreferences(this);
-		}
-		if (PREFS_USAGE.equals(cat))
-			addPreferencesFromResource(R.xml.prefs_usage);
-		if (PREFS_WIFI.equals(cat)) {
-			initWifibasedPreferences();
+		Bundle args = getArguments();
+		if (args != null)
+			m_CategoryName = args.getString("cat");
+	}
+
+	@Override
+	public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+		switch (m_CategoryName) {
+			case PREFS_DISPLAY:
+				addPreferencesFromResource(R.xml.prefs_display);
+				break;
+			case PREFS_HEADERS:
+				addPreferencesFromResource(R.xml.prefs_headers);
+				break;
+			case PREFS_HTTP:
+				addPreferencesFromResource(R.xml.prefs_http);
+				break;
+			case PREFS_MAIN_TOP:
+				addPreferencesFromResource(R.xml.prefs_main_top);
+				break;
+			case PREFS_SSL:
+				addPreferencesFromResource(R.xml.prefs_ssl);
+				break;
+			case PREFS_SYSTEM:
+				addPreferencesFromResource(R.xml.prefs_system);
+				// Manually initialize Listeners for Download- and CachePath
+				initializePreferences(this);
+				break;
+			case PREFS_USAGE:
+				addPreferencesFromResource(R.xml.prefs_usage);
+				break;
+			case PREFS_WIFI:
+				initWifibasedPreferences();
+				break;
 		}
 	}
 
-	public static void initializePreferences(final PreferencesFragment fragment) {
+	private static void initializePreferences(final PreferenceFragmentCompat fragment) {
 		final Preference downloadPath = fragment.findPreference(Constants.SAVE_ATTACHMENT);
 
 		if (downloadPath != null) {
 			downloadPath.setSummary(Controller.getInstance().saveAttachmentPath());
-			downloadPath.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			downloadPath.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 				@Override
 				public boolean onPreferenceClick(Preference preference) {
 					FileBrowserHelper.getInstance().showFileBrowserActivity(fragment, new File(Controller.getInstance().saveAttachmentPath()), ACTIVITY_CHOOSE_ATTACHMENT_FOLDER, callbackDownloadPath);
@@ -116,8 +131,16 @@ public class PreferencesFragment extends PreferenceFragment {
 
 	private void initWifibasedPreferences() {
 		addPreferencesFromResource(R.xml.prefs_wifibased);
-		PreferenceCategory mWifibasedCategory = (PreferenceCategory) findPreference("wifibasedCategory");
-		WifiManager mWifiManager = (WifiManager) getActivity().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+
+		PreferenceCategory mWifibasedCategory = findPreference("wifibasedCategory");
+		if (mWifibasedCategory == null)
+			return;
+
+		Activity activity = getActivity();
+		if (activity == null)
+			return;
+
+		WifiManager mWifiManager = (WifiManager) activity.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 		if (mWifiManager == null)
 			return;
 
@@ -175,13 +198,17 @@ public class PreferencesFragment extends PreferenceFragment {
 		Uri fileUri = data.getData();
 		if (fileUri != null) {
 			Preference downloadPath = findPreference(Constants.SAVE_ATTACHMENT);
-			downloadPath.setSummary(fileUri.getPath());
+			if (downloadPath != null)
+				downloadPath.setSummary(fileUri.getPath());
 
 			// Use takePersistableUriPermission
 			if (Build.VERSION.SDK_INT >= 100000) { //Build.VERSION_CODES.LOLLIPOP) { // TODO Use proper VERSION_CODE
-				ContentResolver resolver = getContext().getContentResolver();
-				int flags = Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
-				resolver.takePersistableUriPermission(fileUri, flags);
+				Context ctx = getContext();
+				if (ctx != null) {
+					ContentResolver resolver = getContext().getContentResolver();
+					int flags = Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
+					resolver.takePersistableUriPermission(fileUri, flags);
+				}
 
 				Controller.getInstance().setSaveAttachmentGeneric(fileUri.toString());
 			} else {

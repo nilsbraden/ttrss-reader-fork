@@ -40,6 +40,7 @@ import org.ttrssreader.model.ListContentProvider;
 import org.ttrssreader.model.updaters.IUpdatable;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 
+import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
 
@@ -77,7 +78,7 @@ public class CategoryListFragment extends MainListFragment {
 	@Override
 	public void onActivityCreated(Bundle instance) {
 		adapter = new CategoryAdapter(getActivity());
-		getLoaderManager().restartLoader(TYPE_CAT_ID, null, this);
+		LoaderManager.getInstance(this).restartLoader(TYPE_CAT_ID, null, this);
 		super.onActivityCreated(instance);
 	}
 

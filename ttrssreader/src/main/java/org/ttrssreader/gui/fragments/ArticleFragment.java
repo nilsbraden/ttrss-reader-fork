@@ -656,7 +656,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 
 		if (tnv.alt == null)
 			return null;
-		return Html.fromHtml(tnv.alt).toString();
+		return Html.fromHtml(tnv.alt, Html.FROM_HTML_MODE_COMPACT).toString();
 	}
 
 	/**

@@ -22,7 +22,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.security.ProviderInstaller;
 
 import org.ttrssreader.R;
@@ -57,6 +57,7 @@ public abstract class MenuFlavorActivity extends FragmentActivity implements Pro
 			// onPostResume.
 			mRetryProviderInstall = true;
 		}
+		super.onActivityResult(requestCode, resultCode, data);
 	}
 
 	/**
@@ -81,9 +82,10 @@ public abstract class MenuFlavorActivity extends FragmentActivity implements Pro
 
 	@Override
 	public void onProviderInstallFailed(int errorCode, Intent recoveryIntent) {
-		if (GooglePlayServicesUtil.isUserRecoverableError(errorCode)) {
+		GoogleApiAvailability api = GoogleApiAvailability.getInstance();
+		if (api.isUserResolvableError(errorCode)) {
 			// Recoverable error. Show a dialog prompting the user to install/update/enable Google Play services.
-			GooglePlayServicesUtil.showErrorDialogFragment(errorCode, this, ERROR_DIALOG_REQUEST_CODE, new DialogInterface.OnCancelListener() {
+			api.showErrorDialogFragment(this, errorCode, ERROR_DIALOG_REQUEST_CODE, new DialogInterface.OnCancelListener() {
 				@Override
 				public void onCancel(DialogInterface dialog) {
 					// The user chose not to take the recovery action

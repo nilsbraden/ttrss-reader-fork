@@ -21,19 +21,19 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <include
-        layout="@layout/toolbar"/>
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:baselineAligned="false">
 
+		<include
+			layout="@layout/toolbar"/>
+
         <FrameLayout
             android:id="@+id/frame_main"
             android:layout_width="match_parent"
             android:layout_height="0px"
-            android:layout_below="@id/toolbar"/>
+            android:layout_below="@id/progressBarLayout"/>
 
         <FrameLayout
             android:id="@+id/list_divider"

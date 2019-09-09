@@ -834,7 +834,7 @@ public class DBHelper {
 		synchronized (insertArticleLock) {
 			insertArticle.bindLong(1, a.id);
 			insertArticle.bindLong(2, a.feedId);
-			insertArticle.bindString(3, Html.fromHtml(a.title).toString());
+			insertArticle.bindString(3, Html.fromHtml(a.title, Html.FROM_HTML_MODE_COMPACT).toString());
 			insertArticle.bindLong(4, (a.isUnread ? 1 : 0));
 			insertArticle.bindString(5, a.url);
 			insertArticle.bindString(6, a.commentUrl);

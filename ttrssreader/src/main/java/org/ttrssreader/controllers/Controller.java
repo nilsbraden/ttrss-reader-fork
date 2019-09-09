@@ -283,8 +283,9 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	@SuppressLint("PackageManagerGetSignatures")
 	public static boolean checkRightAppSignature(Context context) {
 		try {
-			PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), PackageManager.GET_SIGNATURES);
-			for (Signature signature : packageInfo.signatures) {
+			PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), PackageManager.GET_SIGNING_CERTIFICATES);
+
+			for (Signature signature : packageInfo.signingInfo.getApkContentsSigners()) {
 				MessageDigest md = MessageDigest.getInstance("SHA");
 				md.update(signature.toByteArray());
 				final String currentSignature = Base64.encodeToString(md.digest(), Base64.NO_WRAP).replace("\r", "").replace("\n", "");

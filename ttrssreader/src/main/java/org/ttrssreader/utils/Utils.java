@@ -34,8 +34,8 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
+import android.os.VibrationEffect;
 import android.os.Vibrator;
-import androidx.core.net.ConnectivityManagerCompat;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
@@ -61,6 +61,8 @@ import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.regex.Pattern;
+
+import androidx.core.net.ConnectivityManagerCompat;
 
 public class Utils {
 
@@ -171,12 +173,12 @@ public class Utils {
 	 * @param c - The Activity to retrieve the current version
 	 * @return the version-string
 	 */
-	public static int getAppVersionCode(Context c) {
-		int result;
+	public static long getAppVersionCode(Context c) {
+		long result;
 		try {
 			PackageManager manager = c.getPackageManager();
 			PackageInfo info = manager.getPackageInfo(c.getPackageName(), 0);
-			result = info.versionCode;
+			result = info.getLongVersionCode();
 		} catch (NameNotFoundException e) {
 			Log.w(TAG, "Unable to get application version: " + e.getMessage());
 			result = 0;
@@ -480,7 +482,14 @@ public class Utils {
 	public static void alert(Activity activity, boolean error) {
 		Vibrator vib = ((Vibrator) activity.getSystemService(Context.VIBRATOR_SERVICE));
 		if (vib != null && vib.hasVibrator()) {
-			vib.vibrate(Utils.SHORT_VIBRATE);
+
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+				vib.vibrate(Utils.SHORT_VIBRATE);
+			} else {
+				VibrationEffect effect = VibrationEffect.createOneShot(Utils.SHORT_VIBRATE, VibrationEffect.DEFAULT_AMPLITUDE);
+				vib.vibrate(effect);
+			}
+
 		} else if (error) {
 			// Only flash when user tried to move forward, flashing when reaching the last article looks just wrong.
 			Animation flash = AnimationUtils.loadAnimation(activity, R.anim.flash);

@@ -19,7 +19,6 @@ package org.ttrssreader.preferences;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Fragment;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -30,6 +29,8 @@ import android.widget.EditText;
 import org.ttrssreader.R;
 
 import java.io.File;
+
+import androidx.fragment.app.Fragment;
 
 /**
  * Copied from https://code.google.com/p/k9mail/

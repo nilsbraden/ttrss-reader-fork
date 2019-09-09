@@ -17,20 +17,22 @@
 
 package org.ttrssreader.gui.fragments;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.CheckBoxPreference;
-import android.preference.Preference;
-import android.preference.PreferenceCategory;
-import android.preference.PreferenceFragment;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import org.ttrssreader.R;
 import org.ttrssreader.gui.WifiPreferencesActivity;
 import org.ttrssreader.preferences.Constants;
 
-public class WifiPreferencesFragment extends PreferenceFragment {
+import androidx.preference.CheckBoxPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceCategory;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
+
+public class WifiPreferencesFragment extends PreferenceFragmentCompat {
 
 	private static final String TAG = WifiPreferencesFragment.class.getSimpleName();
 
@@ -38,22 +40,36 @@ public class WifiPreferencesFragment extends PreferenceFragment {
 	private static final String PREFS_HTTP = "prefs_http";
 	private static final String PREFS_SSL = "prefs_ssl";
 
+	private String m_Ssid;
+	private String m_CategoryName;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
 
-		String ssid = getArguments().getString(WifiPreferencesActivity.KEY_SSID);
-		String cat = getArguments().getString("cat");
+		Bundle args = getArguments();
+		if (args != null) {
+			m_Ssid = getArguments().getString(WifiPreferencesActivity.KEY_SSID);
+			m_CategoryName = getArguments().getString("cat");
+		}
+	}
 
-		if (PREFS_MAIN_TOP.equals(cat))
-			addPreferencesFromResource(R.xml.prefs_main_top);
-		if (PREFS_HTTP.equals(cat))
-			addPreferencesFromResource(R.xml.prefs_http);
-		if (PREFS_SSL.equals(cat))
-			addPreferencesFromResource(R.xml.prefs_ssl);
+	@Override
+	public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+		switch (m_CategoryName) {
+			case PREFS_MAIN_TOP:
+				addPreferencesFromResource(R.xml.prefs_main_top);
+				break;
+			case PREFS_HTTP:
+				addPreferencesFromResource(R.xml.prefs_http);
+				break;
+			case PREFS_SSL:
+				addPreferencesFromResource(R.xml.prefs_ssl);
+				break;
+		}
 
-		initDynamicConnectionPrefs(ssid, PREFS_MAIN_TOP.equals(cat));
+		initDynamicConnectionPrefs(m_Ssid, PREFS_MAIN_TOP.equals(m_CategoryName));
 	}
 
 	private void initDynamicConnectionPrefs(String ssid, boolean addEnableWifiPref) {
@@ -63,7 +79,13 @@ public class WifiPreferencesFragment extends PreferenceFragment {
 			return;
 
 		PreferenceCategory category = (PreferenceCategory) getPreferenceScreen().getPreference(0);
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+		SharedPreferences prefs = null;
+		Context context = getActivity();
+		if (context != null) {
+			// If this fails we dont have default values:
+			prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+		}
 
 		for (int i = 0; i < category.getPreferenceCount(); i++) {
 			Preference pref = category.getPreference(i);
@@ -74,7 +96,7 @@ public class WifiPreferencesFragment extends PreferenceFragment {
 			pref.setKey(newKey);
 
 			Object defaultValue = null;
-			if (prefs.getAll().containsKey(newKey))
+			if (prefs != null && prefs.getAll().containsKey(newKey))
 				defaultValue = prefs.getAll().get(newKey);
 			pref.setDefaultValue(defaultValue);
 
@@ -98,7 +120,7 @@ public class WifiPreferencesFragment extends PreferenceFragment {
 			enableWifiPref.setSummaryOff(R.string.ConnectionWifiPrefDisbledSummary);
 
 			Object defaultValue = null;
-			if (prefs.getAll().containsKey(key))
+			if (prefs != null && prefs.getAll().containsKey(key))
 				defaultValue = prefs.getAll().get(key);
 			enableWifiPref.setDefaultValue(defaultValue);
 

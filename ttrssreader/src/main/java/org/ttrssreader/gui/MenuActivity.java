@@ -711,17 +711,17 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 	public void setMyProgress(int progress) {
 		setMyProgressBarVisibility(progress > 1 && progress < 9999);
 		progressbar.setProgress(progress);
-		super.setProgress(progress);
+		//		super.setProgress(progress);
 	}
 
 	public void setMyProgressBarVisibility(boolean visible) {
 		progressbar.setVisibility(visible ? View.VISIBLE : View.GONE);
-		super.setProgressBarVisibility(visible);
+		//		super.setProgressBarVisibility(visible);
 	}
 
 	public void setMyProgressBarIndeterminateVisibility(boolean visible) {
 		progressspinner.setVisibility(visible ? View.VISIBLE : View.GONE);
-		super.setProgressBarIndeterminateVisibility(visible);
+		//		super.setProgressBarIndeterminateVisibility(visible);
 	}
 
 }

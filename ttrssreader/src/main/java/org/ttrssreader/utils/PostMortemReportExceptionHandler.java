@@ -67,7 +67,7 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
 	private static final String MSG_BODY = "Please help by sending this email. " + "No personal information is being sent (you can check by reading the rest of the email).";
 
 	private Thread.UncaughtExceptionHandler mDefaultUEH;
-	private Activity mAct = null;
+	private Activity mAct;
 
 	public PostMortemReportExceptionHandler(Activity aAct) {
 		mDefaultUEH = Thread.getDefaultUncaughtExceptionHandler();
@@ -98,8 +98,8 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
 		}
 
 		// Ignore crashreport if this version isn't the newest from market
-		int latest = Controller.getInstance().appLatestVersion();
-		int current = Utils.getAppVersionCode(mAct);
+		long latest = Controller.getInstance().appLatestVersion();
+		long current = Utils.getAppVersionCode(mAct);
 		if (latest > current) {
 			Log.i(TAG, "App is not updated, error reports are disabled.");
 			return;
@@ -170,7 +170,7 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
 	 *
 	 * @return Returns a string with the device info used for debugging.
 	 */
-	public String getDeviceEnvironment() {
+	private String getDeviceEnvironment() {
 		// app environment
 		PackageManager pm = mAct.getPackageManager();
 		PackageInfo pi;
@@ -180,7 +180,6 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
 			// doubt this will ever run since we want info about our own package
 			pi = new PackageInfo();
 			pi.versionName = "unknown";
-			pi.versionCode = 69;
 		}
 		Date theDate = new Date();
 		SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy_HH.mm.ss_zzz", Locale.ENGLISH);
@@ -188,7 +187,7 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
 
 		s.append("--- Application ---------------------\n");
 		s.append("Version     = " + Controller.getInstance().getLastVersionRun() + "\n");
-		s.append("VersionCode = " + (pi != null ? pi.versionCode : "null") + "\n");
+		s.append("VersionCode = " + (pi != null ? pi.getLongVersionCode() : "null") + "\n");
 		s.append("-------------------------------------\n\n");
 
 		s.append("--- Environment ---------------------\n");
@@ -205,7 +204,7 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
 		s.append("Id          = " + Build.ID + "\n");
 		s.append("Fingerprint = " + Build.FINGERPRINT + "\n");
 		s.append("Product     = " + Build.PRODUCT + "\n");
-		s.append("Locale      = " + mAct.getResources().getConfiguration().locale.getDisplayName() + "\n");
+		s.append("Locale      = " + mAct.getResources().getConfiguration().getLocales().get(0).getDisplayName() + "\n");
 		s.append("Res         = " + mAct.getResources().getDisplayMetrics().toString() + "\n");
 		s.append("-------------------------------------\n\n");
 
@@ -223,7 +222,7 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
 	 *
 	 * @return Returns the application name as defined by the android:name attribute.
 	 */
-	public CharSequence getAppName() {
+	private CharSequence getAppName() {
 		PackageManager pm = mAct.getPackageManager();
 		PackageInfo pi;
 		try {
@@ -328,13 +327,13 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
 	 */
 	private void sendDebugReportToAuthor() {
 		String theLine;
-		String theTrace = "";
+		StringBuilder sb = new StringBuilder();
 		try {
 			BufferedReader theReader = new BufferedReader(new InputStreamReader(mAct.openFileInput(EXCEPTION_REPORT_FILENAME)));
 			while ((theLine = theReader.readLine()) != null) {
-				theTrace += theLine + "\n";
+				sb.append(theLine + "\n");
 			}
-			if (sendDebugReportToAuthor(theTrace)) {
+			if (sendDebugReportToAuthor(sb.toString())) {
 				mAct.deleteFile(EXCEPTION_REPORT_FILENAME);
 			}
 		} catch (IOException eIo) {
@@ -357,7 +356,8 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
 			theIntent.putExtra(Intent.EXTRA_TEXT, theBody);
 			theIntent.putExtra(Intent.EXTRA_SUBJECT, theSubject);
 			theIntent.setType("message/rfc822");
-			Boolean hasSendRecipients = (mAct.getPackageManager().queryIntentActivities(theIntent, 0).size() > 0);
+
+			boolean hasSendRecipients = (mAct.getPackageManager().queryIntentActivities(theIntent, 0).size() > 0);
 			if (hasSendRecipients) {
 				mAct.startActivity(theIntent);
 				return true;

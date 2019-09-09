@@ -17,8 +17,6 @@
 
 package org.ttrssreader.gui;
 
-
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -27,6 +25,7 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
@@ -49,7 +48,9 @@ public class ShareActivity extends MenuActivity {
 	private EditText url;
 	private EditText content;
 
-	private ProgressDialog progress;
+	String m_TitleValue;
+	String m_UrlValue;
+	String m_ContentValue;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -71,9 +72,9 @@ public class ShareActivity extends MenuActivity {
 			contentValue = savedInstanceState.getString(PARAM_CONTENT);
 		}
 
-		title = (EditText) findViewById(R.id.share_title);
-		url = (EditText) findViewById(R.id.share_url);
-		content = (EditText) findViewById(R.id.share_content);
+		title = findViewById(R.id.share_title);
+		url = findViewById(R.id.share_url);
+		content = findViewById(R.id.share_content);
 
 		title.setText(titleValue);
 		url.setText(urlValue);
@@ -83,7 +84,12 @@ public class ShareActivity extends MenuActivity {
 		shareButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				progress = ProgressDialog.show(context, null, "Sending...");
+				Toast.makeText(getApplicationContext(), "Sending update...", Toast.LENGTH_SHORT).show();
+
+				m_TitleValue = title.getText().toString();
+				m_UrlValue = url.getText().toString();
+				m_ContentValue = content.getText().toString();
+
 				new MyPublisherTask().execute();
 			}
 		});
@@ -104,9 +110,9 @@ public class ShareActivity extends MenuActivity {
 	public void onSaveInstanceState(Bundle out) {
 		super.onSaveInstanceState(out);
 
-		EditText url = (EditText) findViewById(R.id.share_url);
-		EditText title = (EditText) findViewById(R.id.share_title);
-		EditText content = (EditText) findViewById(R.id.share_content);
+		EditText url = findViewById(R.id.share_url);
+		EditText title = findViewById(R.id.share_title);
+		EditText content = findViewById(R.id.share_content);
 		out.putString(PARAM_TITLE, title.getText().toString());
 		out.putString(PARAM_URL, url.getText().toString());
 		out.putString(PARAM_CONTENT, content.getText().toString());
@@ -123,13 +129,8 @@ public class ShareActivity extends MenuActivity {
 		@Override
 		protected Void doInBackground(Void... params) {
 
-			String titleValue = title.getText().toString();
-			String urlValue = url.getText().toString();
-			String contentValue = content.getText().toString();
-
 			try {
-				boolean ret = Data.getInstance().shareToPublished(titleValue, urlValue, contentValue);
-				progress.dismiss();
+				boolean ret = Data.getInstance().shareToPublished(m_TitleValue, m_UrlValue, m_ContentValue);
 
 				if (ret)
 					finishCompat();

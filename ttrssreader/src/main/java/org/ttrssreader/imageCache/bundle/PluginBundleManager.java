@@ -101,7 +101,7 @@ public final class PluginBundleManager {
 	 */
 	public static Bundle generateBundle(final Context context, final boolean fetchImages, final boolean showNotification) {
 		final Bundle result = new Bundle();
-		result.putInt(BUNDLE_EXTRA_INT_VERSION_CODE, Utils.getAppVersionCode(context));
+		result.putLong(BUNDLE_EXTRA_INT_VERSION_CODE, Utils.getAppVersionCode(context));
 		result.putBoolean(BUNDLE_EXTRA_IMAGES, fetchImages);
 		result.putBoolean(BUNDLE_EXTRA_NOTIFICATION, showNotification);
 

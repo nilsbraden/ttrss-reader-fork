@@ -1,34 +1,6 @@
-/*
- * Copyright (c) 2015, Nils Braden
- *
- * This file is part of ttrss-reader-fork. This program is free software; you
- * can redistribute it and/or modify it under the terms of the GNU
- * General Public License as published by the Free Software Foundation;
- * either version 3 of the License, or (at your option) any later
- * version.
- *
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details. You should have received a
- * copy of the GNU General Public License along with this program; If
- * not, see http://www.gnu.org/licenses/.
- */
-
 package org.ttrssreader.utils;
 
-/*
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will Google be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, as long as the origin is not misrepresented.
- */
-
 import android.os.Build;
-import android.os.Build.VERSION_CODES;
 import android.os.Process;
 import android.util.Log;
 
@@ -40,32 +12,36 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
 import java.security.SecureRandom;
 import java.security.SecureRandomSpi;
 import java.security.Security;
 
+/*
+ * This software is provided 'as-is', without any express or implied
+ * warranty.  In no event will Google be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, as long as the origin is not misrepresented.
+ */
+
 /**
- * <p>
  * Fixes for the output of the default PRNG having low entropy.
- * </p>
  * <p>
- * The fixes need to be applied via {@link #apply()} before any use of Java Cryptography Architecture primitives. A
- * good
- * place to invoke them is in the application's {@code onCreate}.
- * </p>
+ * The fixes need to be applied via {@link #apply()} before any use of Java
+ * Cryptography Architecture primitives. A good place to invoke them is in the
+ * application's {@code onCreate}.
  * <p>
- * See: <a
- * href="http://android-developers.blogspot.de/2013/08/some-securerandom-thoughts.html">android-developers.blogspot
- * .de</a>
- * </p>
+ * See: <a href="http://android-developers.blogspot.de/2013/08/some-securerandom-thoughts.html">android-developers.blogspot.de</a>
  */
 public final class PRNGFixes {
 
-	private static final String TAG = PRNGFixes.class.getSimpleName();
-
+	private static final int VERSION_CODE_JELLY_BEAN = 16;
+	private static final int VERSION_CODE_JELLY_BEAN_MR2 = 18;
 	private static final byte[] BUILD_FINGERPRINT_AND_DEVICE_SERIAL = getBuildFingerprintAndDeviceSerial();
 
 	/**
@@ -90,9 +66,8 @@ public final class PRNGFixes {
 	 *
 	 * @throws SecurityException if the fix is needed but could not be applied.
 	 */
-	@SuppressWarnings("PrimitiveArrayArgumentToVariableArgMethod")
 	private static void applyOpenSSLFix() throws SecurityException {
-		if ((Build.VERSION.SDK_INT < VERSION_CODES.JELLY_BEAN) || (Build.VERSION.SDK_INT > VERSION_CODES.JELLY_BEAN_MR2)) {
+		if ((Build.VERSION.SDK_INT < VERSION_CODE_JELLY_BEAN) || (Build.VERSION.SDK_INT > VERSION_CODE_JELLY_BEAN_MR2)) {
 			// No need to apply the fix
 			return;
 		}
@@ -119,7 +94,7 @@ public final class PRNGFixes {
 	 * @throws SecurityException if the fix is needed but could not be applied.
 	 */
 	private static void installLinuxPRNGSecureRandom() throws SecurityException {
-		if (Build.VERSION.SDK_INT > VERSION_CODES.JELLY_BEAN_MR2) {
+		if (Build.VERSION.SDK_INT > VERSION_CODE_JELLY_BEAN_MR2) {
 			// No need to apply the fix
 			return;
 		}
@@ -146,7 +121,7 @@ public final class PRNGFixes {
 			throw new SecurityException("SHA1PRNG not available", e);
 		}
 		if (!LinuxPRNGSecureRandomProvider.class.equals(rng2.getProvider().getClass())) {
-			throw new SecurityException("SecureRandom.getInstance(\"SHA1PRNG\") backed by wrong Provider: " + rng2.getProvider().getClass());
+			throw new SecurityException("SecureRandom.getInstance(\"SHA1PRNG\") backed by wrong" + " Provider: " + rng2.getProvider().getClass());
 		}
 	}
 
@@ -156,10 +131,8 @@ public final class PRNGFixes {
 	 */
 	private static class LinuxPRNGSecureRandomProvider extends Provider {
 
-		private static final long serialVersionUID = 1L;
-
 		public LinuxPRNGSecureRandomProvider() {
-			super("LinuxPRNG", 1.0, "A Linux-specific random number provider that uses /dev/urandom");
+			super("LinuxPRNG", 1.0, "A Linux-specific random number provider that uses" + " /dev/urandom");
 			// Although /dev/urandom is not a SHA-1 PRNG, some apps
 			// explicitly request a SHA1PRNG SecureRandom and we thus need to
 			// prevent them from getting the default implementation whose output
@@ -186,7 +159,6 @@ public final class PRNGFixes {
 		 * serialized (on sLock) to ensure that multiple threads do not get
 		 * duplicated PRNG output.
 		 */
-		private static final long serialVersionUID = 1L;
 
 		private static final File URANDOM_FILE = new File("/dev/urandom");
 
@@ -195,12 +167,16 @@ public final class PRNGFixes {
 		/**
 		 * Input stream for reading from Linux PRNG or {@code null} if not yet
 		 * opened.
+		 *
+		 * @GuardedBy("sLock")
 		 */
 		private static DataInputStream sUrandomIn;
 
 		/**
 		 * Output stream for writing to Linux PRNG or {@code null} if not yet
 		 * opened.
+		 *
+		 * @GuardedBy("sLock")
 		 */
 		private static OutputStream sUrandomOut;
 
@@ -221,7 +197,9 @@ public final class PRNGFixes {
 				out.write(bytes);
 				out.flush();
 			} catch (IOException e) {
-				Log.w(TAG, "Failed to mix seed into " + URANDOM_FILE);
+				// On a small fraction of devices /dev/urandom is not writable.
+				// Log and ignore.
+				Log.w(PRNGFixes.class.getSimpleName(), "Failed to mix seed into " + URANDOM_FILE);
 			} finally {
 				mSeeded = true;
 			}
@@ -238,6 +216,8 @@ public final class PRNGFixes {
 				DataInputStream in;
 				synchronized (sLock) {
 					in = getUrandomInputStream();
+				}
+				synchronized (in) {
 					in.readFully(bytes);
 				}
 			} catch (IOException e) {
@@ -305,14 +285,11 @@ public final class PRNGFixes {
 		if (fingerprint != null) {
 			result.append(fingerprint);
 		}
+
 		String serial = Build.SERIAL;
 		if (serial != null) {
 			result.append(serial);
 		}
-		try {
-			return result.toString().getBytes("UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException("UTF-8 encoding not supported");
-		}
+		return result.toString().getBytes(StandardCharsets.UTF_8);
 	}
 }

@@ -64,6 +64,7 @@ import org.ttrssreader.utils.AsyncTask;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
 
@@ -121,7 +122,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
 	@Override
 	public void onActivityCreated(Bundle instance) {
 		adapter = new FeedHeadlineAdapter(getActivity(), feedId, selectArticlesForCategory);
-		getLoaderManager().restartLoader(TYPE_HEADLINE_ID, null, this);
+		LoaderManager.getInstance(this).restartLoader(TYPE_HEADLINE_ID, null, this);
 
 		super.onActivityCreated(instance);
 

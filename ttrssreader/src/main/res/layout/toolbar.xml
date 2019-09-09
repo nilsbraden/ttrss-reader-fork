@@ -85,6 +85,7 @@
         still not having the whole layout below move upwards when it is hidden.
     -->
     <LinearLayout
+        android:id="@+id/progressBarLayout"
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:layout_below="@id/toolbar"

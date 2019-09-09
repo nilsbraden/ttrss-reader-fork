@@ -83,7 +83,6 @@ public class PreferencesActivity extends PreferenceActivity implements Toolbar.O
 		});
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		setTheme(Controller.getInstance().getTheme());
