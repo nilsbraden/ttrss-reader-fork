@@ -24,7 +24,6 @@ import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -58,6 +57,9 @@ import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 import org.ttrssreader.utils.Utils;
+
+import androidx.fragment.app.FragmentManager;
+
 
 /**
  * This class provides common functionality for Activities.

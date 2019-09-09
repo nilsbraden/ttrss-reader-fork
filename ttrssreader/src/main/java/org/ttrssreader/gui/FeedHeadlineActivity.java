@@ -18,8 +18,6 @@
 package org.ttrssreader.gui;
 
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -37,6 +35,9 @@ import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.Utils;
 
 import java.util.List;
+
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 public class FeedHeadlineActivity extends MenuActivity {
 

@@ -18,8 +18,7 @@
 package org.ttrssreader.gui;
 
 
-import android.support.v4.app.FragmentActivity;
-
+import androidx.fragment.app.FragmentActivity;
 
 /**
  * This class is empty since we don't want to use the play services library here!

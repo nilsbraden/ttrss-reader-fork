@@ -21,8 +21,6 @@ import android.app.Activity;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -41,6 +39,9 @@ import org.ttrssreader.model.CategoryAdapter;
 import org.ttrssreader.model.ListContentProvider;
 import org.ttrssreader.model.updaters.IUpdatable;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
+
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
 
 public class CategoryListFragment extends MainListFragment {
 
@@ -105,7 +106,7 @@ public class CategoryListFragment extends MainListFragment {
 					updater = new ReadStateUpdater(id, 42);
 				else
 					updater = new ReadStateUpdater(id);
-				ReadStateDialog.getInstance(updater).show(getFragmentManager());
+				ReadStateDialog.getInstance(updater).show(getActivity().getSupportFragmentManager());
 				return true;
 			case SELECT_ARTICLES:
 				if (id < 0)
@@ -141,13 +142,13 @@ public class CategoryListFragment extends MainListFragment {
 		switch (item.getItemId()) {
 			case R.id.Menu_MarkAllRead: {
 				IUpdatable updateable = new ReadStateUpdater(ReadStateUpdater.TYPE.ALL_CATEGORIES);
-				ReadStateDialog.getInstance(updateable, backAfterUpdate).show(getFragmentManager());
+				ReadStateDialog.getInstance(updateable, backAfterUpdate).show(getActivity().getSupportFragmentManager());
 				return true;
 			}
 			case R.id.Menu_MarkFeedsRead:
 				if (selectedId > Integer.MIN_VALUE) {
 					IUpdatable updateable = new ReadStateUpdater(selectedId);
-					ReadStateDialog.getInstance(updateable, backAfterUpdate).show(getFragmentManager());
+					ReadStateDialog.getInstance(updateable, backAfterUpdate).show(getActivity().getSupportFragmentManager());
 				}
 				return true;
 			default:

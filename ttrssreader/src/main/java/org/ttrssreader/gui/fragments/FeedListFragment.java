@@ -22,8 +22,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.os.Bundle;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.View;
@@ -43,6 +41,9 @@ import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.AsyncTask;
 
 import java.util.List;
+
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
 
 public class FeedListFragment extends MainListFragment {
 
@@ -112,7 +113,7 @@ public class FeedListFragment extends MainListFragment {
 				return true;
 			case UNSUBSCRIBE:
 				YesNoUpdaterDialog dialog = YesNoUpdaterDialog.getInstance(new UnsubscribeUpdater(adapter.getId(cmi.position)), R.string.Dialog_unsubscribeTitle, R.string.Dialog_unsubscribeText);
-				dialog.show(getFragmentManager(), YesNoUpdaterDialog.DIALOG);
+				dialog.show(getActivity().getSupportFragmentManager(), YesNoUpdaterDialog.DIALOG);
 				return true;
 		}
 		return false;

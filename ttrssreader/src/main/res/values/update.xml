@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright (c) 2015, Nils Braden
 
   This file is part of ttrss-reader-fork. This program is free software; you
@@ -18,7 +17,10 @@
 <resources>
 
     <string-array name="updates">
-		<item>Version 1.93.3
+		<item>Version 1.94
+			 * TODO
+		</item>
+        <item>Version 1.93.3
 			 * Note for users on Android Oreo (8.x): I reverted some changes (new library versions mainly) and forcibly disabled the animations preference to make sure moving between articles works again. This currently is the only solution I have for #374.
 			 * Fix issue #371: feedname not shown and empty in overview
 			 * Fix issue #376: Trust anchor for certification path not found

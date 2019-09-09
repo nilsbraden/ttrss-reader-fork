@@ -21,12 +21,13 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
 
 import org.ttrssreader.R;
 import org.ttrssreader.model.updaters.IUpdatable;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.AsyncTask;
+
+import androidx.fragment.app.FragmentManager;
 
 public class ReadStateDialog extends MyDialogFragment {
 

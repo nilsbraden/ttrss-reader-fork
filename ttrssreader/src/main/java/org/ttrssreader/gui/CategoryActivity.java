@@ -21,8 +21,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -45,6 +43,9 @@ import org.ttrssreader.utils.Utils;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
+
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 public class CategoryActivity extends MenuActivity implements IItemSelectedListener {
 

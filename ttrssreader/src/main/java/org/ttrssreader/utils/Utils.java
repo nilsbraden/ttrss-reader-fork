@@ -35,7 +35,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Vibrator;
-import android.support.v4.net.ConnectivityManagerCompat;
+import androidx.core.net.ConnectivityManagerCompat;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;

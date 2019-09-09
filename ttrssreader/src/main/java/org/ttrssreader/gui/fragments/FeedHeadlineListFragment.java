@@ -25,8 +25,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.os.Bundle;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
 import android.view.Menu;
@@ -65,6 +63,9 @@ import org.ttrssreader.utils.AsyncTask;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
 
 public class FeedHeadlineListFragment extends MainListFragment implements TextInputAlertCallback {
 
@@ -226,10 +227,10 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
 				boolean backAfterUpdate = Controller.getInstance().goBackAfterMarkAllRead();
 				if (selectArticlesForCategory) {
 					IUpdatable updateable = new ReadStateUpdater(categoryId);
-					ReadStateDialog.getInstance(updateable, backAfterUpdate).show(getFragmentManager());
+					ReadStateDialog.getInstance(updateable, backAfterUpdate).show(getActivity().getSupportFragmentManager());
 				} else if (feedId >= -4 && feedId < 0) { // Virtual Category
 					IUpdatable updateable = new ReadStateUpdater(feedId, 42);
-					ReadStateDialog.getInstance(updateable, backAfterUpdate).show(getFragmentManager());
+					ReadStateDialog.getInstance(updateable, backAfterUpdate).show(getActivity().getSupportFragmentManager());
 				} else {
 					new Updater(getActivity(), new ReadStateUpdater(feedId, 42), backAfterUpdate).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 				}
@@ -238,7 +239,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
 			}
 			case R.id.Menu_FeedUnsubscribe: {
 				YesNoUpdaterDialog dialog = YesNoUpdaterDialog.getInstance(new UnsubscribeUpdater(feedId), R.string.Dialog_unsubscribeTitle, R.string.Dialog_unsubscribeText);
-				dialog.show(getFragmentManager(), YesNoUpdaterDialog.DIALOG);
+				dialog.show(getActivity().getSupportFragmentManager(), YesNoUpdaterDialog.DIALOG);
 				return true;
 			}
 			default:

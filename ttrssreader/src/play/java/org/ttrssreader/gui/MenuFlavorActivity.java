@@ -17,7 +17,6 @@
 
 package org.ttrssreader.gui;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -30,10 +29,12 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.gui.dialogs.IgnorableErrorDialog;
 
+import androidx.fragment.app.FragmentActivity;
+
 /**
  * This class provides functionality for using the play services library in the build flavour "play".
  */
-public abstract class MenuFlavorActivity extends Activity implements ProviderInstaller.ProviderInstallListener {
+public abstract class MenuFlavorActivity extends FragmentActivity implements ProviderInstaller.ProviderInstallListener {
 
 	private static final String TAG = MenuFlavorActivity.class.getSimpleName();
 
@@ -100,7 +101,7 @@ public abstract class MenuFlavorActivity extends Activity implements ProviderIns
 		communication to be vulnerable, and take appropriate action. */
 		Log.w(TAG, getString(R.string.Error_UnsafeConnection));
 		if (!Controller.getInstance().ignoreUnsafeConnectionError()) {
-			IgnorableErrorDialog.getInstance(getString(R.string.Error_UnsafeConnection)).show(getFragmentManager(), "error");
+			IgnorableErrorDialog.getInstance(getString(R.string.Error_UnsafeConnection)).show(getSupportFragmentManager(), "error");
 		}
 	}
 
