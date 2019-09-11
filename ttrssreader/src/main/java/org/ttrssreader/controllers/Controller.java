@@ -63,6 +63,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -282,20 +283,36 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 
 	@SuppressLint("PackageManagerGetSignatures")
 	public static boolean checkRightAppSignature(Context context) {
+		PackageManager pm = context.getPackageManager();
 		try {
-			PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), PackageManager.GET_SIGNING_CERTIFICATES);
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
 
-			for (Signature signature : packageInfo.signingInfo.getApkContentsSigners()) {
-				MessageDigest md = MessageDigest.getInstance("SHA");
-				md.update(signature.toByteArray());
-				final String currentSignature = Base64.encodeToString(md.digest(), Base64.NO_WRAP).replace("\r", "").replace("\n", "");
-				if (SIGNATURE.equals(currentSignature))
-					return true;
+				PackageInfo packageInfo = pm.getPackageInfo(context.getPackageName(), PackageManager.GET_SIGNATURES);
+				for (Signature signature : packageInfo.signatures) {
+					if (matchesSignature(signature))
+						return true;
+				}
+
+			} else {
+
+				PackageInfo packageInfo = pm.getPackageInfo(context.getPackageName(), PackageManager.GET_SIGNING_CERTIFICATES);
+				for (Signature signature : packageInfo.signingInfo.getApkContentsSigners()) {
+					if (matchesSignature(signature))
+						return true;
+				}
+
 			}
 		} catch (Exception e) {
 			Log.w(TAG, "Signing key could not be determined, assuming wrong key.");
 		}
 		return false;
+	}
+
+	private static boolean matchesSignature(Signature sig) throws NoSuchAlgorithmException {
+		MessageDigest md = MessageDigest.getInstance("SHA");
+		md.update(sig.toByteArray());
+		final String currentSignature = Base64.encodeToString(md.digest(), Base64.NO_WRAP).replace("\r", "").replace("\n", "");
+		return SIGNATURE.equals(currentSignature);
 	}
 
 	public static boolean checkRightInstaller(final Context context) {
@@ -770,7 +787,7 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 
 		// TODO: Remove the following when a solution for #374 has been found
 		// Forcibly disable animations on Android Oreo and above:
-		if (animations && Build.VERSION.SDK_INT >= 27) {
+		if (animations && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
 			setAnimations(false);
 		}
 
