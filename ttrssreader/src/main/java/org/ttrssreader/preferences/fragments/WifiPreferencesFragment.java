@@ -28,6 +28,7 @@ import org.ttrssreader.preferences.PreferencesActivity;
 
 import java.util.HashMap;
 
+import androidx.annotation.Keep;
 import androidx.preference.CheckBoxPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
@@ -35,6 +36,7 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 import androidx.preference.PreferenceScreen;
 
+@Keep
 public class WifiPreferencesFragment extends PreferenceFragmentCompat {
 
 	private static final String TAG = WifiPreferencesFragment.class.getSimpleName();

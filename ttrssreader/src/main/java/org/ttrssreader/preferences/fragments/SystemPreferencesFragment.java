@@ -15,9 +15,11 @@ import org.ttrssreader.preferences.FileBrowserHelper;
 
 import java.io.File;
 
+import androidx.annotation.Keep;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
+@Keep
 public class SystemPreferencesFragment extends PreferenceFragmentCompat {
 
 	@SuppressWarnings("unused")

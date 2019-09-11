@@ -31,10 +31,12 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
+import androidx.annotation.Keep;
 import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceScreen;
 
+@Keep
 public class WifiListPreferencesFragment extends PreferenceFragmentCompat {
 
 	@SuppressWarnings("unused")

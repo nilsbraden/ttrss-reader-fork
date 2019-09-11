@@ -4,8 +4,10 @@ import android.os.Bundle;
 
 import org.ttrssreader.R;
 
+import androidx.annotation.Keep;
 import androidx.preference.PreferenceFragmentCompat;
 
+@Keep
 public class SSLPreferencesFragment extends PreferenceFragmentCompat {
 
 	@SuppressWarnings("unused")

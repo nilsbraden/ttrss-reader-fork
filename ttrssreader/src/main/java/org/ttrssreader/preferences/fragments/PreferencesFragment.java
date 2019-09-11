@@ -32,9 +32,11 @@ import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.preferences.PreferencesActivity;
 import org.ttrssreader.utils.AsyncTask;
 
+import androidx.annotation.Keep;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
+@Keep
 public class PreferencesFragment extends PreferenceFragmentCompat {
 
 	@SuppressWarnings("unused")

@@ -4,8 +4,10 @@ import android.os.Bundle;
 
 import org.ttrssreader.R;
 
+import androidx.annotation.Keep;
 import androidx.preference.PreferenceFragmentCompat;
 
+@Keep
 public class DisplayPreferencesFragment extends PreferenceFragmentCompat {
 
 	@SuppressWarnings("unused")
