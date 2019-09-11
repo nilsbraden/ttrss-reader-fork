@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright (c) 2015, Nils Braden
 
   This file is part of ttrss-reader-fork. This program is free software; you
@@ -45,7 +44,7 @@
                     style="@style/listitem"
                     android:layout_gravity="top"
                     android:contentDescription="@string/Empty"
-                    android:src="@drawable/icon"/>
+                    android:src="@drawable/icon" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -56,21 +55,21 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/ApplicationName"
-                        android:textStyle="bold"/>
+                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/AboutActivity.VersionText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@+id/AboutActivity.VersionText"
-                        android:textSize="11.5sp"/>
+                        android:textSize="11.5sp" />
 
                     <TextView
                         android:id="@+id/AboutActivity.VersionCodeText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@+id/AboutActivity.VersionCodeText"
-                        android:textSize="11.5sp"/>
+                        android:textSize="11.5sp" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -85,7 +84,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:text="@string/ApplicationDescription"
-                    android:textSize="11.0sp"/>
+                    android:textSize="11.0sp" />
 
                 <TextView
                     android:id="@+id/AboutActivity.LicenseText"
@@ -93,7 +92,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:text="@+id/AboutActivity.UrlText"
-                    android:textSize="12.5sp"/>
+                    android:textSize="12.5sp" />
 
                 <TextView
                     android:id="@+id/AboutActivity.UrlText"
@@ -102,7 +101,7 @@
                     android:layout_marginTop="8dp"
                     android:autoLink="web"
                     android:text="@+id/AboutActivity.UrlText"
-                    android:textSize="11.0sp"/>
+                    android:textSize="11.0sp" />
 
                 <TextView
                     android:id="@+id/AboutActivity.LastSyncText"
@@ -110,7 +109,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:text="@+id/AboutActivity.LastSyncText"
-                    android:textSize="12.5sp"/>
+                    android:textSize="12.5sp" />
 
                 <TextView
                     android:id="@+id/AboutActivity.ThanksText"
@@ -118,7 +117,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:text="@+id/AboutActivity.ThanksText"
-                    android:textSize="11.0sp"/>
+                    android:textSize="11.0sp" />
             </LinearLayout>
         </RelativeLayout>
 
@@ -128,7 +127,7 @@
         android:id="@+id/AboutActivity.ButtonBar"
         style="?android:attr/buttonBarStyle"
         android:layout_width="match_parent"
-        android:layout_height="45dip"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:background="@android:drawable/bottom_bar"
         android:gravity="center"
@@ -138,18 +137,16 @@
             android:id="@+id/AboutActivity.CloseBtn"
             style="?android:attr/buttonBarButtonStyle"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="1.0"
-            android:padding="4dip"
-            android:text="@string/AboutActivity.CloseBtn"/>
+            android:text="@string/AboutActivity.CloseBtn" />
 
         <Button
             android:id="@+id/AboutActivity.DonateBtn"
             style="?android:attr/buttonBarButtonStyle"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="1.0"
-            android:padding="4dip"
-            android:text="@string/AboutActivity.DonateBtn"/>
+            android:text="@string/AboutActivity.DonateBtn" />
     </LinearLayout>
 </RelativeLayout>

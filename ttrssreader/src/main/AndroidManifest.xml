@@ -49,8 +49,7 @@
 
         <activity
             android:name=".gui.CategoryActivity"
-            android:label="@string/ApplicationName"
-            android:theme="@style/TTRSS.Light">
+            android:label="@string/ApplicationName">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -59,15 +58,12 @@
         </activity>
         <activity android:name=".gui.FeedHeadlineActivity" />
 
-        <activity
-            android:name=".preferences.PreferencesActivity"
-            android:theme="@style/TTRSS.Light" />
+        <activity android:name=".preferences.PreferencesActivity" />
         <activity android:name=".gui.MediaPlayerActivity" />
         <activity android:name=".gui.ErrorActivity" />
         <activity
             android:name=".gui.AboutActivity"
-            android:label="@string/AboutActivity.Title"
-            android:theme="@android:style/Theme.Dialog">
+            android:label="@string/AboutActivity.Title">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
             </intent-filter>
@@ -78,9 +74,7 @@
             android:label="@string/IntentPublish">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
-
                 <category android:name="android.intent.category.DEFAULT" />
-
                 <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
@@ -91,9 +85,7 @@
             <!-- android:excludeFromRecents="true" -->
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
-
                 <category android:name="android.intent.category.DEFAULT" />
-
                 <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
@@ -104,6 +96,7 @@
             android:label="@string/ApplicationName"
             android:uiOptions="splitActionBarWhenNarrow"
             android:windowSoftInputMode="adjustResize"
+            android:theme="@style/TTRSS.Light"
             tools:ignore="ExportedActivity">
             <intent-filter>
                 <action android:name="com.twofortyfouram.locale.intent.action.EDIT_SETTING" />

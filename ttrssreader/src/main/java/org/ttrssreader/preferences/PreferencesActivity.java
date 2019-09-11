@@ -53,9 +53,9 @@ public class PreferencesActivity extends FragmentActivity implements PreferenceF
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState); // IMPORTANT!
-		setContentView(R.layout.preferences);
+		super.onCreate(savedInstanceState);
 		setTheme(Controller.getInstance().getTheme());
+		setContentView(R.layout.preferences);
 		setResult(Constants.ACTIVITY_SHOW_PREFERENCES);
 		mDamageReport.initialize();
 
@@ -73,8 +73,9 @@ public class PreferencesActivity extends FragmentActivity implements PreferenceF
 			}
 		});
 
-		if (getActionBar() != null)
+		if (getActionBar() != null) {
 			getActionBar().setDisplayHomeAsUpEnabled(true);
+		}
 	}
 
 	@Override

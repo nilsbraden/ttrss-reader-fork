@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.widget.CheckBox;
 
 import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.imageCache.PluginReceiver;
 import org.ttrssreader.imageCache.bundle.BundleScrubber;
 import org.ttrssreader.imageCache.bundle.PluginBundleManager;
@@ -50,6 +51,7 @@ public final class EditPluginActivity extends AbstractPluginActivity {
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setTheme(Controller.getInstance().getTheme());
 		mDamageReport.initialize();
 
 		BundleScrubber.scrub(getIntent());

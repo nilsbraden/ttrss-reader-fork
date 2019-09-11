@@ -67,8 +67,8 @@ public class SubscribeActivity extends MenuActivity {
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		setTheme(Controller.getInstance().getTheme());
 		super.onCreate(savedInstanceState);
+		setTheme(Controller.getInstance().getTheme());
 		mDamageReport.initialize();
 
 		setTitle(R.string.IntentSubscribe);

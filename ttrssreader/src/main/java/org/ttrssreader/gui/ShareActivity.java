@@ -54,8 +54,8 @@ public class ShareActivity extends MenuActivity {
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		setTheme(Controller.getInstance().getTheme());
 		super.onCreate(savedInstanceState);
+		setTheme(Controller.getInstance().getTheme());
 		mDamageReport.initialize();
 
 		final Context context = this;

@@ -43,6 +43,7 @@ public class AboutActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setTheme(Controller.getInstance().getTheme());
 		mDamageReport.initialize();
 
 		Window w = getWindow();
