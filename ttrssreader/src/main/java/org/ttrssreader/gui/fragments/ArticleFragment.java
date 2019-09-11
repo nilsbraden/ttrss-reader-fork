@@ -54,6 +54,7 @@ import android.webkit.WebView;
 import android.webkit.WebView.HitTestResult;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.HtmlNode;
@@ -648,19 +649,26 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 		if (content == null || !content.contains(extra))
 			return null;
 
-		HtmlCleaner cleaner = new HtmlCleaner();
-		TagNode node = cleaner.clean(content);
+		try {
+			HtmlCleaner cleaner = new HtmlCleaner();
+			TagNode node = cleaner.clean(content);
 
-		MyTagNodeVisitor tnv = new MyTagNodeVisitor(extra);
-		node.traverse(tnv);
+			MyTagNodeVisitor tnv = new MyTagNodeVisitor(extra);
+			node.traverse(tnv);
 
-		if (tnv.alt == null)
-			return null;
+			if (tnv.alt == null)
+				return null;
 
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
-			return Html.fromHtml(tnv.alt).toString();
-		else
-			return Html.fromHtml(tnv.alt, Html.FROM_HTML_MODE_COMPACT).toString();
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
+				return Html.fromHtml(tnv.alt).toString();
+			else
+				return Html.fromHtml(tnv.alt, Html.FROM_HTML_MODE_COMPACT).toString();
+		} catch (Throwable t) {
+			Toast.makeText(getContext(), "ALT-Tag could not be parsed from HTML.", Toast.LENGTH_SHORT).show();
+			Log.e(TAG, "Serious error while parsing HTML!");
+		}
+
+		return null;
 	}
 
 	/**
