@@ -17,7 +17,7 @@
 <resources>
 
     <string-array name="updates">
-		<item>Version 1.94.2
+		<item>Version 1.94.3
 			 * __B__Note for Wifi-based preferences:___B___ If you\'re using Wifi-based preferences you will currently need to manually allow location access via Android Settings for this app since this is necessary to access the current Wifi-SSID.
 			 * Fixed Issue #348: NullPointerException
 			 * Fixed Issue #382: feed icons not working with HTTP basic auth
@@ -29,6 +29,8 @@
 			 * Completely re-wrote the preferences implementation, please expect this to still have issues
 			 * Fixed reset of preferences, moved items to main preferences screen
 			 * Fixed crash while parsing of ALT-Tags from HTML
+			 * Fixed issues with dark theme (black and white currently don\'t work but should be replaced by Day\/Night mode anyway)
+			 * Fixed more crashes from beta tests
 		</item>
         <item>Version 1.93.3
 			 * __B__Note for users on Android Oreo (8.x):___B___ I reverted some changes (new library versions mainly) and forcibly disabled the animations preference to make sure moving between articles works again. This currently is the only solution I have for #374.
