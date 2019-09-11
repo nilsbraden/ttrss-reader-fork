@@ -63,6 +63,8 @@ public class ChangelogDialog extends MyDialogFragment {
 			htmlBuf.append("<div><h2>");
 			change = change.replaceFirst(" \\* ", "</h2><ul><li>");
 			change = change.replaceAll(" \\* ", "</li><li>");
+			change = change.replaceAll("___B___", "</b>");
+			change = change.replaceAll("__B__", "<b>");
 			htmlBuf.append(change);
 			htmlBuf.append("</li></ul></div>");
 		}
