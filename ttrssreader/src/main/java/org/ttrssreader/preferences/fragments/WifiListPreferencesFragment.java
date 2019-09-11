@@ -42,7 +42,6 @@ public class WifiListPreferencesFragment extends PreferenceFragmentCompat {
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		setHasOptionsMenu(true);
 		super.onCreate(savedInstanceState);
 	}
 

@@ -133,6 +133,7 @@
     <string name="ConnectionFeedIconsUrlPreferenceSummary">The base URL path to the feed icons</string>
     <string name="ConnectionFeedIconsUrlPreferenceDefault">feed-icons</string>
     <string name="MiscellaneousPreferenceCategoryTitle">Miscellaneous Preferences</string>
+    <string name="ResetPreferenceCategoryTitle">Reset Preferences</string>
     <string name="UsagePreferenceCategoryTitle">Usage</string>
     <string name="UsageOpenUrlEmptyArticleTitle">Open URL for empty article</string>
     <string name="UsageOpenUrlEmptyArticleSummary">Automatically visits the article website in the browser if the content is empty.</string>

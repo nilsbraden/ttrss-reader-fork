@@ -23,8 +23,8 @@ import android.os.Bundle;
 import android.util.Log;
 
 import org.ttrssreader.R;
-import org.ttrssreader.preferences.PreferencesActivity;
 import org.ttrssreader.preferences.Constants;
+import org.ttrssreader.preferences.PreferencesActivity;
 
 import java.util.HashMap;
 
@@ -42,7 +42,6 @@ public class WifiPreferencesFragment extends PreferenceFragmentCompat {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setHasOptionsMenu(true);
 	}
 
 	private static String getSsidFromExtras(Bundle extras) {

@@ -197,18 +197,22 @@ public class Constants {
 					case "String": {
 						String defaultValue = (String) fieldDefault.get(null);
 						editor.putString(value, defaultValue);
+						break;
 					}
 					case "boolean": {
 						boolean defaultValue = fieldDefault.getBoolean(null);
 						editor.putBoolean(value, defaultValue);
+						break;
 					}
 					case "int": {
 						int defaultValue = fieldDefault.getInt(null);
 						editor.putInt(value, defaultValue);
+						break;
 					}
 					case "long": {
 						long defaultValue = fieldDefault.getLong(null);
 						editor.putLong(value, defaultValue);
+						break;
 					}
 				}
 
