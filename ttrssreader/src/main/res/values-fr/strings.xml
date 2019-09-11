@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright (c) 2015, Nils Braden
 
   This file is part of ttrss-reader-fork. This program is free software; you
@@ -146,7 +145,7 @@
     <string name="ConnectionWifiPrefDisbledSummary">Les préférences de ce point d\'accès sont désactivées. </string>
     <string name="ConnectionWifiPrefEnabledSummary">Les préférences de ce point d\'accès sont activées. </string>
     <string name="ConnectionWifiPrefScreenTitle">Paramètres de connexion (par point d\'accès)</string>
-    <string name="ConnectionWifiPrefSelectionTitle">Point d\'accès: \"%s\"</string>
+    <string name="ConnectionWifiPrefSelectionTitle">Point d\'accès: “%1$s”</string>
     <string name="DarkTheme">Thème sombre</string>
     <string name="Dialog.MarkAllRead">Tout marquer comme lu ? </string>
     <string name="Dialog.Title">Avertissement</string>

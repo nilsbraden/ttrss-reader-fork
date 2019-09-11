@@ -26,6 +26,7 @@ import android.widget.TextView;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.preferences.PreferencesActivity;
 import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 
 public class ErrorActivity extends Activity {

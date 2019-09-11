@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  Copyright (c) 2015, Nils Braden
+
+  This file is part of ttrss-reader-fork. This program is free software; you
+  can redistribute it and/or modify it under the terms of the GNU
+  General Public License as published by the Free Software Foundation;
+  either version 3 of the License, or (at your option) any later
+  version.
+
+  This program is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  General Public License for more details. You should have received a
+  copy of the GNU General Public License along with this program; If
+  not, see http://www.gnu.org/licenses/.
+  -->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:title="@string/About.about">
+
+
+    <PreferenceCategory android:title="@string/MainPreferenceCategoryTitle">
+        <Preference
+            android:icon="@drawable/ic_menu_account_list"
+            android:title="@string/ConnectionPreferenceCategoryTitle"
+            app:fragment="org.ttrssreader.preferences.fragments.ConnectionPreferencesFragment" />
+        <Preference
+            android:icon="@android:drawable/ic_menu_sort_by_size"
+            android:title="@string/ConnectionHttpPreferenceCategoryTitle"
+            app:fragment="org.ttrssreader.preferences.fragments.HttpPreferencesFragment" />
+        <Preference
+            android:icon="@drawable/ic_menu_login"
+            android:title="@string/ConnectionSslPreferenceCategoryTitle"
+            app:fragment="org.ttrssreader.preferences.fragments.SSLPreferencesFragment" />
+        <Preference
+            android:icon="@drawable/stat_notify_wifi_in_range"
+            android:summary="@string/ConnectionWifiPrefScreenSummary"
+            android:title="@string/ConnectionWifiPrefScreenTitle"
+            app:fragment="org.ttrssreader.preferences.fragments.WifiListPreferencesFragment" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/MiscellaneousPreferenceCategoryTitle">
+        <Preference
+            android:icon="@drawable/ic_sysbar_quicksettings"
+            android:title="@string/UsagePreferenceCategoryTitle"
+            app:fragment="org.ttrssreader.preferences.fragments.UsagePreferencesFragment" />
+        <Preference
+            android:icon="@android:drawable/ic_menu_view"
+            android:title="@string/DisplayPreferenceCategoryTitle"
+            app:fragment="org.ttrssreader.preferences.fragments.DisplayPreferencesFragment" />
+        <Preference
+            android:icon="@android:drawable/ic_menu_manage"
+            android:title="@string/SystemPreferenceCategoryTitle"
+            app:fragment="org.ttrssreader.preferences.fragments.SystemPreferencesFragment" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/About.about">
+        <Preference
+            android:icon="@android:drawable/ic_menu_gallery"
+            android:summary="@string/About.about_hint"
+            android:title="@string/About.about">
+            <intent
+                android:action="android.intent.action.MAIN"
+                android:targetClass="org.ttrssreader.gui.AboutActivity"
+                android:targetPackage="org.ttrssreader" />
+        </Preference>
+        <Preference
+            android:icon="@android:drawable/ic_menu_info_details"
+            android:summary="@string/About.project_hint"
+            android:title="@string/About.project">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://code.google.com/p/ttrss-reader-fork/" />
+        </Preference>
+        <Preference
+            android:icon="@android:drawable/ic_menu_agenda"
+            android:summary="@string/About.feedback_hint"
+            android:title="@string/About.feedback">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://code.google.com/p/ttrss-reader-fork/issues/list" />
+        </Preference>
+    </PreferenceCategory>
+
+</PreferenceScreen>

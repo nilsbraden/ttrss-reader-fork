@@ -115,7 +115,7 @@
     <string name="ConnectionWifiPrefEnabledSummary">Voorkeuren voor dit wifi netwerk zijn aktief</string>
     <string name="ConnectionWifiPrefScreenSummary">Speciale instelling voor het verbonden netwerk</string>
     <string name="ConnectionWifiPrefScreenTitle">Wifi instellingen (per netwerk)</string>
-    <string name="ConnectionWifiPrefSelectionTitle"></string>
+    <string name="ConnectionWifiPrefSelectionTitle">Wifi “%1$s”</string>
     <string name="DarkTheme">Donkere layout</string>
     <string name="Utils.FileSaveTitle">Bewaar bijlage</string>
     <string name="Utils.FileSaveMessage">Geen bestandsbrowser gevonden. Wilt u de bijlage bewaren?</string>

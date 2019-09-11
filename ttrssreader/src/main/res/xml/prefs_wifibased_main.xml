@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright (c) 2015, Nils Braden
 
   This file is part of ttrss-reader-fork. This program is free software; you
@@ -18,15 +17,19 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="@string/ConnectionWifiPrefScreenTitle">
 
-    <PreferenceCategory android:title="@string/ConnectionWifiPrefScreenTitle">
-        <PreferenceScreen
-            android:fragment="org.ttrssreader.gui.fragments.PreferencesFragment"
-            android:summary="@string/ConnectionWifiPrefScreenSummary"
-            android:title="@string/ConnectionWifiPrefScreenTitle">
-            <extra
-                android:name="cat"
-                android:value="prefs_wifibased"/>
-        </PreferenceScreen>
+    <PreferenceCategory android:title="@string/MainPreferenceCategoryTitle">
+        <Preference
+            android:icon="@drawable/ic_menu_account_list"
+            android:title="@string/ConnectionPreferenceCategoryTitle"
+            android:fragment="org.ttrssreader.preferences.fragments.ConnectionPreferencesFragment" />
+        <Preference
+            android:icon="@android:drawable/ic_menu_sort_by_size"
+            android:title="@string/ConnectionHttpPreferenceCategoryTitle"
+            android:fragment="org.ttrssreader.preferences.fragments.HttpPreferencesFragment" />
+        <Preference
+            android:icon="@drawable/ic_menu_login"
+            android:title="@string/ConnectionSslPreferenceCategoryTitle"
+            android:fragment="org.ttrssreader.preferences.fragments.SSLPreferencesFragment" />
     </PreferenceCategory>
 
 </PreferenceScreen>

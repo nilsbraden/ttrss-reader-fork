@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright (c) 2015, Nils Braden
 
   This file is part of ttrss-reader-fork. This program is free software; you
@@ -22,28 +21,31 @@
         android:key="httpCategory"
         android:title="@string/ConnectionHttpPreferenceCategoryTitle">
         <CheckBoxPreference
+            android:order="10"
             android:defaultValue="false"
             android:disableDependentsState="false"
             android:key="ConnectionHttpPreference"
             android:summary="@string/ConnectionHttpPreferenceSummary"
-            android:title="@string/ConnectionHttpPreferenceTitle"/>
+            android:title="@string/ConnectionHttpPreferenceTitle" />
 
         <EditTextPreference
+            android:order="20"
             android:name="@string/ConnectionHttpUsernamePreferenceTitle"
             android:defaultValue="@string/Empty"
             android:dependency="ConnectionHttpPreference"
             android:inputType="textFilter"
             android:key="ConnectionHttpUsernamePreference"
             android:summary="@string/ConnectionUsernamePreferenceSummary"
-            android:title="@string/ConnectionHttpUsernamePreferenceTitle"/>
+            android:title="@string/ConnectionHttpUsernamePreferenceTitle" />
         <EditTextPreference
+            android:order="30"
             android:name="@string/ConnectionHttpPasswordPreferenceTitle"
             android:defaultValue="@string/Empty"
             android:dependency="ConnectionHttpPreference"
             android:inputType="textPassword"
             android:key="ConnectionHttpPasswordPreference"
             android:summary="@string/ConnectionHttpPasswordPreferenceSummary"
-            android:title="@string/ConnectionHttpPasswordPreferenceTitle"/>
+            android:title="@string/ConnectionHttpPasswordPreferenceTitle" />
     </PreferenceCategory>
 
 </PreferenceScreen>

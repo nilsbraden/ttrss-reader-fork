@@ -54,6 +54,7 @@ import org.ttrssreader.model.updaters.IUpdatable;
 import org.ttrssreader.model.updaters.StateSynchronisationUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.preferences.Constants;
+import org.ttrssreader.preferences.PreferencesActivity;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 import org.ttrssreader.utils.Utils;
@@ -213,16 +214,16 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 	}
 
 	private void initToolbar() {
-		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+		Toolbar toolbar = findViewById(R.id.toolbar);
 		if (toolbar != null) {
 			setActionBar(toolbar);
 
-			header_unread = (TextView) findViewById(R.id.head_unread);
-			header_title = (TextView) findViewById(R.id.head_title);
+			header_unread = findViewById(R.id.head_unread);
+			header_title = findViewById(R.id.head_title);
 			header_title.setText(getString(R.string.ApplicationName));
 
-			progressbar = (ProgressBar) findViewById(R.id.progressbar);
-			progressspinner = (ProgressBar) findViewById(R.id.progressspinner);
+			progressbar = findViewById(R.id.progressbar);
+			progressspinner = findViewById(R.id.progressspinner);
 			hideBackArrow();
 
 		}

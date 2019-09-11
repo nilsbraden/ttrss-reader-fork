@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright (c) 2015, Nils Braden
 
   This file is part of ttrss-reader-fork. This program is free software; you
@@ -93,6 +92,8 @@
     <string name="Feed.UncategorizedFeeds">Uncategorized Feeds</string>
     <string name="CategoryActivity.NoServer">No Server specified.</string>
     <string name="CategoryActivity.Donate">Want to Donate?</string>
+    <string name="PreferencesTitle">Preferences</string>
+    <string name="MainPreferenceCategoryTitle">Main</string>
     <string name="ConnectionPreferenceCategoryTitle">Connection</string>
     <string name="ConnectionPreferenceCategory">Connectivity</string>
     <string name="ConnectionUrlPreferenceTitle">Connection URL</string>
@@ -245,9 +246,10 @@
     <string name="ConnectionWifiPrefEnableTitle">Enable settings for this network?</string>
     <string name="ConnectionWifiPrefEnabledSummary">Preferences for this Wifi network are enabled.</string>
     <string name="ConnectionWifiPrefDisbledSummary">Preferences for this Wifi network are disabled.</string>
-    <string name="ConnectionWifiPrefScreenTitle">Wifi (per network) connectivity settings</string>
+    <string name="ConnectionWifiPrefScreenTitle">Wifi (per network) connectivity</string>
+    <string name="ConnectionWifiMainPrefScreenTitle">Main (Wifi: “%1$s”)</string>
     <string name="ConnectionWifiPrefScreenSummary">Special configuration for the connected network</string>
-    <string name="ConnectionWifiPrefSelectionTitle">Wifi: \"%s\"</string>
+    <string name="ConnectionWifiPrefSelectionTitle">Wifi: “%1$s”</string>
     <string name="ConnectionWifiPrefCatTitle">Available networks</string>
     <string name="ConnectionWifiPrefCatDescription">Choose a Network and define special connection-settings to be used when connected.</string>
     <string name="ConnectionWifiConnected">Connected</string>

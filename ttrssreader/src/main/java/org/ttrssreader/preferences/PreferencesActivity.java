@@ -15,111 +15,90 @@
  * not, see http://www.gnu.org/licenses/.
  */
 
-package org.ttrssreader.gui;
-
+package org.ttrssreader.preferences;
 
 import android.app.backup.BackupManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
-import android.view.LayoutInflater;
+import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CheckedTextView;
 import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.ListAdapter;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.gui.fragments.PreferencesFragment;
-import org.ttrssreader.model.HeaderAdapter;
-import org.ttrssreader.preferences.Constants;
+import org.ttrssreader.preferences.fragments.PreferencesFragment;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 import org.ttrssreader.utils.Utils;
 
-import java.util.List;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
 
-public class PreferencesActivity extends PreferenceActivity implements Toolbar.OnMenuItemClickListener {
+public class PreferencesActivity extends FragmentActivity implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
 
 	@SuppressWarnings("unused")
 	private static final String TAG = PreferencesActivity.class.getSimpleName();
 
+	public static final String KEY_SSID = "SSID";
 	public static final int ACTIVITY_RELOAD = 45;
+
+	private static AsyncTask<Void, Void, Void> init;
+	private static String TITLE_TAG = "settingsActivityTitle";
 
 	private PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
 
-	private static AsyncTask<Void, Void, Void> init;
-	private static List<Header> _headers;
-	private boolean needResource = false;
-
-	@Override
-	protected void onPostCreate(Bundle savedInstanceState) {
-		super.onPostCreate(savedInstanceState);
-
-		LinearLayout root = (LinearLayout) findViewById(android.R.id.list).getParent().getParent().getParent();
-		Toolbar bar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.toolbar_preferences, root, false);
-		bar.inflateMenu(R.menu.preferences);
-		bar.setOnMenuItemClickListener(this);
-		//		bar.setMenu();
-		root.addView(bar, 0); // insert at top
-		bar.setNavigationOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				finish();
-			}
-		});
-	}
+	private CharSequence title;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		setTheme(Controller.getInstance().getTheme());
 		super.onCreate(savedInstanceState); // IMPORTANT!
-
-		mDamageReport.initialize();
+		setContentView(R.layout.preferences);
+		setTheme(Controller.getInstance().getTheme());
 		setResult(Constants.ACTIVITY_SHOW_PREFERENCES);
+		mDamageReport.initialize();
 
-		if (needResource) {
-			addPreferencesFromResource(R.xml.prefs_main_top);
-			addPreferencesFromResource(R.xml.prefs_http);
-			addPreferencesFromResource(R.xml.prefs_ssl);
-			addPreferencesFromResource(R.xml.prefs_wifi);
-			addPreferencesFromResource(R.xml.prefs_usage);
-			addPreferencesFromResource(R.xml.prefs_display);
-			addPreferencesFromResource(R.xml.prefs_system);
-			addPreferencesFromResource(R.xml.prefs_main_bottom);
+		if (savedInstanceState == null) {
+			FragmentManager fm = getSupportFragmentManager();
+			FragmentTransaction ft = fm.beginTransaction();
+			ft.replace(R.id.settings, new PreferencesFragment());
+			ft.commit();
+		} else {
+			title = savedInstanceState.getCharSequence(TITLE_TAG);
 		}
+		getSupportFragmentManager().addOnBackStackChangedListener(() -> {
+			if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
+				setTitle(R.string.PreferencesTitle);
+			}
+		});
+
+		if (getActionBar() != null)
+			getActionBar().setDisplayHomeAsUpEnabled(true);
 	}
 
 	@Override
-	public void onBuildHeaders(List<Header> headers) {
-		_headers = headers;
-		if (onIsHidingHeaders()) {
-			needResource = true;
-		} else {
-			loadHeadersFromResource(R.xml.prefs_headers, headers);
-		}
-	}
-
-	@Override
-	public void setListAdapter(ListAdapter adapter) {
-		if (adapter != null && _headers != null) {
-			super.setListAdapter(new HeaderAdapter(this, _headers));
-		} else {
-			super.setListAdapter(null);
-		}
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// TODO: Menu is not displayed, why is this method not called?
+		Log.d(TAG, "ACHTUNG MENU WIRD ERZEUGT!!!");
+		getMenuInflater().inflate(R.menu.preferences, menu);
+		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override
@@ -167,19 +146,7 @@ public class PreferencesActivity extends PreferenceActivity implements Toolbar.O
 	}
 
 	@Override
-	protected boolean isValidFragment(String fragmentName) {
-		return PreferencesFragment.class.getName().equals(fragmentName);
-	}
-
-	@Override
-	public void switchToHeader(Header header) {
-		if (header.fragment != null) {
-			super.switchToHeader(header);
-		}
-	}
-
-	@Override
-	public View onCreateView(String name, Context context, AttributeSet attrs) {
+	public View onCreateView(@NonNull String name, @NonNull Context context, @NonNull AttributeSet attrs) {
 		// Allow super to try and create a view first
 		final View result = super.onCreateView(name, context, attrs);
 		if (result != null) {
@@ -207,8 +174,23 @@ public class PreferencesActivity extends PreferenceActivity implements Toolbar.O
 	}
 
 	@Override
-	public boolean onMenuItemClick(MenuItem menuItem) {
-		int id = menuItem.getItemId();
+	protected void onSaveInstanceState(@NonNull Bundle outState) {
+		super.onSaveInstanceState(outState);
+		// Save current activity title so we can set it again after a configuration change
+		outState.putCharSequence(TITLE_TAG, title);
+	}
+
+	@Override
+	public boolean onNavigateUp() {
+		if (getSupportFragmentManager().popBackStackImmediate()) {
+			return true;
+		}
+		return super.onNavigateUp();
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		int id = item.getItemId();
 
 		boolean doReset;
 		doReset = (id == R.id.Preferences_Menu_Reset);
@@ -216,9 +198,28 @@ public class PreferencesActivity extends PreferenceActivity implements Toolbar.O
 		doReset |= (id == R.id.Preferences_Menu_ResetDatabase);
 
 		if (doReset)
-			new ResetTask(this).execute(menuItem.getItemId());
+			new ResetTask(this).execute(item.getItemId());
 
 		return doReset;
+	}
+
+	@Override
+	public boolean onPreferenceStartFragment(PreferenceFragmentCompat caller, Preference pref) {
+		// Instantiate the new Fragment
+		Bundle args = pref.getExtras();
+		FragmentManager fm = getSupportFragmentManager();
+		Fragment fragment = fm.getFragmentFactory().instantiate(getClassLoader(), pref.getFragment());
+		fragment.setArguments(args);
+		fragment.setTargetFragment(caller, 0);
+
+		// Replace the existing Fragment with the new Fragment
+		FragmentTransaction ft = fm.beginTransaction();
+		ft.replace(R.id.settings, fragment);
+		ft.addToBackStack(null);
+		ft.commit();
+
+		title = pref.getTitle();
+		return true;
 	}
 
 	/**

@@ -86,7 +86,7 @@
     <string name="ConnectionWifiPrefEnabledSummary">Wi-Fi网络偏好设置已被启用</string>
     <string name="ConnectionWifiPrefScreenSummary">Wi-Fi网络连接时的特别配置</string>
     <string name="ConnectionWifiPrefScreenTitle">Wi-Fi连接</string>
-    <string name="ConnectionWifiPrefSelectionTitle">Wi-Fi：“%s”</string>
+    <string name="ConnectionWifiPrefSelectionTitle">Wi-Fi：“%1$s”</string>
     <string name="DarkTheme">暗色主题</string>
     <string name="DeleteDBOnNextStartupSummary">如果勾选，下次应用启动时，内部数据库将被删除</string>
     <string name="DeleteDBOnNextStartupTitle">下次启动时删除数据库</string>

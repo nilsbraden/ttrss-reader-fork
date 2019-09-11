@@ -24,6 +24,9 @@
     <!-- Keep CPU running while doing background work. This is only used in the ImageCache and if beeing called via Tasker/Locale. -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
+    <!-- Only used to acquire WIFI SSID (which also can be used to get location information) -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
     <!-- Although many of these default to true, some users with modified ROMs have trouble seeing apps unless these attributes are explicitly set. -->
     <supports-screens
         android:anyDensity="true"
@@ -56,12 +59,9 @@
         </activity>
         <activity android:name=".gui.FeedHeadlineActivity" />
 
-        <activity android:name=".gui.PreferencesActivity" />
-        <activity android:name=".gui.WifiPreferencesActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-            </intent-filter>
-        </activity>
+        <activity
+            android:name=".preferences.PreferencesActivity"
+            android:theme="@style/TTRSS.Light" />
         <activity android:name=".gui.MediaPlayerActivity" />
         <activity android:name=".gui.ErrorActivity" />
         <activity

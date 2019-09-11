@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright (c) 2015, Nils Braden
 
   This file is part of ttrss-reader-fork. This program is free software; you
@@ -22,80 +21,80 @@
         android:key="connectionCategory"
         android:title="@string/ConnectionPreferenceCategoryTitle">
         <EditTextPreference
+            android:order="10"
             android:name="@string/ConnectionUrlPreferenceTitle"
             android:defaultValue="http://localhost/"
             android:inputType="textUri"
             android:key="ConnectionUrlPreference"
-            android:order="10"
             android:summary="@string/ConnectionUrlPreferenceSummary"
-            android:title="@string/ConnectionUrlPreferenceTitle"/>
+            android:title="@string/ConnectionUrlPreferenceTitle" />
         <EditTextPreference
+            android:order="20"
             android:name="@string/ConnectionUsernamePreferenceTitle"
             android:defaultValue="@string/Empty"
             android:inputType="textFilter"
             android:key="ConnectionUsernamePreference"
-            android:order="20"
             android:summary="@string/ConnectionUsernamePreferenceSummary"
-            android:title="@string/ConnectionUsernamePreferenceTitle"/>
+            android:title="@string/ConnectionUsernamePreferenceTitle" />
         <EditTextPreference
+            android:order="30"
             android:name="@string/ConnectionPasswordPreferenceTitle"
             android:defaultValue="@string/Empty"
             android:inputType="textPassword"
             android:key="ConnectionPasswordPreference"
-            android:order="30"
             android:summary="@string/ConnectionPasswordPreferenceSummary"
-            android:title="@string/ConnectionPasswordPreferenceTitle"/>
+            android:title="@string/ConnectionPasswordPreferenceTitle" />
 
         <CheckBoxPreference
+            android:order="40"
             android:defaultValue="true"
             android:disableDependentsState="false"
             android:key="DisplayFeedIconsPreference"
-            android:order="39"
             android:summary="@string/DisplayFeedIconsPreferenceSummary"
-            android:title="@string/DisplayFeedIconsPreferenceTitle"/>
+            android:title="@string/DisplayFeedIconsPreferenceTitle" />
         <EditTextPreference
+            android:order="50"
             android:name="@string/ConnectionFeedIconsUrlPreferenceTitle"
             android:defaultValue="@string/ConnectionFeedIconsUrlPreferenceDefault"
             android:dependency="DisplayFeedIconsPreference"
             android:inputType="textFilter"
             android:key="ConnectionUrlFeedIconsPreference"
-            android:order="40"
             android:summary="@string/ConnectionFeedIconsUrlPreferenceSummary"
-            android:title="@string/ConnectionFeedIconsUrlPreferenceTitle"/>
+            android:title="@string/ConnectionFeedIconsUrlPreferenceTitle" />
 
         <CheckBoxPreference
+            android:order="60"
             android:defaultValue="false"
             android:key="ConnectionLazyServerPreference"
-            android:order="50"
             android:summary="@string/ConnectionLazyServerPreferenceSummary"
-            android:title="@string/ConnectionLazyServerPreferenceTitle"/>
+            android:title="@string/ConnectionLazyServerPreferenceTitle" />
 
         <CheckBoxPreference
+            android:order="70"
             android:defaultValue="false"
             android:disableDependentsState="false"
             android:key="ConnectionProxyPreference"
-            android:order="50"
             android:summary="@string/ConnectionProxyPreferenceSummary"
-            android:title="@string/ConnectionProxyPreferenceTitle"/>
+            android:title="@string/ConnectionProxyPreferenceTitle" />
         <EditTextPreference
+            android:order="80"
             android:name="@string/ConnectionProxyHostPreferenceTitle"
             android:defaultValue="@string/Empty"
             android:dependency="ConnectionProxyPreference"
             android:inputType="textFilter"
             android:key="ConnectionProxyHostPreference"
-            android:order="60"
             android:summary="@string/ConnectionProxyHostPreferenceSummary"
-            android:title="@string/ConnectionProxyHostPreferenceTitle"/>
+            android:title="@string/ConnectionProxyHostPreferenceTitle" />
         <org.ttrssreader.preferences.EditIntegerPreference
+            android:order="90"
             android:name="@string/ConnectionProxyPortPreferenceTitle"
             android:defaultValue="1080"
             android:dependency="ConnectionProxyPreference"
             android:inputType="number"
             android:key="ConnectionProxyPortPreference"
             android:maxLength="5"
-            android:order="70"
             android:summary="@string/ConnectionProxyPortPreferenceSummary"
-            android:title="@string/ConnectionProxyPortPreferenceTitle"/>
+            android:title="@string/ConnectionProxyPortPreferenceTitle" />
     </PreferenceCategory>
 
 </PreferenceScreen>

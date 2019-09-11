@@ -34,11 +34,6 @@
             android:key="DisplayAlignFlushLeftPreference"
             android:summary="@string/DisplayAlignFlushLeftSummary"
             android:title="@string/DisplayAlignFlushLeftTitle" />
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="DisplayFeedIconsPreference"
-            android:summary="@string/DisplayFeedIconsPreferenceSummary"
-            android:title="@string/DisplayFeedIconsPreferenceTitle" />
 
         <CheckBoxPreference
             android:defaultValue="true"

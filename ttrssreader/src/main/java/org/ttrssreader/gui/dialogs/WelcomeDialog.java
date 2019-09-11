@@ -24,7 +24,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import org.ttrssreader.R;
-import org.ttrssreader.gui.PreferencesActivity;
+import org.ttrssreader.preferences.PreferencesActivity;
 
 public class WelcomeDialog extends MyDialogFragment {
 

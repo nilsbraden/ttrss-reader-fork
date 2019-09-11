@@ -41,7 +41,6 @@
         <!-- Color for Navigation-Buttons in ArticleView -->
         <item name="htmlHeaderBackgound">@color/themeDarkHtmlHeaderBackgound</item>
         <!-- Theme for preferences -->
-        <!--        <item name="android:alertDialogTheme">@style/TTRSS.Light.Dialog.Alert.Dark</item>-->
         <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
 
     </style>

@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright (c) 2015, Nils Braden
 
   This file is part of ttrss-reader-fork. This program is free software; you
@@ -22,54 +21,61 @@
         android:key="sslCategory"
         android:title="@string/ConnectionSslPreferenceCategoryTitle">
         <CheckBoxPreference
+            android:order="10"
             android:defaultValue="true"
             android:key="ConnectionProviderInstall"
             android:summary="@string/ConnectionProviderInstallSummary"
-            android:title="@string/ConnectionProviderInstallTitle"/>
+            android:title="@string/ConnectionProviderInstallTitle" />
         <CheckBoxPreference
+            android:order="20"
             android:defaultValue="false"
             android:disableDependentsState="true"
             android:key="ConnectionSSLPreference"
             android:summary="@string/ConnectionSslPreferenceSummary"
-            android:title="@string/ConnectionSslPreferenceTitle"/>
+            android:title="@string/ConnectionSslPreferenceTitle" />
         <CheckBoxPreference
+            android:order="30"
             android:defaultValue="false"
             android:disableDependentsState="true"
             android:key="ConnectionTrustHostsPreference"
             android:summary="@string/ConnectionTrustHostsPreferenceSummary"
-            android:title="@string/ConnectionTrustHostsPreferenceTitle"/>
+            android:title="@string/ConnectionTrustHostsPreferenceTitle" />
 
         <CheckBoxPreference
+            android:order="40"
             android:defaultValue="false"
             android:dependency="ConnectionSSLPreference"
             android:disableDependentsState="false"
             android:key="ConnectionUseKeystorePreference"
             android:summary="@string/ConnectionUseKeystorePreferenceSummary"
-            android:title="@string/ConnectionUseKeystorePreferenceTitle"/>
+            android:title="@string/ConnectionUseKeystorePreferenceTitle" />
 
         <EditTextPreference
+            android:order="50"
             android:name="@string/ConnectionKeystorePasswordPreferenceTitle"
             android:defaultValue="@string/Empty"
             android:dependency="ConnectionUseKeystorePreference"
             android:inputType="textPassword"
             android:key="ConnectionKeystorePasswordPreference"
             android:summary="@string/ConnectionKeystorePasswordPreferenceSummary"
-            android:title="@string/ConnectionKeystorePasswordPreferenceTitle"/>
+            android:title="@string/ConnectionKeystorePasswordPreferenceTitle" />
 
         <CheckBoxPreference
+            android:order="60"
             android:defaultValue="false"
             android:disableDependentsState="false"
             android:key="ConnectionUseClientCertificatePreference"
             android:summary="@string/ConnectionUseClientCertificatePreferenceSummary"
-            android:title="@string/ConnectionUseClientCertificatePreferenceTitle"/>
+            android:title="@string/ConnectionUseClientCertificatePreferenceTitle" />
 
         <org.ttrssreader.preferences.CertificatePreference
+            android:order="70"
             android:defaultValue="@string/Empty"
             android:dependency="ConnectionUseClientCertificatePreference"
             android:key="ConnectionClientCertificatePreference"
             android:singleLine="true"
             android:summary="@string/ConnectionClientCertificatePreferenceSummary"
-            android:title="@string/ConnectionClientCertificatePreferenceTitle"/>
+            android:title="@string/ConnectionClientCertificatePreferenceTitle" />
 
     </PreferenceCategory>
 
