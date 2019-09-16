@@ -44,7 +44,18 @@ public class EditIntegerPreference extends EditTextPreference {
 
 	@Override
 	protected boolean persistString(String value) {
-		return !(value == null || value.length() == 0) && persistInt(Integer.valueOf(value));
+		if (value == null || value.length() == 0)
+			return false;
+
+		int intValue;
+		try {
+			intValue = Integer.valueOf(value);
+			return persistInt(intValue);
+		} catch (NumberFormatException ne) {
+			// Can be empty, either we catch the exception and return false
+			// or we persist the value and return the result
+		}
+		return false;
 	}
 
 }
