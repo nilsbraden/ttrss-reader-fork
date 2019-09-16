@@ -17,11 +17,12 @@
 
 package org.ttrssreader.gui.view;
 
-import android.app.ActionBar;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 
 import org.ttrssreader.controllers.Controller;
+
+import androidx.appcompat.app.ActionBar;
 
 public class MyGestureDetector extends GestureDetector.SimpleOnGestureListener {
 
@@ -39,7 +40,7 @@ public class MyGestureDetector extends GestureDetector.SimpleOnGestureListener {
 
 	@Override
 	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-		if (!hideActionbar)
+		if (!hideActionbar || actionBar == null)
 			return false;
 
 		if (Controller.isTablet)

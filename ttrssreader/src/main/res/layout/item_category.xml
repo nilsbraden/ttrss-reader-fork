@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright (c) 2015, Nils Braden
 
   This file is part of ttrss-reader-fork. This program is free software; you
@@ -23,7 +22,7 @@
     <ImageView
         android:id="@+id/icon"
         style="@style/listitem"
-        android:contentDescription="@string/Empty"/>
+        android:contentDescription="@string/Empty" />
 
     <TextView
         android:id="@+id/title"
@@ -31,25 +30,25 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:layout_weight="1"
-        android:textIsSelectable="false"/>
+        android:textIsSelectable="false" />
 
     <TextView
         android:id="@+id/item_unread"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:layout_marginRight="10dp"
         android:layout_weight="0"
         android:background="@drawable/unread_count_listitem"
         android:ellipsize="end"
-        android:paddingBottom="0dp"
-        android:paddingLeft="4dp"
-        android:paddingRight="4dp"
-        android:paddingTop="0dp"
+        android:padding="4dp"
+        android:layout_marginBottom="12dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="12dp"
         android:textAlignment="center"
         android:textColor="#ffffff"
         android:textIsSelectable="false"
         android:textStyle="bold"
-        android:visible="false"/>
+        android:visible="false" />
 
 </LinearLayout>

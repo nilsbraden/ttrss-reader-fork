@@ -29,12 +29,12 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.gui.dialogs.IgnorableErrorDialog;
 
-import androidx.fragment.app.FragmentActivity;
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * This class provides functionality for using the play services library in the build flavour "play".
  */
-public abstract class MenuFlavorActivity extends FragmentActivity implements ProviderInstaller.ProviderInstallListener {
+public abstract class MenuFlavorActivity extends AppCompatActivity implements ProviderInstaller.ProviderInstallListener {
 
 	private static final String TAG = MenuFlavorActivity.class.getSimpleName();
 

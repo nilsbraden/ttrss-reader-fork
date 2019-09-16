@@ -19,7 +19,7 @@
     <!-- Base application theme. -->
     <style name="TTRSS.Dark" parent="TTRSS.Base.Dark" />
 
-    <style name="TTRSS.Base.Dark" parent="Theme.AppCompat.DayNight">
+    <style name="TTRSS.Base.Dark" parent="Theme.AppCompat.DayNight.NoActionBar">
 
         <item name="android:colorPrimary">@color/themeDarkPrimary</item>
         <item name="android:colorPrimaryDark">@color/themeDarkPrimaryDark</item>

@@ -16,7 +16,7 @@
   -->
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <android.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -30,32 +30,18 @@
             android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/head_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginRight="10dp"
-                android:layout_weight="1"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:textIsSelectable="false"
-                android:textScaleX=".9"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
                 android:id="@+id/head_unread"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_margin="0dp"
                 android:layout_weight="0"
                 android:background="@drawable/unread_count_title"
                 android:ellipsize="end"
-                android:paddingBottom="0dp"
-                android:paddingLeft="2.5dp"
-                android:paddingRight="4dp"
-                android:paddingTop="0dp"
+                android:padding="4dp"
+                android:layout_marginBottom="12dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="12dp"
                 android:textAlignment="center"
                 android:textColor="#ffffff"
                 android:textIsSelectable="false"
@@ -74,7 +60,7 @@
             android:indeterminate="true"
             android:visibility="gone" />
 
-    </android.widget.Toolbar>
+    </androidx.appcompat.widget.Toolbar>
 
     <!--
         Parent layout necessary to allow using visibility:gone (this makes sure the progressbar is redrawn) and

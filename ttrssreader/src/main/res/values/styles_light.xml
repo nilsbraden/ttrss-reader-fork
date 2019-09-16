@@ -19,7 +19,7 @@
     <!-- Base application theme. -->
     <style name="TTRSS.Light" parent="TTRSS.Base.Light" />
 
-    <style name="TTRSS.Base.Light" parent="Theme.AppCompat.Light">
+    <style name="TTRSS.Base.Light" parent="Theme.AppCompat.Light.NoActionBar">
 
         <item name="android:colorPrimary">@color/themeLightPrimary</item>
         <item name="android:colorPrimaryDark">@color/themeLightPrimaryDark</item>

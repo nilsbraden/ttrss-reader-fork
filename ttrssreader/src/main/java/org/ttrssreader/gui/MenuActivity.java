@@ -36,7 +36,6 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
@@ -59,6 +58,7 @@ import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 import org.ttrssreader.utils.Utils;
 
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 
 
@@ -85,8 +85,9 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 	private View frameMain = null;
 	private View divider = null;
 	private View frameSub = null;
-	private TextView header_title;
+	//	private TextView header_title;
 	private TextView header_unread;
+	private Toolbar m_Toolbar;
 
 	private ProgressBar progressbar;
 	private ProgressBar progressspinner;
@@ -214,14 +215,11 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 	}
 
 	private void initToolbar() {
-		Toolbar toolbar = findViewById(R.id.toolbar);
-		if (toolbar != null) {
-			setActionBar(toolbar);
-
+		m_Toolbar = findViewById(R.id.toolbar);
+		if (m_Toolbar != null) {
+			setSupportActionBar(m_Toolbar);
+			m_Toolbar.setTitle(R.string.ApplicationName);
 			header_unread = findViewById(R.id.head_unread);
-			header_title = findViewById(R.id.head_title);
-			header_title.setText(getString(R.string.ApplicationName));
-
 			progressbar = findViewById(R.id.progressbar);
 			progressspinner = findViewById(R.id.progressspinner);
 			hideBackArrow();
@@ -234,7 +232,6 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 		if (ab != null) {
 			ab.setDisplayHomeAsUpEnabled(true);
 			ab.setDisplayShowTitleEnabled(false);
-			header_title.setPadding(0, 0, 0, 0);
 
 		}
 	}
@@ -244,13 +241,12 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 		if (ab != null) {
 			ab.setDisplayHomeAsUpEnabled(false);
 			ab.setDisplayShowTitleEnabled(false);
-			header_title.setPadding(48, 0, 0, 0);
 		}
 	}
 
 	@Override
 	public void setTitle(CharSequence title) {
-		header_title.setText(title);
+		m_Toolbar.setTitle(title);
 		super.setTitle(title);
 	}
 

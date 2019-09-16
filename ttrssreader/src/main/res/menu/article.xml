@@ -14,43 +14,44 @@
   copy of the GNU General Public License along with this program; If
   not, see http://www.gnu.org/licenses/.
   -->
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
         android:id="@+id/Article_Menu_MarkStar"
         android:icon="@drawable/ic_menu_star"
         android:orderInCategory="52"
         android:title="@string/Commons.MarkStar"
-        android:showAsAction="always" />
+        app:showAsAction="always" />
     <item
         android:id="@+id/Article_Menu_MarkPublish"
         android:icon="@drawable/menu_publish"
         android:orderInCategory="54"
         android:title="@string/Commons.MarkPublish"
-        android:showAsAction="always" />
+        app:showAsAction="always" />
     <item
         android:id="@+id/Article_Menu_ShareLink"
         android:icon="@drawable/ic_menu_share"
         android:orderInCategory="56"
         android:title="@string/ArticleActivity.ShareLink"
-        android:showAsAction="always" />
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/Article_Menu_MarkRead"
         android:icon="@drawable/ic_menu_mark"
         android:orderInCategory="62"
         android:title="@string/Commons.MarkRead"
-        android:showAsAction="ifRoom|withText" />
+        app:showAsAction="ifRoom|withText" />
     <item
         android:id="@+id/Article_Menu_MarkNote"
         android:icon="@android:drawable/ic_menu_edit"
         android:orderInCategory="300"
         android:title="@string/Commons.MarkNote"
-        android:showAsAction="ifRoom|withText" />
+        app:showAsAction="ifRoom|withText" />
     <item
         android:id="@+id/Article_Menu_AddArticleLabel"
         android:icon="@drawable/perm_group_app_info"
         android:orderInCategory="400"
         android:title="@string/Commons.AddArticleLabel"
-        android:showAsAction="ifRoom|withText" />
+        app:showAsAction="ifRoom|withText" />
 
 </menu>

@@ -20,7 +20,6 @@ package org.ttrssreader.gui.fragments;
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.annotation.SuppressLint;
-import android.app.ActionBar;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
@@ -97,6 +96,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
@@ -249,7 +250,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 
 			if (gestureDetector == null || gestureListener == null) {
-				ActionBar actionBar = ((MenuActivity) getActivity()).getActionBar();
+				ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
 
 				// Detect touch gestures like swipe and scroll down:
 				gestureDetector = new GestureDetector(getActivity(), new ArticleGestureDetector(actionBar, Controller.getInstance().hideActionbar()));

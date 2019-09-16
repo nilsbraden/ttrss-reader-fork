@@ -17,7 +17,6 @@
 
 package org.ttrssreader.gui.fragments;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -39,7 +38,6 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.gui.FeedHeadlineActivity;
-import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.gui.TextInputAlert;
 import org.ttrssreader.gui.dialogs.ReadStateDialog;
 import org.ttrssreader.gui.dialogs.YesNoUpdaterDialog;
@@ -64,6 +62,8 @@ import org.ttrssreader.utils.AsyncTask;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
@@ -127,7 +127,8 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
 		super.onActivityCreated(instance);
 
 		// Detect touch gestures like swipe and scroll down:
-		ActionBar actionBar = ((MenuActivity) getActivity()).getActionBar();
+		ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+
 		gestureDetector = new GestureDetector(getActivity(), new HeadlineGestureDetector(actionBar, Controller.getInstance().hideActionbar()));
 		gestureListener = new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event) {

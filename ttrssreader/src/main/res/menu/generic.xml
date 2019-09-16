@@ -14,85 +14,86 @@
   copy of the GNU General Public License along with this program; If
   not, see http://www.gnu.org/licenses/.
   -->
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
         android:id="@+id/Menu_Refresh"
         android:icon="@drawable/ic_menu_refresh"
         android:orderInCategory="50"
         android:title="@string/Main.RefreshMenu"
-        android:showAsAction="ifRoom" />
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/Menu_MarkAllRead"
         android:icon="@drawable/ic_menu_mark"
         android:orderInCategory="60"
         android:title="@string/Commons.MarkAllRead"
-        android:showAsAction="ifRoom" />
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/Menu_MarkFeedsRead"
         android:icon="@drawable/ic_menu_mark"
         android:orderInCategory="60"
         android:title="@string/Commons.MarkFeedsRead"
-        android:showAsAction="ifRoom|withText" />
+        app:showAsAction="ifRoom|withText" />
     <item
         android:id="@+id/Menu_MarkFeedRead"
         android:icon="@drawable/ic_menu_mark"
         android:orderInCategory="60"
         android:title="@string/Commons.MarkFeedRead"
-        android:showAsAction="always|withText" />
+        app:showAsAction="always|withText" />
     <item
         android:id="@+id/Menu_FeedSubscribe"
         android:icon="@drawable/ic_menu_compose"
         android:orderInCategory="450"
         android:title="@string/FeedSubscribeTitle"
-        android:showAsAction="ifRoom" />
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/Menu_FeedUnsubscribe"
         android:icon="@drawable/ic_menu_clear_playlist"
         android:orderInCategory="460"
         android:title="@string/FeedUnsubscribeTitle"
-        android:showAsAction="ifRoom" />
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/Menu_DisplayOnlyUnread"
         android:icon="@drawable/ic_menu_view"
         android:orderInCategory="500"
         android:title="@string/Commons.DisplayOnlyUnread"
-        android:showAsAction="ifRoom|withText" />
+        app:showAsAction="ifRoom|withText" />
     <item
         android:id="@+id/Menu_DisplayOnlyCachedImages"
         android:icon="@drawable/ic_menu_view"
         android:orderInCategory="501"
         android:title="@string/Commons.DisplayOnlyCachedImages"
-        android:showAsAction="ifRoom|withText" />
+        app:showAsAction="ifRoom|withText" />
     <item
         android:id="@+id/Menu_InvertSort"
         android:icon="@drawable/ic_menu_rotate"
         android:orderInCategory="600"
         android:title="@string/Commons.InvertSort"
-        android:showAsAction="never|withText" />
+        app:showAsAction="never|withText" />
     <item
         android:id="@+id/Menu_WorkOffline"
         android:icon="@drawable/ic_menu_stop"
         android:orderInCategory="70"
         android:title="@string/UsageOfflineTitle"
-        android:showAsAction="ifRoom|withText" />
+        app:showAsAction="ifRoom|withText" />
     <item
         android:id="@+id/Category_Menu_ImageCache"
         android:icon="@drawable/ic_menu_save"
         android:orderInCategory="800"
         android:title="@string/Main.ImageCache"
-        android:showAsAction="never|withText" />
+        app:showAsAction="never|withText" />
     <item
         android:id="@+id/Menu_ShowPreferences"
         android:icon="@drawable/ic_menu_preferences"
         android:orderInCategory="900"
         android:title="@string/Main.ShowPreferencesMenu"
-        android:showAsAction="never|withText" />
+        app:showAsAction="never|withText" />
     <item
         android:id="@+id/Menu_About"
         android:icon="@drawable/ic_menu_help"
         android:orderInCategory="1000"
         android:title="@string/About.about"
-        android:showAsAction="never|withText" />
+        app:showAsAction="never|withText" />
 
 </menu>
