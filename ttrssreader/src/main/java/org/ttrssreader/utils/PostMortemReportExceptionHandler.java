@@ -187,7 +187,10 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
 
 		s.append("--- Application ---------------------\n");
 		s.append("Version     = " + Controller.getInstance().getLastVersionRun() + "\n");
-		s.append("VersionCode = " + (pi != null ? pi.getLongVersionCode() : "null") + "\n");
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P)
+			s.append("VersionCode = " + (pi != null ? pi.versionCode : "null") + "\n");
+		else
+			s.append("VersionCode = " + (pi != null ? pi.getLongVersionCode() : "null") + "\n");
 		s.append("-------------------------------------\n\n");
 
 		s.append("--- Environment ---------------------\n");
@@ -204,7 +207,12 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
 		s.append("Id          = " + Build.ID + "\n");
 		s.append("Fingerprint = " + Build.FINGERPRINT + "\n");
 		s.append("Product     = " + Build.PRODUCT + "\n");
-		s.append("Locale      = " + mAct.getResources().getConfiguration().getLocales().get(0).getDisplayName() + "\n");
+
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
+			s.append("Locale      = " + mAct.getResources().getConfiguration().locale.getDisplayName() + "\n");
+		else
+			s.append("Locale      = " + mAct.getResources().getConfiguration().getLocales().get(0).getDisplayName() + "\n");
+
 		s.append("Res         = " + mAct.getResources().getDisplayMetrics().toString() + "\n");
 		s.append("-------------------------------------\n\n");
 

@@ -178,7 +178,11 @@ public class Utils {
 		try {
 			PackageManager manager = c.getPackageManager();
 			PackageInfo info = manager.getPackageInfo(c.getPackageName(), 0);
-			result = info.getLongVersionCode();
+
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P)
+				result = info.versionCode;
+			else
+				result = info.getLongVersionCode();
 		} catch (NameNotFoundException e) {
 			Log.w(TAG, "Unable to get application version: " + e.getMessage());
 			result = 0;
