@@ -18,6 +18,7 @@
 package org.ttrssreader.preferences;
 
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import org.ttrssreader.utils.Utils;
 
@@ -25,6 +26,9 @@ import java.lang.reflect.Field;
 import java.util.Locale;
 
 public class Constants {
+
+	@SuppressWarnings("unused")
+	private static final String TAG = Constants.class.getSimpleName();
 
 	public static final String EMPTY = "";
 	public static final String APPENDED_DEFAULT = "_DEFAULT";
@@ -139,9 +143,9 @@ public class Constants {
 	public static final String NO_CRASHREPORTS_UNTIL_UPDATE = "NoCrashreportsUntilUpdatePreference";
 	public static final String IS_FIRST_RUN = "IsFirstRun";
 	// System Default Values
-	public static final Integer CACHE_FOLDER_MAX_SIZE_DEFAULT = 80;
-	public static final Integer CACHE_IMAGE_MAX_SIZE_DEFAULT = 6 * (int) Utils.MB; // 6 MB
-	public static final Integer CACHE_IMAGE_MIN_SIZE_DEFAULT = 32 * (int) Utils.KB; // 64 KB
+	public static final int CACHE_FOLDER_MAX_SIZE_DEFAULT = 80;
+	public static final int CACHE_IMAGE_MAX_SIZE_DEFAULT = 6 * (int) Utils.MB; // 6 MB
+	public static final int CACHE_IMAGE_MIN_SIZE_DEFAULT = 32 * (int) Utils.KB; // 64 KB
 	public static final boolean DELETE_DB_SCHEDULED_DEFAULT = false;
 	public static final boolean CACHE_IMAGES_ON_STARTUP_DEFAULT = false;
 	public static final boolean CACHE_IMAGES_ONLY_WIFI_DEFAULT = false;
@@ -187,14 +191,14 @@ public class Constants {
 				continue;
 
 			try {
-				// Get the default value
+				// Get the default value, this throws NoSuchFieldException if no _DEFAULT field exists so we quietly ignore this
 				Field fieldDefault = Constants.class.getDeclaredField(field.getName() + APPENDED_DEFAULT);
 				String value = (String) field.get(new Constants());
 
 				// Get the default type and store value for the specific type
 				String type = fieldDefault.getType().getSimpleName();
-				switch (type) {
-					case "String": {
+				switch (type.toLowerCase()) {
+					case "string": {
 						String defaultValue = (String) fieldDefault.get(null);
 						editor.putString(value, defaultValue);
 						break;
@@ -204,7 +208,8 @@ public class Constants {
 						editor.putBoolean(value, defaultValue);
 						break;
 					}
-					case "int": {
+					case "int":
+					case "integer": {
 						int defaultValue = fieldDefault.getInt(null);
 						editor.putInt(value, defaultValue);
 						break;
@@ -214,19 +219,46 @@ public class Constants {
 						editor.putLong(value, defaultValue);
 						break;
 					}
+					default:
+						Log.d(TAG, String.format("Field %s of type %s could not be reset.", field.getName(), field.getType()));
+						break;
 				}
 
 			} catch (SecurityException | IllegalArgumentException | IllegalAccessException e) {
 				e.printStackTrace();
 			} catch (NoSuchFieldException e) {
 				// Ignore, occurrs if a search for field like EMPTY_DEFAULT is started,
-				// this isn't there and shall never
-				// be there.
+				// this isn't there and shall never be there.
 			}
 		}
 
 		// Commit when finished
 		editor.apply();
+	}
+
+	public static int getDefaultValueInt(String key, int emergencyDefault) {
+		// Iterate over all fields
+		for (Field field : Constants.class.getDeclaredFields()) {
+			// Continue on "_DEFAULT"-Fields, we have to find the Constant-Field first
+			if (field.getName().endsWith(APPENDED_DEFAULT))
+				continue;
+
+			try {
+				// Get the default value, this throws NoSuchFieldException if no _DEFAULT field exists so we quietly ignore this
+				Field fieldDefault = Constants.class.getDeclaredField(field.getName() + APPENDED_DEFAULT);
+				String value = (String) field.get(new Constants());
+				if (key.equals(value))
+					return fieldDefault.getInt(null);
+
+			} catch (SecurityException | IllegalArgumentException | IllegalAccessException e) {
+				e.printStackTrace();
+			} catch (NoSuchFieldException e) {
+				// Ignore, occurrs if a search for field like EMPTY_DEFAULT is started,
+				// this isn't there and shall never be there.
+			}
+		}
+
+		return emergencyDefault;
 	}
 
 	public static String constant2Var(String s) {

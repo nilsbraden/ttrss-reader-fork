@@ -25,6 +25,9 @@ import androidx.preference.EditTextPreference;
 @SuppressWarnings("UnusedDeclaration")
 public class EditIntegerPreference extends EditTextPreference {
 
+	@SuppressWarnings("unused")
+	private static final String TAG = EditIntegerPreference.class.getSimpleName();
+
 	public EditIntegerPreference(Context context) {
 		super(context);
 	}
@@ -39,7 +42,15 @@ public class EditIntegerPreference extends EditTextPreference {
 
 	@Override
 	protected String getPersistedString(String defaultReturnValue) {
-		return String.valueOf(getPersistedInt(-1));
+		int defaultPersisted = getPersistedInt(-1);
+		int defaultFromConstants = Constants.getDefaultValueInt(getKey(), -1);
+
+		//Log.d(TAG, String.format("Preference \"%s\" default persisted: %s and default from Constants: %s", getKey(), defaultPersisted, defaultFromConstants));
+		if (defaultPersisted != -1)
+			return String.valueOf(defaultPersisted);
+		else {
+			return String.valueOf(defaultFromConstants);
+		}
 	}
 
 	@Override
