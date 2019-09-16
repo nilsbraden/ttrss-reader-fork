@@ -18,6 +18,7 @@
 package org.ttrssreader.preferences.fragments;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -28,16 +29,19 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
+import org.ttrssreader.gui.dialogs.YesNoDialog;
+import org.ttrssreader.gui.dialogs.YesNoResultListener;
 import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.preferences.PreferencesActivity;
 import org.ttrssreader.utils.AsyncTask;
 
 import androidx.annotation.Keep;
+import androidx.fragment.app.FragmentManager;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
 @Keep
-public class PreferencesFragment extends PreferenceFragmentCompat {
+public class PreferencesFragment extends PreferenceFragmentCompat implements YesNoResultListener {
 
 	@SuppressWarnings("unused")
 	private static final String TAG = PreferencesFragment.class.getSimpleName();
@@ -60,18 +64,42 @@ public class PreferencesFragment extends PreferenceFragmentCompat {
 	public boolean onPreferenceTreeClick(Preference preference) {
 		// Only start reset-task if one of the three reset-items was clicked
 		String key = preference.getKey();
-		if (key != null) {
+		if (key != null && getActivity() != null) {
+
+			final FragmentManager fm = getActivity().getSupportFragmentManager();
+			int titleRes = R.string.Preferences_Reset_YesNoTitle;
+			int msgRes = -1;
+			boolean doReset = false;
+
 			switch (key) {
 				case KEY_RESET_PREFERENCES:
+					msgRes = R.string.Preferences_Reset_YesNoMsg;
+					doReset = true;
+					break;
 				case KEY_RESET_DATABASE:
+					msgRes = R.string.Preferences_ResetDatabase_YesNoMsg;
+					doReset = true;
+					break;
 				case KEY_RESET_CACHE:
-					new ResetTask(getContext()).execute(key);
+					msgRes = R.string.Preferences_ResetCache_YesNoMsg;
+					doReset = true;
 					break;
 				default:
 					break;
 			}
+			if (doReset) {
+				YesNoDialog dialog = YesNoDialog.getInstance(this, titleRes, msgRes, key);
+				dialog.show(fm, key);
+			}
 		}
 		return super.onPreferenceTreeClick(preference);
+	}
+
+	@Override
+	public void onClick(int which, String data) {
+		if (which == Dialog.BUTTON_POSITIVE) {
+			new ResetTask(getContext()).execute(data);
+		}
 	}
 
 	/**
