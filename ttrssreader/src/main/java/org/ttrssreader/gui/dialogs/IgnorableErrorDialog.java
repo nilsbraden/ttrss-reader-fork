@@ -43,7 +43,7 @@ public class IgnorableErrorDialog extends ErrorDialog {
 		alertDialogBuilder.setNegativeButton(getActivity().getString(R.string.Ignore), new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				Controller.getInstance().ignoreUnsafeConnectionError();
+				Controller.getInstance().setIgnoreUnsafeConnectionError();
 				dismiss();
 			}
 		});

@@ -83,18 +83,23 @@ public abstract class MenuFlavorActivity extends AppCompatActivity implements Pr
 	@Override
 	public void onProviderInstallFailed(int errorCode, Intent recoveryIntent) {
 		GoogleApiAvailability api = GoogleApiAvailability.getInstance();
-		if (api.isUserResolvableError(errorCode)) {
-			// Recoverable error. Show a dialog prompting the user to install/update/enable Google Play services.
-			api.showErrorDialogFragment(this, errorCode, ERROR_DIALOG_REQUEST_CODE, new DialogInterface.OnCancelListener() {
-				@Override
-				public void onCancel(DialogInterface dialog) {
-					// The user chose not to take the recovery action
-					onProviderInstallerNotAvailable();
-				}
-			});
-		} else {
-			// Google Play services is not available.
-			onProviderInstallerNotAvailable();
+		// Don't annoy the user every time:
+		if (!Controller.getInstance().ignoreUnsafeConnectionError()) {
+
+			if (api.isUserResolvableError(errorCode)) {
+				// Recoverable error. Show a dialog prompting the user to install/update/enable Google Play services.
+				api.showErrorDialogFragment(this, errorCode, ERROR_DIALOG_REQUEST_CODE, new DialogInterface.OnCancelListener() {
+					@Override
+					public void onCancel(DialogInterface dialog) {
+						// The user chose not to take the recovery action
+						onProviderInstallerNotAvailable();
+					}
+				});
+			} else {
+				// Google Play services is not available.
+				onProviderInstallerNotAvailable();
+			}
+
 		}
 	}
 

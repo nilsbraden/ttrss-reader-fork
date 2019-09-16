@@ -105,7 +105,7 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	private SharedPreferences prefs = null;
 	private static boolean preferencesChanged = false;
 
-	private Boolean ignoreUnsafeConnectionError = false;
+	private Boolean ignoreUnsafeConnectionError = null;
 	private Boolean openUrlEmptyArticle = null;
 	private Boolean useVolumeKeys = null;
 	private Boolean loadImages = null;
@@ -666,9 +666,9 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 		return ignoreUnsafeConnectionError;
 	}
 
-	public void setIgnoreUnsafeConnectionError(boolean ignoreUnsafeConnectionError) {
+	public void setIgnoreUnsafeConnectionError() {
 		put(IGNORE_UNSAFE_CONNECTION_ERROR, true);
-		this.ignoreUnsafeConnectionError = ignoreUnsafeConnectionError;
+		this.ignoreUnsafeConnectionError = true;
 	}
 
 	// ******* USAGE-Options ****************************
