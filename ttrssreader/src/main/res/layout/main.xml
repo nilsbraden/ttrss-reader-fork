@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright (c) 2015, Nils Braden
 
   This file is part of ttrss-reader-fork. This program is free software; you
@@ -15,37 +14,31 @@
   copy of the GNU General Public License along with this program; If
   not, see http://www.gnu.org/licenses/.
   -->
-<LinearLayout android:id="@+id/frame_all"
+<RelativeLayout android:id="@+id/frame_all"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:baselineAligned="false"
     android:orientation="vertical">
 
-    <RelativeLayout
+    <include layout="@layout/toolbar" />
+
+    <FrameLayout
+        android:id="@+id/frame_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:baselineAligned="false">
+        android:layout_below="@id/progressBarLayout" />
 
-		<include
-			layout="@layout/toolbar"/>
+    <FrameLayout
+        android:id="@+id/frame_sub"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/progressBarLayout" />
 
-        <FrameLayout
-            android:id="@+id/frame_main"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@id/progressBarLayout"/>
+    <FrameLayout
+        android:id="@+id/frame_invisible"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
 
-        <FrameLayout
-            android:id="@+id/frame_sub"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@id/progressBarLayout"/>
-
-        <FrameLayout
-            android:id="@+id/frame_invisible"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone"/>
-
-    </RelativeLayout>
-</LinearLayout>
+</RelativeLayout>

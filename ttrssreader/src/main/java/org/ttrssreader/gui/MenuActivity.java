@@ -17,7 +17,6 @@
 
 package org.ttrssreader.gui;
 
-import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -116,7 +115,10 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 			return; // Do nothing, the views do not exist...
 
 		// Initialize values for layout changes:
-		Controller.refreshDisplayMetrics(((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay());
+		WindowManager wm = ((WindowManager) getSystemService(Context.WINDOW_SERVICE));
+		if (wm != null)
+			Controller.refreshDisplayMetrics(wm.getDefaultDisplay());
+
 		isVertical = (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT);
 		displaySize = Controller.displayWidth;
 		if (isVertical) {
@@ -132,9 +134,14 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 		// use tablet layout?
 		Controller.isTablet = (Controller.getInstance().allowTabletLayout() && divider != null);
 
-		// Set frame sizes and hide divider if necessary
-		if (Controller.isTablet) {
+		// Hide divider if necessary
+		if (!Controller.isTablet && divider != null) {
+			divider.setVisibility(View.GONE);
+			getWindow().getDecorView().getRootView().invalidate();
+		}
 
+		// Set proper frame sizes
+		if (Controller.isTablet) {
 			// Resize frames and do it only if stored size is within our bounds:
 			int mainFrameSize = Controller.getInstance().getMainFrameSize(this, isVertical, minSize, maxSize);
 			int subFrameSize = displaySize - mainFrameSize;
@@ -165,15 +172,6 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 			frameSub.setLayoutParams(lpSub);
 			divider.setVisibility(View.VISIBLE);
 			getWindow().getDecorView().getRootView().invalidate();
-
-		} else {
-
-			int match_parent = RelativeLayout.LayoutParams.MATCH_PARENT;
-			frameMain.setLayoutParams(new RelativeLayout.LayoutParams(match_parent, match_parent));
-			frameSub.setLayoutParams(new RelativeLayout.LayoutParams(match_parent, match_parent));
-			if (divider != null)
-				divider.setVisibility(View.GONE);
-
 		}
 	}
 
@@ -219,28 +217,10 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 		if (m_Toolbar != null) {
 			setSupportActionBar(m_Toolbar);
 			m_Toolbar.setTitle(R.string.ApplicationName);
+			m_Toolbar.setVisibility(View.VISIBLE);
 			header_unread = findViewById(R.id.head_unread);
 			progressbar = findViewById(R.id.progressbar);
 			progressspinner = findViewById(R.id.progressspinner);
-			hideBackArrow();
-
-		}
-	}
-
-	protected void showBackArrow() {
-		ActionBar ab = getActionBar();
-		if (ab != null) {
-			ab.setDisplayHomeAsUpEnabled(true);
-			ab.setDisplayShowTitleEnabled(false);
-
-		}
-	}
-
-	protected void hideBackArrow() {
-		ActionBar ab = getActionBar();
-		if (ab != null) {
-			ab.setDisplayHomeAsUpEnabled(false);
-			ab.setDisplayShowTitleEnabled(false);
 		}
 	}
 
@@ -261,8 +241,10 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 		if (Controller.getInstance().isScheduledRestart()) {
 			Controller.getInstance().setScheduledRestart(false);
 			Intent intent = getBaseContext().getPackageManager().getLaunchIntentForPackage(getBaseContext().getPackageName());
-			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			startActivity(intent);
+			if (intent != null) {
+				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				startActivity(intent);
+			}
 		} else {
 			UpdateController.getInstance().registerActivity(this);
 			DBHelper.getInstance().initialize(this);
@@ -295,15 +277,18 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (resultCode == ErrorActivity.ACTIVITY_SHOW_ERROR) {
-			refreshAndUpdate();
-		} else if (resultCode == Constants.ACTIVITY_SHOW_PREFERENCES) {
-			refreshAndUpdate();
-		} else if (resultCode == ErrorActivity.ACTIVITY_EXIT) {
-			finish();
-		} else if (resultCode == PreferencesActivity.ACTIVITY_RELOAD) {
-			finish();
-			startActivity(getIntent());
+		switch (resultCode) {
+			case ErrorActivity.ACTIVITY_SHOW_ERROR:
+			case Constants.ACTIVITY_SHOW_PREFERENCES:
+				refreshAndUpdate();
+				break;
+			case ErrorActivity.ACTIVITY_EXIT:
+				finish();
+				break;
+			case PreferencesActivity.ACTIVITY_RELOAD:
+				finish();
+				startActivity(getIntent());
+				break;
 		}
 		super.onActivityResult(requestCode, resultCode, data);
 	}
