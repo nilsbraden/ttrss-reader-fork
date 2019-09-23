@@ -40,6 +40,7 @@ import org.ttrssreader.model.ListContentProvider;
 import org.ttrssreader.model.updaters.IUpdatable;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 
+import androidx.fragment.app.FragmentActivity;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
@@ -107,18 +108,19 @@ public class CategoryListFragment extends MainListFragment {
 					updater = new ReadStateUpdater(id, 42);
 				else
 					updater = new ReadStateUpdater(id);
-				ReadStateDialog.getInstance(updater).show(getActivity().getSupportFragmentManager());
+				if (getActivity() != null)
+					ReadStateDialog.getInstance(updater).show(getActivity().getSupportFragmentManager());
 				return true;
 			case SELECT_ARTICLES:
 				if (id < 0)
 					return false;
-				if (getActivity() instanceof CategoryActivity)
+				if (getActivity() != null && getActivity() instanceof CategoryActivity)
 					((CategoryActivity) getActivity()).displayHeadlines(FeedHeadlineActivity.FEED_NO_ID, id, true);
 				return true;
 			case SELECT_FEEDS:
 				if (id < 0)
 					return false;
-				if (getActivity() instanceof CategoryActivity)
+				if (getActivity() != null && getActivity() instanceof CategoryActivity)
 					((CategoryActivity) getActivity()).displayFeed(id);
 				return true;
 		}
@@ -139,17 +141,21 @@ public class CategoryListFragment extends MainListFragment {
 		if (super.onOptionsItemSelected(item))
 			return true;
 
+		FragmentActivity activity = getActivity();
+		if (activity == null)
+			return false;
+
 		boolean backAfterUpdate = Controller.getInstance().goBackAfterMarkAllRead();
 		switch (item.getItemId()) {
 			case R.id.Menu_MarkAllRead: {
 				IUpdatable updateable = new ReadStateUpdater(ReadStateUpdater.TYPE.ALL_CATEGORIES);
-				ReadStateDialog.getInstance(updateable, backAfterUpdate).show(getActivity().getSupportFragmentManager());
+				ReadStateDialog.getInstance(updateable, backAfterUpdate).show(activity.getSupportFragmentManager());
 				return true;
 			}
 			case R.id.Menu_MarkFeedsRead:
 				if (selectedId > Integer.MIN_VALUE) {
 					IUpdatable updateable = new ReadStateUpdater(selectedId);
-					ReadStateDialog.getInstance(updateable, backAfterUpdate).show(getActivity().getSupportFragmentManager());
+					ReadStateDialog.getInstance(updateable, backAfterUpdate).show(activity.getSupportFragmentManager());
 				}
 				return true;
 			default:
@@ -166,7 +172,10 @@ public class CategoryListFragment extends MainListFragment {
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		if (id == TYPE_CAT_ID) {
 			categoryUri = ListContentProvider.CONTENT_URI_CAT;
-			return new CursorLoader(getActivity(), categoryUri, null, null, null, null);
+
+			FragmentActivity activity = getActivity();
+			if (activity != null)
+				return new CursorLoader(getActivity(), categoryUri, null, null, null, null);
 		}
 		return null;
 	}
@@ -176,7 +185,10 @@ public class CategoryListFragment extends MainListFragment {
 		if (loader.getId() == TYPE_CAT_ID)
 			adapter.changeCursor(data);
 		super.onLoadFinished(loader, data);
-		((CategoryActivity) getActivity()).setTitleAndUnread();
+
+		CategoryActivity activity = (CategoryActivity) getActivity();
+		if (activity != null)
+			activity.setTitleAndUnread();
 	}
 
 	@Override

@@ -64,6 +64,7 @@ import java.util.List;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentActivity;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
@@ -127,17 +128,20 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
 		super.onActivityCreated(instance);
 
 		// Detect touch gestures like swipe and scroll down:
-		ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+		AppCompatActivity activity = (AppCompatActivity) getActivity();
+		if (activity != null) {
+			ActionBar actionBar = activity.getSupportActionBar();
 
-		gestureDetector = new GestureDetector(getActivity(), new HeadlineGestureDetector(actionBar, Controller.getInstance().hideActionbar()));
-		gestureListener = new View.OnTouchListener() {
-			public boolean onTouch(View v, MotionEvent event) {
-				return gestureDetector.onTouchEvent(event) || v.performClick();
-			}
-		};
+			gestureDetector = new GestureDetector(getActivity(), new HeadlineGestureDetector(actionBar, Controller.getInstance().hideActionbar()));
+			gestureListener = new View.OnTouchListener() {
+				public boolean onTouch(View v, MotionEvent event) {
+					return gestureDetector.onTouchEvent(event) || v.performClick();
+				}
+			};
 
-		if (getView() != null)
-			getView().setOnTouchListener(gestureListener);
+			if (getView() != null)
+				getView().setOnTouchListener(gestureListener);
+		}
 	}
 
 	@Override
@@ -223,25 +227,28 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (super.onOptionsItemSelected(item))
 			return true;
+		FragmentActivity activity = getActivity();
+		if (activity == null)
+			return false;
 
 		switch (item.getItemId()) {
 			case R.id.Menu_MarkFeedRead: {
 				boolean backAfterUpdate = Controller.getInstance().goBackAfterMarkAllRead();
 				if (selectArticlesForCategory) {
 					IUpdatable updateable = new ReadStateUpdater(categoryId);
-					ReadStateDialog.getInstance(updateable, backAfterUpdate).show(getActivity().getSupportFragmentManager());
+					ReadStateDialog.getInstance(updateable, backAfterUpdate).show(activity.getSupportFragmentManager());
 				} else if (feedId >= -4 && feedId < 0) { // Virtual Category
 					IUpdatable updateable = new ReadStateUpdater(feedId, 42);
-					ReadStateDialog.getInstance(updateable, backAfterUpdate).show(getActivity().getSupportFragmentManager());
+					ReadStateDialog.getInstance(updateable, backAfterUpdate).show(activity.getSupportFragmentManager());
 				} else {
-					new Updater(getActivity(), new ReadStateUpdater(feedId, 42), backAfterUpdate).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+					new Updater(activity, new ReadStateUpdater(feedId, 42), backAfterUpdate).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 				}
 
 				return true;
 			}
 			case R.id.Menu_FeedUnsubscribe: {
 				YesNoUpdaterDialog dialog = YesNoUpdaterDialog.getInstance(new UnsubscribeUpdater(feedId), R.string.Dialog_unsubscribeTitle, R.string.Dialog_unsubscribeText);
-				dialog.show(getActivity().getSupportFragmentManager(), YesNoUpdaterDialog.DIALOG);
+				dialog.show(activity.getSupportFragmentManager(), YesNoUpdaterDialog.DIALOG);
 				return true;
 			}
 			default:
@@ -303,7 +310,12 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
 		@Override
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
 			// Refresh metrics-data in Controller
-			Controller.refreshDisplayMetrics(((WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay());
+			FragmentActivity activity = getActivity();
+			if (activity != null) {
+				WindowManager wm = ((WindowManager) activity.getSystemService(Context.WINDOW_SERVICE));
+				if (wm != null)
+					Controller.refreshDisplayMetrics(wm.getDefaultDisplay());
+			}
 
 			try {
 				if (Math.abs(e1.getY() - e2.getY()) > Controller.relSwipeMaxOffPath)
@@ -311,15 +323,17 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
 				if (e1.getX() - e2.getX() > Controller.relSwipeMinDistance && Math.abs(velocityX) > Controller.relSwipeThresholdVelocity) {
 
 					// right to left swipe
-					FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
-					activity.openNextFeed(1);
+					FeedHeadlineActivity fhActivity = (FeedHeadlineActivity) getActivity();
+					if (fhActivity != null)
+						fhActivity.openNextFeed(1);
 					return true;
 
 				} else if (e2.getX() - e1.getX() > Controller.relSwipeMinDistance && Math.abs(velocityX) > Controller.relSwipeThresholdVelocity) {
 
 					// left to right swipe
-					FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
-					activity.openNextFeed(-1);
+					FeedHeadlineActivity fhActivity = (FeedHeadlineActivity) getActivity();
+					if (fhActivity != null)
+						fhActivity.openNextFeed(-1);
 					return true;
 
 				}
@@ -338,7 +352,10 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
 			builder.appendQueryParameter(ListContentProvider.PARAM_FEED_ID, feedId + "");
 			builder.appendQueryParameter(ListContentProvider.PARAM_SELECT_FOR_CAT, (selectArticlesForCategory ? "1" : "0"));
 			headlineUri = builder.build();
-			return new CursorLoader(getActivity(), headlineUri, null, null, null, null);
+
+			FragmentActivity activity = getActivity();
+			if (activity != null)
+				return new CursorLoader(getActivity(), headlineUri, null, null, null, null);
 		}
 		return null;
 	}

@@ -133,12 +133,6 @@ public class FeedHeadlineActivity extends MenuActivity {
 	}
 
 	@Override
-	protected void onResume() {
-		super.onResume();
-		showBackArrow();
-	}
-
-	@Override
 	protected void doUpdate(boolean forceUpdate) {
 		// Only update if no headlineUpdater already running
 		if (headlineUpdater != null) {
@@ -181,14 +175,11 @@ public class FeedHeadlineActivity extends MenuActivity {
 		if (super.onOptionsItemSelected(item))
 			return true;
 
-		switch (item.getItemId()) {
-			case R.id.Menu_Refresh: {
-				doUpdate(true);
-				return true;
-			}
-			default:
-				return false;
+		if (item.getItemId() == R.id.Menu_Refresh) {
+			doUpdate(true);
+			return true;
 		}
+		return false;
 	}
 
 	@Override
@@ -294,10 +285,8 @@ public class FeedHeadlineActivity extends MenuActivity {
 
 	@Override
 	public void itemSelected(MainListFragment source, int selectedId) {
-		switch (source.getType()) {
-			case FEEDHEADLINE:
-				displayArticle(selectedId, 0);
-				break;
+		if (source.getType() == TYPE.FEEDHEADLINE) {
+			displayArticle(selectedId, 0);
 		}
 	}
 
@@ -324,7 +313,7 @@ public class FeedHeadlineActivity extends MenuActivity {
 		// Check if a next feed in this direction exists
 		if (direction != 0) {
 			FeedListFragment feedFragment = (FeedListFragment) fm.findFragmentByTag(FeedListFragment.FRAGMENT);
-			if (findNext(feedFragment.getFeedIds(), feedId, direction) == Integer.MIN_VALUE) {
+			if (feedFragment != null && findNext(feedFragment.getFeedIds(), feedId, direction) == Integer.MIN_VALUE) {
 				Utils.alert(this);
 			}
 		}
@@ -340,7 +329,8 @@ public class FeedHeadlineActivity extends MenuActivity {
 		Log.w(TAG, "displayArticle() has been called, newArticleId: " + newArticleId + ", direction: " + direction);
 		articleId = newArticleId;
 		FeedHeadlineListFragment headlineFragment = (FeedHeadlineListFragment) getSupportFragmentManager().findFragmentByTag(FeedHeadlineListFragment.FRAGMENT);
-		headlineFragment.setSelectedId(articleId);
+		if (headlineFragment != null)
+			headlineFragment.setSelectedId(articleId);
 
 		// Clear back stack
 		Controller.sFragmentAnimationDirection = direction;
@@ -361,7 +351,7 @@ public class FeedHeadlineActivity extends MenuActivity {
 		ft.commit();
 
 		// Check if a next feed in this direction exists
-		if (direction != 0) {
+		if (direction != 0 && headlineFragment != null) {
 			if (findNext(headlineFragment.getArticleIds(), articleId, direction) == Integer.MIN_VALUE) {
 				Utils.alert(this);
 			}

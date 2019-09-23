@@ -17,11 +17,11 @@
 
 package org.ttrssreader.gui.fragments;
 
-import android.app.Activity;
 import android.database.Cursor;
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.View;
@@ -42,6 +42,7 @@ import org.ttrssreader.utils.AsyncTask;
 
 import java.util.List;
 
+import androidx.fragment.app.FragmentActivity;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
@@ -114,7 +115,9 @@ public class FeedListFragment extends MainListFragment {
 				return true;
 			case UNSUBSCRIBE:
 				YesNoUpdaterDialog dialog = YesNoUpdaterDialog.getInstance(new UnsubscribeUpdater(adapter.getId(cmi.position)), R.string.Dialog_unsubscribeTitle, R.string.Dialog_unsubscribeText);
-				dialog.show(getActivity().getSupportFragmentManager(), YesNoUpdaterDialog.DIALOG);
+				FragmentActivity activity = getActivity();
+				if (activity != null)
+					dialog.show(activity.getSupportFragmentManager(), YesNoUpdaterDialog.DIALOG);
 				return true;
 		}
 		return false;
@@ -139,8 +142,12 @@ public class FeedListFragment extends MainListFragment {
 			Builder builder = ListContentProvider.CONTENT_URI_FEED.buildUpon();
 			builder.appendQueryParameter(ListContentProvider.PARAM_CAT_ID, categoryId + "");
 			feedUri = builder.build();
-			return new CursorLoader(getActivity(), feedUri, null, null, null, null);
+
+			FragmentActivity activity = getActivity();
+			if (activity != null)
+				return new CursorLoader(activity, feedUri, null, null, null, null);
 		}
+		Log.e(TAG, "FeedListFragment.onCreateLoader() returned NULL which should never happen! Provided ID was: " + id);
 		return null;
 	}
 
@@ -167,7 +174,7 @@ public class FeedListFragment extends MainListFragment {
 
 	@Override
 	public void doRefresh() {
-		Activity activity = getActivity();
+		FragmentActivity activity = getActivity();
 		if (activity != null && feedUri != null)
 			activity.getContentResolver().notifyChange(feedUri, null);
 		super.doRefresh();

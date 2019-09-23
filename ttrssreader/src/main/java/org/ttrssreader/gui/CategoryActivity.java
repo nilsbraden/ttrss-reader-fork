@@ -165,15 +165,11 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 		if (feedFragment != null && feedFragment.isVisible() && !feedFragment.isEmptyPlaceholder()) {
 			setTitle(feedFragment.getTitle());
 			setUnread(feedFragment.getUnread());
-			showBackArrow();
 		} else {
 			CategoryListFragment categoryFragment = getCategoryListFragment();
 			if (categoryFragment != null && categoryFragment.isVisible()) {
 				setTitle(categoryFragment.getTitle());
 				setUnread(categoryFragment.getUnread());
-				hideBackArrow();
-			} else {
-				// we could be in onResume - just leave what's there right now
 			}
 		}
 	}
@@ -209,14 +205,12 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 		if (super.onOptionsItemSelected(item))
 			return true;
 
-		switch (item.getItemId()) {
-			case R.id.Menu_Refresh: {
-				doUpdate(true);
-				return true;
-			}
-			default:
-				return false;
+		if (item.getItemId() == R.id.Menu_Refresh) {
+			doUpdate(true);
+			return true;
 		}
+
+		return false;
 	}
 
 	/**

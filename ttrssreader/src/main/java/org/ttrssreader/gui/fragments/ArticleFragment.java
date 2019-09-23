@@ -100,6 +100,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 
 public class ArticleFragment extends Fragment implements TextInputAlertCallback {
 
@@ -212,11 +213,14 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 
 	@SuppressLint("ClickableViewAccessibility")
 	private void initUI() {
+		if (getActivity() == null)
+			return;
+
 		// Wrap webview inside another FrameLayout to avoid memory leaks as described here:
 		// http://stackoverflow.com/questions/3130654/memory-leak-in-webview
-		webContainer = (FrameLayout) getActivity().findViewById(R.id.article_webView_Container);
-		buttonPrev = (Button) getActivity().findViewById(R.id.article_buttonPrev);
-		buttonNext = (Button) getActivity().findViewById(R.id.article_buttonNext);
+		webContainer = getActivity().findViewById(R.id.article_webView_Container);
+		buttonPrev = getActivity().findViewById(R.id.article_buttonPrev);
+		buttonNext = getActivity().findViewById(R.id.article_buttonNext);
 		buttonPrev.setOnClickListener(onButtonPressedListener);
 		buttonNext.setOnClickListener(onButtonPressedListener);
 
@@ -513,8 +517,8 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 
 		for (String mimeType : attachmentsByMimeType.keySet()) {
 			Collection<String> mimeTypeUrls = attachmentsByMimeType.get(mimeType);
-			if (mimeTypeUrls.isEmpty())
-				return "";
+			if (mimeTypeUrls == null || mimeTypeUrls.isEmpty())
+				continue;
 
 			if (mimeType.equals(FileUtils.IMAGE_MIME)) {
 				ST st = new ST(getResources().getString(R.string.ATTACHMENT_IMAGES_TEMPLATE));
@@ -622,8 +626,10 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 				return true;
 			}
 			case R.id.Article_Menu_AddArticleLabel: {
-				DialogFragment dialog = ArticleLabelDialog.newInstance(article.id);
-				dialog.show(getActivity().getSupportFragmentManager(), "Edit Labels");
+				if (getActivity() != null) {
+					DialogFragment dialog = ArticleLabelDialog.newInstance(article.id);
+					dialog.show(getActivity().getSupportFragmentManager(), "Edit Labels");
+				}
 				return true;
 			}
 			case R.id.Article_Menu_ShareLink: {
@@ -745,15 +751,19 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 				}
 				break;
 			case CONTEXT_MENU_COPY_URL:
-				if (mSelectedExtra != null) {
+				if (mSelectedExtra != null && getActivity() != null) {
 					ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-					ClipData clip = ClipData.newPlainText("URL from TTRSS", mSelectedExtra);
-					clipboard.setPrimaryClip(clip);
+					if (clipboard != null) {
+						ClipData clip = ClipData.newPlainText("URL from TTRSS", mSelectedExtra);
+						clipboard.setPrimaryClip(clip);
+					}
 				}
 				break;
 			case CONTEXT_MENU_DISPLAY_CAPTION:
-				ImageCaptionDialog fragment = ImageCaptionDialog.getInstance(mSelectedAltText);
-				fragment.show(getActivity().getSupportFragmentManager(), ImageCaptionDialog.DIALOG_CAPTION);
+				if (getActivity() != null) {
+					ImageCaptionDialog fragment = ImageCaptionDialog.getInstance(mSelectedAltText);
+					fragment.show(getActivity().getSupportFragmentManager(), ImageCaptionDialog.DIALOG_CAPTION);
+				}
 				return true;
 			case CONTEXT_MENU_SHARE_ARTICLE:
 				// default behavior is to share the article URL
@@ -779,10 +789,12 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 		public void onClick(View v) {
 			if (v.equals(buttonNext)) {
 				FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
-				activity.openNextArticle(-1);
+				if (activity != null)
+					activity.openNextArticle(-1);
 			} else if (v.equals(buttonPrev)) {
 				FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
-				activity.openNextArticle(1);
+				if (activity != null)
+					activity.openNextArticle(1);
 			}
 		}
 	};
@@ -793,11 +805,13 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			if (Controller.getInstance().useVolumeKeys()) {
 				if (keyCode == KeyEvent.KEYCODE_N) {
 					FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
-					activity.openNextArticle(-1);
+					if (activity != null)
+						activity.openNextArticle(-1);
 					return true;
 				} else if (keyCode == KeyEvent.KEYCODE_B) {
 					FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
-					activity.openNextArticle(1);
+					if (activity != null)
+						activity.openNextArticle(1);
 					return true;
 				}
 			}
@@ -839,7 +853,8 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			activity.runOnUiThread(new Runnable() {
 				public void run() {
 					FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
-					activity.openNextArticle(-1);
+					if (activity != null)
+						activity.openNextArticle(-1);
 				}
 			});
 		}
@@ -857,7 +872,8 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			activity.runOnUiThread(new Runnable() {
 				public void run() {
 					FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
-					activity.openNextArticle(1);
+					if (activity != null)
+						activity.openNextArticle(1);
 				}
 			});
 		}
@@ -876,9 +892,11 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			activity.runOnUiThread(new Runnable() {
 				public void run() {
 					ClipboardManager clipboard = (ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
-					ClipData clip = ClipData.newHtmlText("HTML Text", contentPlain, prepareHTMLContentForClipboard(content));
-					//ClipData clip = ClipData.newPlainText("HTML Text", contentPlain);
-					clipboard.setPrimaryClip(clip);
+					if (clipboard != null) {
+						ClipData clip = ClipData.newHtmlText("HTML Text", contentPlain, prepareHTMLContentForClipboard(content));
+						//ClipData clip = ClipData.newPlainText("HTML Text", contentPlain);
+						clipboard.setPrimaryClip(clip);
+					}
 				}
 			});
 		}
@@ -927,7 +945,12 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 		@Override
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
 			// Refresh metrics-data in Controller
-			Controller.refreshDisplayMetrics(((WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay());
+			FragmentActivity activity = getActivity();
+			if (activity != null) {
+				WindowManager wm = ((WindowManager) activity.getSystemService(Context.WINDOW_SERVICE));
+				if (wm != null)
+					Controller.refreshDisplayMetrics(wm.getDefaultDisplay());
+			}
 
 			if (Math.abs(e1.getY() - e2.getY()) > Controller.relSwipeMaxOffPath)
 				return false;
@@ -941,15 +964,17 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			if (e1.getX() - e2.getX() > Controller.relSwipeMinDistance && Math.abs(velocityX) > Controller.relSwipeThresholdVelocity) {
 
 				// right to left swipe
-				FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
-				activity.openNextArticle(1);
+				FeedHeadlineActivity fhActivity = (FeedHeadlineActivity) getActivity();
+				if (fhActivity != null)
+					fhActivity.openNextArticle(1);
 				return true;
 
 			} else if (e2.getX() - e1.getX() > Controller.relSwipeMinDistance && Math.abs(velocityX) > Controller.relSwipeThresholdVelocity) {
 
 				// left to right swipe
-				FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
-				activity.openNextArticle(-1);
+				FeedHeadlineActivity fhActivity = (FeedHeadlineActivity) getActivity();
+				if (fhActivity != null)
+					fhActivity.openNextArticle(-1);
 				return true;
 
 			}
