@@ -36,6 +36,7 @@ import org.ttrssreader.utils.Utils;
 
 import java.util.List;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -49,14 +50,16 @@ public class FeedHeadlineActivity extends MenuActivity {
 	private int categoryId = Integer.MIN_VALUE;
 	private int feedId = Integer.MIN_VALUE;
 	private boolean selectArticlesForCategory = false;
+	private int articleId = Integer.MIN_VALUE;
 
 	private FeedHeadlineUpdater headlineUpdater = null;
 
-	private int articleId = Integer.MIN_VALUE;
 
 	@Override
 	protected void onCreate(Bundle instance) {
 		super.onCreate(instance);
+
+		boolean hideTitlebar = false;
 
 		Bundle extras = getIntent().getExtras();
 		if (instance != null) {
@@ -64,11 +67,13 @@ public class FeedHeadlineActivity extends MenuActivity {
 			feedId = instance.getInt(FeedHeadlineListFragment.FEED_ID);
 			selectArticlesForCategory = instance.getBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES);
 			articleId = instance.getInt(FeedHeadlineListFragment.ARTICLE_ID, Integer.MIN_VALUE);
+			hideTitlebar = instance.getBoolean(FeedHeadlineListFragment.TITLEBAR_HIDDEN);
 		} else if (extras != null) {
 			categoryId = extras.getInt(FeedHeadlineListFragment.FEED_CAT_ID);
 			feedId = extras.getInt(FeedHeadlineListFragment.FEED_ID);
 			selectArticlesForCategory = extras.getBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES);
 			articleId = extras.getInt(FeedHeadlineListFragment.ARTICLE_ID, Integer.MIN_VALUE);
+			hideTitlebar = extras.getBoolean(FeedHeadlineListFragment.TITLEBAR_HIDDEN);
 		}
 
 		FragmentManager fm = getSupportFragmentManager();
@@ -81,6 +86,12 @@ public class FeedHeadlineActivity extends MenuActivity {
 		FeedHeadlineListFragment headlineFragment = (FeedHeadlineListFragment) fm.findFragmentByTag(FeedHeadlineListFragment.FRAGMENT);
 		if (headlineFragment == null) {
 			displayFeed(feedId, 0);
+		}
+
+		if (hideTitlebar) {
+			ActionBar ab = getSupportActionBar();
+			if (ab != null)
+				ab.hide();
 		}
 	}
 

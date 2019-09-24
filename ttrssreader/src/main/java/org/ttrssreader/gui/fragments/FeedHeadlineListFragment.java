@@ -81,6 +81,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
 	public static final String FEED_ID = "ARTICLE_FEED_ID";
 	public static final String ARTICLE_ID = "ARTICLE_ID";
 	public static final String FEED_SELECT_ARTICLES = "FEED_SELECT_ARTICLES";
+	public static final String TITLEBAR_HIDDEN = "TITLEBAR_HIDDEN";
 
 	private static final int MARK_GROUP = 200;
 	private static final int MARK_READ = MARK_GROUP + 1;
@@ -111,6 +112,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
 			categoryId = instance.getInt(FEED_CAT_ID);
 			feedId = instance.getInt(FEED_ID);
 			selectArticlesForCategory = instance.getBoolean(FEED_SELECT_ARTICLES);
+			instance.getBoolean(FEED_SELECT_ARTICLES);
 		}
 
 		if (feedId > 0)

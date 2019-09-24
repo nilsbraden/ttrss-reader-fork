@@ -44,6 +44,7 @@ import org.ttrssreader.utils.Utils;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -312,11 +313,17 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 	}
 
 	public void displayHeadlines(int feedId, int categoryId, boolean selectArticles) {
+		ActionBar ab = getSupportActionBar();
+		boolean hideTitlebar = false;
+		if (ab != null)
+			hideTitlebar = !ab.isShowing();
+		
 		Intent i = new Intent(this, FeedHeadlineActivity.class);
 		i.putExtra(FeedHeadlineListFragment.FEED_CAT_ID, categoryId);
 		i.putExtra(FeedHeadlineListFragment.FEED_ID, feedId);
 		i.putExtra(FeedHeadlineListFragment.FEED_SELECT_ARTICLES, selectArticles);
 		i.putExtra(FeedHeadlineListFragment.ARTICLE_ID, Integer.MIN_VALUE);
+		i.putExtra(FeedHeadlineListFragment.TITLEBAR_HIDDEN, hideTitlebar);
 		startActivity(i);
 	}
 
