@@ -21,6 +21,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.net.Uri;
+import android.os.Build;
 import android.security.KeyChain;
 import android.security.KeyChainAliasCallback;
 import android.util.AttributeSet;
@@ -64,7 +65,13 @@ public class CertificatePreference extends Preference {
 
 		// show the dialog
 		KeyChainAliasCallbackImpl response = new KeyChainAliasCallbackImpl();
-		KeyChain.choosePrivateKeyAlias(getActivity(getContext()), response, null, null, connectionUri, preselectCert);
+
+		// Use old method if Uri could not be parsed of for lower API levels
+		if (connectionUri == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+			KeyChain.choosePrivateKeyAlias(getActivity(getContext()), response, null, null, connectionUrl, -1, preselectCert);
+		} else {
+			KeyChain.choosePrivateKeyAlias(getActivity(getContext()), response, null, null, connectionUri, preselectCert);
+		}
 	}
 
 	private static Activity getActivity(Context context) {
