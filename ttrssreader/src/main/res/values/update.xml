@@ -17,7 +17,7 @@
 <resources>
 
     <string-array name="updates">
-		<item>Version 1.94.5
+		<item>Version 1.94.6
 			 * __B__Note for Wifi-based preferences:___B___ If you\'re using Wifi-based preferences you will currently need to manually allow location access via Android Settings for this app since this is necessary to access the current Wifi-SSID.
 			 * Fixed Issue #348: NullPointerException
 			 * Fixed Issue #382: feed icons not working with HTTP basic auth
