@@ -317,7 +317,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 		boolean hideTitlebar = false;
 		if (ab != null)
 			hideTitlebar = !ab.isShowing();
-		
+
 		Intent i = new Intent(this, FeedHeadlineActivity.class);
 		i.putExtra(FeedHeadlineListFragment.FEED_CAT_ID, categoryId);
 		i.putExtra(FeedHeadlineListFragment.FEED_ID, feedId);
