@@ -9,3 +9,5 @@ ttrssreader/build/
 /captures
 
 signingconfig.gradle
+
+ttrssreader/google-services.json

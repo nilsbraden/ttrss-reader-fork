@@ -20,6 +20,7 @@ package org.ttrssreader.preferences;
 import android.app.backup.BackupManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.view.View;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
@@ -28,15 +29,15 @@ import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 import org.ttrssreader.utils.Utils;
 
-import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
-public class PreferencesActivity extends FragmentActivity implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
+public class PreferencesActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
 
 	@SuppressWarnings("unused")
 	private static final String TAG = PreferencesActivity.class.getSimpleName();
@@ -49,13 +50,13 @@ public class PreferencesActivity extends FragmentActivity implements PreferenceF
 
 	private PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
 
-	private CharSequence title;
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setTheme(Controller.getInstance().getTheme());
+		setTitle(R.string.PreferencesTitle);
 		setContentView(R.layout.preferences);
+
 		setResult(Constants.ACTIVITY_SHOW_PREFERENCES);
 		mDamageReport.initialize();
 
@@ -64,17 +65,33 @@ public class PreferencesActivity extends FragmentActivity implements PreferenceF
 			FragmentTransaction ft = fm.beginTransaction();
 			ft.replace(R.id.settings, new PreferencesFragment());
 			ft.commit();
-		} else {
-			title = savedInstanceState.getCharSequence(TITLE_TAG);
 		}
-		getSupportFragmentManager().addOnBackStackChangedListener(() -> {
-			if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
-				setTitle(R.string.PreferencesTitle);
-			}
-		});
 
-		if (getActionBar() != null) {
-			getActionBar().setDisplayHomeAsUpEnabled(true);
+		initToolbar();
+	}
+
+	private void initToolbar() {
+		Toolbar m_Toolbar = findViewById(R.id.toolbar);
+		if (m_Toolbar != null) {
+			setSupportActionBar(m_Toolbar);
+			m_Toolbar.setVisibility(View.VISIBLE);
+			m_Toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_material);
+			m_Toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					onBackPressed();
+				}
+			});
+		}
+	}
+
+	@Override
+	public void onBackPressed() {
+		// Back button automatically finishes the activity since Lollipop so we have to work around by checking the backstack before
+		if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+			getSupportFragmentManager().popBackStack();
+		} else {
+			super.onBackPressed();
 		}
 	}
 
@@ -123,21 +140,6 @@ public class PreferencesActivity extends FragmentActivity implements PreferenceF
 	}
 
 	@Override
-	protected void onSaveInstanceState(@NonNull Bundle outState) {
-		super.onSaveInstanceState(outState);
-		// Save current activity title so we can set it again after a configuration change
-		outState.putCharSequence(TITLE_TAG, title);
-	}
-
-	@Override
-	public boolean onNavigateUp() {
-		if (getSupportFragmentManager().popBackStackImmediate()) {
-			return true;
-		}
-		return super.onNavigateUp();
-	}
-
-	@Override
 	public boolean onPreferenceStartFragment(PreferenceFragmentCompat caller, Preference pref) {
 		// Instantiate the new Fragment
 		Bundle args = pref.getExtras();
@@ -151,8 +153,6 @@ public class PreferencesActivity extends FragmentActivity implements PreferenceF
 		ft.replace(R.id.settings, fragment);
 		ft.addToBackStack(null);
 		ft.commit();
-
-		title = pref.getTitle();
 		return true;
 	}
 
