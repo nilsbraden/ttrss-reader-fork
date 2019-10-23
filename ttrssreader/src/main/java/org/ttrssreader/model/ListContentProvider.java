@@ -103,7 +103,7 @@ public class ListContentProvider extends ContentProvider {
 		}
 
 		Cursor cursor = cursorHelper.makeQuery(DBHelper.getInstance().getOpenHelper().getReadableDatabase());
-		if (getContext() != null)
+		if (getContext() != null && cursor != null)
 			cursor.setNotificationUri(getContext().getContentResolver(), uri);
 
 		return cursor;

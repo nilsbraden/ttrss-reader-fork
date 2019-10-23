@@ -34,6 +34,8 @@ import java.util.Set;
  */
 public class IdUpdatedArticleOmitter implements IArticleOmitter {
 
+	private static final String TAG = IdUpdatedArticleOmitter.class.getSimpleName();
+
 	/**
 	 * map of article IDs to it's updated date
 	 */
@@ -61,7 +63,11 @@ public class IdUpdatedArticleOmitter implements IArticleOmitter {
 
 	private void init(String selectSince) {
 		idUpdatedMap = DBHelper.getInstance().getArticleIdUpdatedMap(selectSince);
-		Log.d("Data", "Filter-Size: " + idUpdatedMap.size() + " Selection: " + selectSince);
+		if (idUpdatedMap != null) {
+			Log.d(TAG, "Filter-Size: " + idUpdatedMap.size() + " Selection: " + selectSince);
+		} else {
+			Log.w(TAG, "Filter is empty, Selection: " + selectSince);
+		}
 	}
 
 	/**

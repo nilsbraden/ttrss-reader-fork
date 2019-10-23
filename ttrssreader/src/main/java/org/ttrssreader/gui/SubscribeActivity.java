@@ -20,6 +20,7 @@ package org.ttrssreader.gui;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -96,10 +97,17 @@ public class SubscribeActivity extends MenuActivity {
 		okButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Toast.makeText(getApplicationContext(), "Sending update...", Toast.LENGTH_SHORT).show();
 
+				int itemNumber = (int) categorieSpinner.getSelectedItemId();
+				if (itemNumber < 0 || categoriesAdapter.getCount() < itemNumber) {
+					Toast.makeText(getApplicationContext(), "Couldn't find selected category.", Toast.LENGTH_SHORT).show();
+					Log.e(TAG, "Couldn't find selected category #" + itemNumber);
+					return;
+				}
+
+				Toast.makeText(getApplicationContext(), "Sending update...", Toast.LENGTH_SHORT).show();
 				m_UrlValue = feedUrl.getText().toString();
-				m_Category = categoriesAdapter.getItem((int) categorieSpinner.getSelectedItemId());
+				m_Category = categoriesAdapter.getItem(itemNumber);
 
 				new MyPublisherTask().execute();
 			}
