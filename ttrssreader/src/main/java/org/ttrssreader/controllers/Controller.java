@@ -804,16 +804,31 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 			try {
 				textZoom = prefs.getInt(TEXT_ZOOM, TEXT_ZOOM_DEFAULT);
 			} catch (ClassCastException e) {
-				/* For some users this returns a Long, can't really fix it so just reset the prefs */
-				resetPreferences(prefs);
+				// For some users this returns a Long, can't really fix it so just reset the pref and read again:
+				Log.w(TAG, "Preference textZoom() was reset due to wrong type stored as an INT variable...", e);
+				setTextZoom(TEXT_ZOOM_DEFAULT);
+				textZoom = prefs.getInt(TEXT_ZOOM, TEXT_ZOOM_DEFAULT);
 			}
 		}
+		textZoom = enforceTextZoomBoundaries(textZoom);
 		return textZoom;
 	}
 
 	public void setTextZoom(int textZoom) {
 		put(TEXT_ZOOM, textZoom);
-		this.textZoom = textZoom;
+		this.textZoom = enforceTextZoomBoundaries(textZoom);
+	}
+
+	/*
+	Helper to enforce that textZoom stays positive and within a reasonable range. If values above 300% should be
+	necessary I guess we should start using OSs accessibility tools to enlarge everything.
+	 */
+	private int enforceTextZoomBoundaries(int currentZoom) {
+		int ret = currentZoom;
+		if (ret < 2 || ret > 300) {
+			ret = 100;
+		}
+		return ret;
 	}
 
 	public boolean supportZoomControls() {
@@ -1184,8 +1199,10 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 			try {
 				appLatestVersion = prefs.getInt(APP_LATEST_VERSION, APP_LATEST_VERSION_DEFAULT);
 			} catch (ClassCastException e) {
-				/* For some users this returns a Long, can't really fix it so just reset the value */
-				resetPreferences(prefs);
+				// For some users this returns a Long, can't really fix it so just reset the pref and read again:
+				Log.w(TAG, "Preference appLatestVersion() was reset due to wrong type stored as an INT variable...", e);
+				setAppLatestVersion(APP_LATEST_VERSION_DEFAULT);
+				appLatestVersion = prefs.getInt(APP_LATEST_VERSION, APP_LATEST_VERSION_DEFAULT);
 			}
 		}
 		return appLatestVersion;
@@ -1227,8 +1244,10 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 			try {
 				sinceId = prefs.getInt(SINCE_ID, SINCE_ID_DEFAULT);
 			} catch (ClassCastException e) {
-				/* For some users this returns a Long, can't really fix it so just reset the prefs */
-				resetPreferences(prefs);
+				// For some users this returns a Long, can't really fix it so just reset the pref and read again:
+				Log.w(TAG, "Preference getSinceId() was reset due to wrong type stored as an INT variable...", e);
+				setAppLatestVersion(SINCE_ID_DEFAULT);
+				sinceId = prefs.getInt(SINCE_ID, SINCE_ID_DEFAULT);
 			}
 		}
 		return sinceId;
@@ -1323,10 +1342,8 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	}
 
 	/*	 * If provided "key" resembles a setting as declared in java the corresponding variable in this class
-	 * will
-	 * be reset to null. Variable-Name ist built from the name of the field in Contants.java which holds the value from
-	 * "key" which was changed lately.
-
+	 * will be reset to null. Variable-Name ist built from the name of the field in Contants.java which holds the value
+	 * from "key" which was changed lately.
 	 */
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
