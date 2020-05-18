@@ -17,12 +17,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
 
     defaultConfig {
         applicationId 'org.ttrssreader'
-        minSdkVersion 14
-        targetSdkVersion 28
+        minSdkVersion 16
+        targetSdkVersion 29
     }
 
     buildTypes {
@@ -71,7 +71,7 @@ dependencies {
     implementation 'org.antlr:ST4:4.1'
 
     // Use AndroidX Preference implementation
-    implementation 'androidx.preference:preference:1.1.0'
+    implementation 'androidx.preference:preference:1.1.1'
 
     // Use Material Design everywhere, see here for latest versions: https://developer.android.com/topic/libraries/support-library/features.html#v7
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
@@ -82,8 +82,8 @@ dependencies {
     // "Updating Your Security Provider to Protect Against SSL Exploits"
     // https://developer.android.com/training/articles/security-gms-provider.html
     // Only used in productFlavour "play"
-    playImplementation 'com.google.android.gms:play-services-base:17.1.0'
+    playImplementation 'com.google.android.gms:play-services-base:17.2.1'
 
     // Only added to avoid warning from versionedparcelable.aar, see here for explanation: https://stackoverflow.com/a/57641212
-    implementation "androidx.versionedparcelable:versionedparcelable:1.1.0"
+    implementation "androidx.versionedparcelable:versionedparcelable:1.1.1"
 }
