@@ -48,7 +48,6 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
-import android.webkit.WebSettings.LayoutAlgorithm;
 import android.webkit.WebView;
 import android.webkit.WebView.HitTestResult;
 import android.widget.Button;
@@ -246,7 +245,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			webView.getSettings().setSupportZoom(supportZoom);
 			webView.getSettings().setBuiltInZoomControls(supportZoom);
 			webView.getSettings().setDisplayZoomControls(false);
-			webView.getSettings().setLayoutAlgorithm(LayoutAlgorithm.SINGLE_COLUMN);
+			//webView.getSettings().setLayoutAlgorithm(LayoutAlgorithm.SINGLE_COLUMN);
 			webView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
 			webView.setScrollbarFadingEnabled(true);
 			webView.setOnKeyListener(keyListener);
@@ -311,7 +310,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 
 				// Mark as read if necessary, do it here because in doRefresh() it will be done several times even if
 				// you set it to "unread" in the meantime.
-				if (article.isUnread) {
+				if (article != null && article.isUnread) {
 					article.isUnread = false;
 					new Updater(null, new ArticleReadStateUpdater(article, 0)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 				}
@@ -687,7 +686,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 	 * @return javascript associative array content as text
 	 */
 	private String getCachedImagesJS(int articleId) {
-		StringBuilder hashes = new StringBuilder("");
+		StringBuilder hashes = new StringBuilder();
 		Collection<RemoteFile> rfs = DBHelper.getInstance().getRemoteFiles(articleId);
 
 		if (rfs != null && !rfs.isEmpty()) {
@@ -932,8 +931,9 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 	private String prepareHTMLContentForClipboard(String html) {
 		int start = html.indexOf("<head");
 		int end = html.indexOf("</head>", start);
-		if (0 < start && start < end && end < html.length())
-			return html.substring(0, start) + html.substring(end, html.length());
+		if (0 < start && start < end && end < html.length()) {
+			return html.substring(0, start) + html.substring(end);
+		}
 		return html;
 	}
 

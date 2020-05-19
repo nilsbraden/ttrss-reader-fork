@@ -122,7 +122,9 @@ public class SubscribeActivity extends MenuActivity {
 				int start = feedUrl.getSelectionStart();
 				int end = feedUrl.getSelectionEnd();
 				// Insert text at current position, replace text if selected
-				text = text.substring(0, start) + url + text.substring(end, text.length());
+				if (start <= end && end <= text.length()) {
+					text = text.substring(0, start) + url + text.substring(end);
+				}
 				feedUrl.setText(text);
 				feedUrl.setSelection(end);
 			}

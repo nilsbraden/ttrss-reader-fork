@@ -67,6 +67,8 @@ public class ListContentProvider extends ContentProvider {
 
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+		if (uri == null)
+			return null; // Should not happen but apparently, it does...
 
 		// Parse parameters:
 		int categoryId = -1;
