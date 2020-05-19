@@ -17,7 +17,12 @@
 <resources>
 
     <string-array name="updates">
-		<item>Version 1.94.6
+	    <item>Version 1.94.7
+		     * Fixed #411: \"Tasker plugin not working when launched from Automate\" (please re-configure plugin in your tasks to make it work!)
+		     * Fixed #403: \"Font too small, article unreadable\" by enforcing reasonable boundaries for textZoom values
+		     * Fixed several problems with old Android API
+	    </item>
+        <item>Version 1.94.6
 			 * __B__Note for Wifi-based preferences:___B___ If you\'re using Wifi-based preferences you will currently need to manually allow location access via Android Settings for this app since this is necessary to access the current Wifi-SSID.
 			 * Fixed Issue #348: NullPointerException
 			 * Fixed Issue #382: feed icons not working with HTTP basic auth
