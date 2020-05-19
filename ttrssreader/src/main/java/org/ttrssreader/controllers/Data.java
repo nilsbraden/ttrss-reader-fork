@@ -18,8 +18,11 @@
 package org.ttrssreader.controllers;
 
 import android.annotation.SuppressLint;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.net.ConnectivityManager;
+import android.os.Build;
 import android.util.Log;
 
 import org.ttrssreader.R;
@@ -93,8 +96,26 @@ public class Data {
 	}
 
 	public synchronized void initialize(final Context context) {
-		if (context != null)
+		if (context != null) {
 			cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+				initNotificationChannels(context);
+			}
+		}
+	}
+
+	public static final String NOTIFICATION_CHANNEL_ID_TASKER = "org.ttrssreader.tasker";
+	public static final String NOTIFICATION_CHANNEL_ID_MEDIADOWNLOAD = "org.ttrssreader.mediadownload";
+
+	private void initNotificationChannels(final Context context) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+			if (nm != null) {
+				nm.createNotificationChannel(new NotificationChannel(NOTIFICATION_CHANNEL_ID_TASKER, "Tasker-Service", NotificationManager.IMPORTANCE_DEFAULT));
+				nm.createNotificationChannel(new NotificationChannel(NOTIFICATION_CHANNEL_ID_MEDIADOWNLOAD, "Media Download-Service", NotificationManager.IMPORTANCE_DEFAULT));
+			}
+		}
 	}
 
 	// *** ARTICLES *********************************************************************

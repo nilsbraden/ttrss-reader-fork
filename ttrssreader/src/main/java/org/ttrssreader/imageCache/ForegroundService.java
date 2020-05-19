@@ -26,6 +26,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import org.ttrssreader.R;
+import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.interfaces.ICacheEndListener;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.Utils;
@@ -124,7 +125,7 @@ public class ForegroundService extends Service implements ICacheEndListener {
 					int icon = R.drawable.notification_icon;
 					CharSequence ticker = getText(R.string.Cache_service_started);
 					CharSequence text = getText(R.string.Cache_service_text);
-					Notification notification = Utils.buildNotification(this, icon, ticker, title, text, true, new Intent());
+					Notification notification = Utils.buildNotification(this, icon, ticker, title, text, true, new Intent(), Data.NOTIFICATION_CHANNEL_ID_TASKER);
 					startForeground(R.string.Cache_service_started, notification);
 				}
 

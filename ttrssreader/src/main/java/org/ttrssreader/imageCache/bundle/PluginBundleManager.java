@@ -46,7 +46,7 @@ public final class PluginBundleManager {
 	 * easier. For example, suppose a bug is found in how some version of the plug-in stored its Bundle. By
 	 * having the version, the plug-in can better detect when such bugs occur.
 	 */
-	private static final String BUNDLE_EXTRA_INT_VERSION_CODE = "org.ttrssreader.INT_VERSION_CODE"; //$NON-NLS-1$
+	private static final String BUNDLE_EXTRA_VERSION_CODE = "org.ttrssreader.VERSION_CODE"; //$NON-NLS-1$
 
 	/**
 	 * Method to verify the content of the bundle are correct.
@@ -72,8 +72,8 @@ public final class PluginBundleManager {
 			Log.e(TAG, String.format("bundle must contain extra %s", BUNDLE_EXTRA_NOTIFICATION)); //$NON-NLS-1$
 			return false;
 		}
-		if (!bundle.containsKey(BUNDLE_EXTRA_INT_VERSION_CODE)) {
-			Log.e(TAG, String.format("bundle must contain extra %s", BUNDLE_EXTRA_INT_VERSION_CODE)); //$NON-NLS-1$
+		if (!bundle.containsKey(BUNDLE_EXTRA_VERSION_CODE)) {
+			Log.e(TAG, String.format("bundle must contain extra %s", BUNDLE_EXTRA_VERSION_CODE)); //$NON-NLS-1$
 			return false;
 		}
 
@@ -87,8 +87,8 @@ public final class PluginBundleManager {
 			return false;
 		}
 
-		if (bundle.getInt(BUNDLE_EXTRA_INT_VERSION_CODE, 0) != bundle.getInt(BUNDLE_EXTRA_INT_VERSION_CODE, 1)) {
-			Log.e(TAG, String.format("bundle extra %s appears to be the wrong type.  It must be an int", BUNDLE_EXTRA_INT_VERSION_CODE)); //$NON-NLS-1$
+		if (bundle.getLong(BUNDLE_EXTRA_VERSION_CODE, 0) != bundle.getLong(BUNDLE_EXTRA_VERSION_CODE, 1)) {
+			Log.e(TAG, String.format("bundle extra %s appears to be the wrong type.  It must be a long", BUNDLE_EXTRA_VERSION_CODE)); //$NON-NLS-1$
 			return false;
 		}
 
@@ -101,7 +101,7 @@ public final class PluginBundleManager {
 	 */
 	public static Bundle generateBundle(final Context context, final boolean fetchImages, final boolean showNotification) {
 		final Bundle result = new Bundle();
-		result.putLong(BUNDLE_EXTRA_INT_VERSION_CODE, Utils.getAppVersionCode(context));
+		result.putLong(BUNDLE_EXTRA_VERSION_CODE, Utils.getAppVersionCode(context));
 		result.putBoolean(BUNDLE_EXTRA_IMAGES, fetchImages);
 		result.putBoolean(BUNDLE_EXTRA_NOTIFICATION, showNotification);
 

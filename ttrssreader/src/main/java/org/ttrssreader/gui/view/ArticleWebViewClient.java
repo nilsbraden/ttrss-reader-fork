@@ -35,6 +35,7 @@ import android.webkit.WebViewClient;
 import org.ttrssreader.MyApplication;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.MediaPlayerActivity;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.FileUtils;
@@ -159,12 +160,12 @@ public class ArticleWebViewClient extends WebViewClient {
 			if (urls.length < 1) {
 				String msg = "No URL given, skipping download...";
 				Log.w(TAG, msg);
-				Utils.showFinishedNotification(msg, 0, true, contextRef.get());
+				Utils.showFinishedNotification(msg, 0, true, contextRef.get(), Data.NOTIFICATION_CHANNEL_ID_MEDIADOWNLOAD);
 				return null;
 			} else if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
 				String msg = "External Storage not available, skipping download...";
 				Log.w(TAG, msg);
-				Utils.showFinishedNotification(msg, 0, true, contextRef.get());
+				Utils.showFinishedNotification(msg, 0, true, contextRef.get(), Data.NOTIFICATION_CHANNEL_ID_MEDIADOWNLOAD);
 				return null;
 			}
 
@@ -184,7 +185,7 @@ public class ArticleWebViewClient extends WebViewClient {
 
 		private void download(URL url) {
 			long start = System.currentTimeMillis();
-			Utils.showRunningNotification(contextRef.get(), false);
+			Utils.showRunningNotification(contextRef.get(), false, Data.NOTIFICATION_CHANNEL_ID_MEDIADOWNLOAD);
 
 			// Use configured output directory
 			File folder = new File(Controller.getInstance().saveAttachmentPath());
@@ -194,7 +195,7 @@ public class ArticleWebViewClient extends WebViewClient {
 				if (folder != null && !folder.exists() && !folder.mkdirs()) {
 					String msg = "Folder could not be created: " + folder.getAbsolutePath();
 					Log.w(TAG, msg);
-					Utils.showFinishedNotification(msg, 0, true, contextRef.get());
+					Utils.showFinishedNotification(msg, 0, true, contextRef.get(), Data.NOTIFICATION_CHANNEL_ID_MEDIADOWNLOAD);
 				}
 			}
 
@@ -235,15 +236,15 @@ public class ArticleWebViewClient extends WebViewClient {
 					intent.setDataAndType(Uri.fromFile(file), FileUtils.getMimeType(file.getName()));
 
 				Log.i(TAG, "Finished. Path: " + file.getAbsolutePath() + " Time: " + time + "s Bytes: " + size);
-				Utils.showFinishedNotification(file.getAbsolutePath(), time, false, contextRef.get(), intent);
+				Utils.showFinishedNotification(file.getAbsolutePath(), time, false, contextRef.get(), intent, Data.NOTIFICATION_CHANNEL_ID_MEDIADOWNLOAD);
 
 			} catch (IOException e) {
 				String msg = "Error while downloading: " + e;
 				Log.e(TAG, msg, e);
-				Utils.showFinishedNotification(msg, 0, true, contextRef.get());
+				Utils.showFinishedNotification(msg, 0, true, contextRef.get(), Data.NOTIFICATION_CHANNEL_ID_MEDIADOWNLOAD);
 			} finally {
 				// Remove "running"-notification
-				Utils.showRunningNotification(contextRef.get(), true);
+				Utils.showRunningNotification(contextRef.get(), true, Data.NOTIFICATION_CHANNEL_ID_MEDIADOWNLOAD);
 				if (bos != null) {
 					try {
 						bos.close();

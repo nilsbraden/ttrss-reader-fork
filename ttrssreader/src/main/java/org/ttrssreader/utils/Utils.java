@@ -62,8 +62,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import androidx.core.net.ConnectivityManagerCompat;
-
 public class Utils {
 
 	private static final String TAG = Utils.class.getSimpleName();
@@ -238,7 +236,7 @@ public class Utils {
 				return false;
 			}
 			if (onlyUnmeteredNetwork) {
-				return !isNetworkMetered(cm);
+				return !cm.isActiveNetworkMetered();
 			}
 			return true;
 		}
@@ -253,18 +251,11 @@ public class Utils {
 			return NETWORK_NONE;
 		} else if (info.getType() != ConnectivityManager.TYPE_WIFI) {
 			return NETWORK_MOBILE;
-		} else if (isNetworkMetered(cm)) {
+		} else if (cm.isActiveNetworkMetered()) {
 			return NETWORK_METERED;
 		} else {
 			return NETWORK_WIFI;
 		}
-	}
-
-	private static boolean isNetworkMetered(ConnectivityManager cm) {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)
-			return ConnectivityManagerCompat.isActiveNetworkMetered(cm);
-		else
-			return cm.isActiveNetworkMetered();
 	}
 
 	/**
@@ -284,8 +275,8 @@ public class Utils {
 		});
 	}
 
-	public static void showFinishedNotification(String content, int time, boolean error, Context context) {
-		showFinishedNotification(content, time, error, context, new Intent());
+	public static void showFinishedNotification(String content, int time, boolean error, Context context, String NOTIFICATION_CHANNEL_ID_INFO) {
+		showFinishedNotification(content, time, error, context, new Intent(), NOTIFICATION_CHANNEL_ID_INFO);
 	}
 
 	/**
@@ -296,7 +287,7 @@ public class Utils {
 	 * @param error   set to true if an error occured
 	 * @param context the context
 	 */
-	public static void showFinishedNotification(String content, int time, boolean error, Context context, Intent intent) {
+	public static void showFinishedNotification(String content, int time, boolean error, Context context, Intent intent, String NOTIFICATION_CHANNEL_ID_INFO) {
 		if (context == null)
 			return;
 
@@ -317,12 +308,12 @@ public class Utils {
 			ticker = context.getText(R.string.Utils_DownloadErrorTicker);
 		}
 
-		Notification notification = buildNotification(context, icon, ticker, title, text, true, intent);
+		Notification notification = buildNotification(context, icon, ticker, title, text, true, intent, NOTIFICATION_CHANNEL_ID_INFO);
 		mNotMan.notify(ID_FINISHED, notification);
 	}
 
-	public static void showRunningNotification(Context context, boolean finished) {
-		showRunningNotification(context, finished, new Intent());
+	public static void showRunningNotification(Context context, boolean finished, String NOTIFICATION_CHANNEL_ID_INFO) {
+		showRunningNotification(context, finished, new Intent(), NOTIFICATION_CHANNEL_ID_INFO);
 	}
 
 	/**
@@ -332,7 +323,7 @@ public class Utils {
 	 * @param context  the context
 	 * @param finished if the notification is to be removed
 	 */
-	private static void showRunningNotification(Context context, boolean finished, Intent intent) {
+	private static void showRunningNotification(Context context, boolean finished, Intent intent, String NOTIFICATION_CHANNEL_ID_INFO) {
 		if (context == null)
 			return;
 
@@ -350,7 +341,7 @@ public class Utils {
 		CharSequence title = context.getText(R.string.Utils_DownloadRunningTitle);
 		CharSequence ticker = context.getText(R.string.Utils_DownloadRunningTicker);
 
-		Notification notification = buildNotification(context, icon, ticker, title, "…", true, intent);
+		Notification notification = buildNotification(context, icon, ticker, title, "…", true, intent, NOTIFICATION_CHANNEL_ID_INFO);
 		mNotMan.notify(ID_RUNNING, notification);
 	}
 
@@ -395,13 +386,17 @@ public class Utils {
 		}
 	};
 
-	@SuppressWarnings("deprecation")
-	public static Notification buildNotification(Context context, int icon, CharSequence ticker, CharSequence title, CharSequence text, boolean autoCancel, Intent intent) {
+	public static Notification buildNotification(Context context, int icon, CharSequence ticker, CharSequence title, CharSequence text, boolean autoCancel, Intent intent, String NOTIFICATION_CHANNEL_ID_INFO) {
 		Notification notification = null;
 		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 		try {
-			Notification.Builder builder = new Notification.Builder(context);
+			Notification.Builder builder;
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+				builder = new Notification.Builder(context);
+			} else {
+				builder = new Notification.Builder(context, NOTIFICATION_CHANNEL_ID_INFO);
+			}
 			builder.setSmallIcon(icon);
 			builder.setTicker(ticker);
 			builder.setWhen(System.currentTimeMillis());
@@ -409,10 +404,7 @@ public class Utils {
 			builder.setContentText(text);
 			builder.setContentIntent(pendingIntent);
 			builder.setAutoCancel(autoCancel);
-			if (Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN)
-				notification = builder.getNotification();
-			else
-				notification = builder.build();
+			notification = builder.build();
 		} catch (Exception re) {
 			Log.e(TAG, "Exception while building notification. Does your device propagate the right API-Level? (" + Build.VERSION.SDK_INT + ")", re);
 		}
