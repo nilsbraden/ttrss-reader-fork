@@ -23,7 +23,7 @@
         <EditTextPreference
             android:order="10"
             android:name="@string/ConnectionUrlPreferenceTitle"
-            android:defaultValue="http://localhost/"
+            android:defaultValue="https://localhost/"
             android:inputType="textUri"
             android:key="ConnectionUrlPreference"
             android:summary="@string/ConnectionUrlPreferenceSummary"
@@ -31,7 +31,6 @@
         <EditTextPreference
             android:order="20"
             android:name="@string/ConnectionUsernamePreferenceTitle"
-            android:defaultValue="@string/Empty"
             android:inputType="textFilter"
             android:key="ConnectionUsernamePreference"
             android:summary="@string/ConnectionUsernamePreferenceSummary"
@@ -39,7 +38,6 @@
         <EditTextPreference
             android:order="30"
             android:name="@string/ConnectionPasswordPreferenceTitle"
-            android:defaultValue="@string/Empty"
             android:inputType="textPassword"
             android:key="ConnectionPasswordPreference"
             android:summary="@string/ConnectionPasswordPreferenceSummary"
