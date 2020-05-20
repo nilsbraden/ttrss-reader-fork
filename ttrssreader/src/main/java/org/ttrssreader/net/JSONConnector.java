@@ -798,8 +798,13 @@ public class JSONConnector {
 					} catch (IllegalArgumentException e) {
 						e.printStackTrace();
 						reader.skipValue();
+					} catch (IllegalStateException e) {
+						e.printStackTrace();
+						reader.skipValue();
+					} catch (IOException e) {
+						e.printStackTrace();
+						reader.skipValue(); // Not sure when this actually heppens, maybe we should also break; out here...
 					}
-
 				}
 				reader.endObject();
 
