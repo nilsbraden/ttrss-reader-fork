@@ -16,31 +16,19 @@
 package org.ttrssreader.gui;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.widget.CheckBox;
 
+import com.twofortyfouram.locale.sdk.client.ui.activity.AbstractPluginActivity;
+
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.imageCache.PluginReceiver;
-import org.ttrssreader.imageCache.bundle.BundleScrubber;
 import org.ttrssreader.imageCache.bundle.PluginBundleManager;
 import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 
-/**
- * This is the "Edit" activity for a Locale Plug-in.
- * <p>
- * This Activity can be started in one of two states:
- * <ul>
- * <li>New plug-in instance: The Activity's Intent will not contain
- * {@link com.twofortyfouram.locale.Intent#EXTRA_BUNDLE}.</li>
- * <li>Old plug-in instance: The Activity's Intent will contain {@link com.twofortyfouram.locale.Intent#EXTRA_BUNDLE}
- * from a previously saved plug-in instance that the user is editing.</li>
- * </ul>
- *
- * @see com.twofortyfouram.locale.Intent#ACTION_EDIT_SETTING
- * @see com.twofortyfouram.locale.Intent#EXTRA_BUNDLE
- */
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 public final class EditPluginActivity extends AbstractPluginActivity {
 
 	@SuppressWarnings("unused")
@@ -53,52 +41,7 @@ public final class EditPluginActivity extends AbstractPluginActivity {
 		super.onCreate(savedInstanceState);
 		setTheme(Controller.getInstance().getTheme());
 		mDamageReport.initialize();
-
-		BundleScrubber.scrub(getIntent());
-
-		final Bundle localeBundle = getIntent().getBundleExtra(PluginReceiver.EXTRA_BUNDLE);
-		BundleScrubber.scrub(localeBundle);
-
 		setContentView(R.layout.localeplugin);
-
-		if (null == savedInstanceState) {
-			if (PluginBundleManager.isBundleValid(localeBundle)) {
-				final boolean images = localeBundle.getBoolean(PluginBundleManager.BUNDLE_EXTRA_IMAGES);
-				final boolean notification = localeBundle.getBoolean(PluginBundleManager.BUNDLE_EXTRA_NOTIFICATION);
-				((CheckBox) findViewById(R.id.cb_images)).setChecked(images);
-				((CheckBox) findViewById(R.id.cb_notification)).setChecked(notification);
-			}
-		}
-	}
-
-	@Override
-	public void finish() {
-		if (!isCanceled()) {
-			final boolean images = ((CheckBox) findViewById(R.id.cb_images)).isChecked();
-			final boolean notification = ((CheckBox) findViewById(R.id.cb_notification)).isChecked();
-			final Intent resultIntent = new Intent();
-
-			/*
-			 * This extra is the data to ourselves: either for the Activity or the BroadcastReceiver. Note
-			 * that anything placed in this Bundle must be available to Locale's class loader. So storing
-			 * String, int, and other standard objects will work just fine. Parcelable objects are not
-			 * acceptable, unless they also implement Serializable. Serializable objects must be standard
-			 * Android platform objects (A Serializable class private to this plug-in's APK cannot be
-			 * stored in the Bundle, as Locale's classloader will not recognize it).
-			 */
-			final Bundle result = PluginBundleManager.generateBundle(getApplicationContext(), images, notification);
-			resultIntent.putExtra(PluginReceiver.EXTRA_BUNDLE, result);
-
-			/*
-			 * The blurb is concise status text to be displayed in the host's UI.
-			 */
-			final String blurb = generateBlurb(getApplicationContext(), images, notification);
-			resultIntent.putExtra(com.twofortyfouram.locale.Intent.EXTRA_STRING_BLURB, blurb);
-
-			setResult(RESULT_OK, resultIntent);
-		}
-
-		super.finish();
 	}
 
 	/* package */
@@ -115,4 +58,38 @@ public final class EditPluginActivity extends AbstractPluginActivity {
 		super.onDestroy();
 	}
 
+	@Override
+	public boolean isBundleValid(@NonNull Bundle bundle) {
+		return PluginBundleManager.isBundleValid(bundle);
+	}
+
+	@Override
+	public void onPostCreateWithPreviousResult(@NonNull Bundle previousBundle, @NonNull String s) {
+		if (PluginBundleManager.isBundleValid(previousBundle)) {
+			final boolean isSaveImages = PluginBundleManager.isSaveImages(previousBundle);
+			final boolean isShowNotification = PluginBundleManager.isShowNotification(previousBundle);
+
+			CheckBox images = findViewById(R.id.cb_images);
+			CheckBox notification = findViewById(R.id.cb_notification);
+
+			images.setChecked(isSaveImages);
+			notification.setChecked(isShowNotification);
+		}
+	}
+
+	@Nullable
+	@Override
+	public Bundle getResultBundle() {
+		final boolean images = ((CheckBox) findViewById(R.id.cb_images)).isChecked();
+		final boolean notification = ((CheckBox) findViewById(R.id.cb_notification)).isChecked();
+		return PluginBundleManager.generateBundle(getApplicationContext(), images, notification);
+	}
+
+	@NonNull
+	@Override
+	public String getResultBlurb(@NonNull Bundle bundle) {
+		final boolean images = ((CheckBox) findViewById(R.id.cb_images)).isChecked();
+		final boolean notification = ((CheckBox) findViewById(R.id.cb_notification)).isChecked();
+		return generateBlurb(getApplicationContext(), images, notification);
+	}
 }

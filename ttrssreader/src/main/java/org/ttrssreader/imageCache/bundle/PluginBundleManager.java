@@ -19,10 +19,14 @@ import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.twofortyfouram.assertion.BundleAssertions;
+
 import org.ttrssreader.utils.Utils;
 
+import androidx.annotation.NonNull;
+
 /**
- * Class for managing the {@link com.twofortyfouram.locale.Intent#EXTRA_BUNDLE} for this plug-in.
+ * Class for managing the {@link com.twofortyfouram.locale.api.Intent#EXTRA_BUNDLE} for this plug-in.
  */
 public final class PluginBundleManager {
 
@@ -61,34 +65,13 @@ public final class PluginBundleManager {
 			return false;
 		}
 
-		/*
-		 * Make sure the expected extras exist
-		 */
-		if (!bundle.containsKey(BUNDLE_EXTRA_IMAGES)) {
-			Log.e(TAG, String.format("bundle must contain extra %s", BUNDLE_EXTRA_IMAGES)); //$NON-NLS-1$
-			return false;
-		}
-		if (!bundle.containsKey(BUNDLE_EXTRA_NOTIFICATION)) {
-			Log.e(TAG, String.format("bundle must contain extra %s", BUNDLE_EXTRA_NOTIFICATION)); //$NON-NLS-1$
-			return false;
-		}
-		if (!bundle.containsKey(BUNDLE_EXTRA_VERSION_CODE)) {
-			Log.e(TAG, String.format("bundle must contain extra %s", BUNDLE_EXTRA_VERSION_CODE)); //$NON-NLS-1$
-			return false;
-		}
-
-		/*
-		 * Make sure the correct number of extras exist. Run this test after checking for specific Bundle
-		 * extras above so that the error message is more useful. (E.g. the caller will see what extras are
-		 * missing, rather than just a message that there is the wrong number).
-		 */
-		if (3 != bundle.keySet().size()) {
-			Log.e(TAG, String.format("bundle must contain 3 keys, but currently contains %d keys: %s", bundle.keySet().size(), bundle.keySet())); //$NON-NLS-1$
-			return false;
-		}
-
-		if (bundle.getLong(BUNDLE_EXTRA_VERSION_CODE, 0) != bundle.getLong(BUNDLE_EXTRA_VERSION_CODE, 1)) {
-			Log.e(TAG, String.format("bundle extra %s appears to be the wrong type.  It must be a long", BUNDLE_EXTRA_VERSION_CODE)); //$NON-NLS-1$
+		try {
+			BundleAssertions.assertHasBoolean(bundle, BUNDLE_EXTRA_IMAGES);
+			BundleAssertions.assertHasBoolean(bundle, BUNDLE_EXTRA_NOTIFICATION);
+			BundleAssertions.assertHasInt(bundle, BUNDLE_EXTRA_VERSION_CODE);
+			BundleAssertions.assertKeyCount(bundle, 3);
+		} catch (final AssertionError e) {
+			Log.e(TAG, "Bundle failed verification%s", e);
 			return false;
 		}
 
@@ -104,8 +87,15 @@ public final class PluginBundleManager {
 		result.putLong(BUNDLE_EXTRA_VERSION_CODE, Utils.getAppVersionCode(context));
 		result.putBoolean(BUNDLE_EXTRA_IMAGES, fetchImages);
 		result.putBoolean(BUNDLE_EXTRA_NOTIFICATION, showNotification);
-
 		return result;
+	}
+
+	public static boolean isSaveImages(@NonNull final Bundle bundle) {
+		return bundle.getBoolean(BUNDLE_EXTRA_IMAGES, false);
+	}
+
+	public static boolean isShowNotification(@NonNull final Bundle bundle) {
+		return bundle.getBoolean(BUNDLE_EXTRA_NOTIFICATION, false);
 	}
 
 	/**

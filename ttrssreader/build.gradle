@@ -65,7 +65,7 @@ android {
 }
 
 dependencies {
-    implementation project(':localeapi')
+    implementation group: 'com.twofortyfouram', name: 'android-plugin-client-sdk-for-locale', version: '[4.0.3, 5.0['
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.5'
     implementation 'org.antlr:ST4:4.1'
