@@ -66,9 +66,9 @@ public final class PluginBundleManager {
 		}
 
 		try {
+			BundleAssertions.assertHasLong(bundle, BUNDLE_EXTRA_VERSION_CODE);
 			BundleAssertions.assertHasBoolean(bundle, BUNDLE_EXTRA_IMAGES);
 			BundleAssertions.assertHasBoolean(bundle, BUNDLE_EXTRA_NOTIFICATION);
-			BundleAssertions.assertHasInt(bundle, BUNDLE_EXTRA_VERSION_CODE);
 			BundleAssertions.assertKeyCount(bundle, 3);
 		} catch (final AssertionError e) {
 			Log.e(TAG, "Bundle failed verification%s", e);
