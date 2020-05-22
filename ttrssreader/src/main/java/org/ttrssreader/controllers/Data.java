@@ -102,6 +102,25 @@ public class Data {
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 				initNotificationChannels(context);
 			}
+
+			/*
+			 * See commented code in Controller.sessionId()
+			 * See commented code in JSONConnector.login()
+			 *
+			new AsyncTask<Void, Void, Void>() {
+				protected Void doInBackground(Void... params) {
+					// Login in background since otherwise this would lead to NetworkOnMainThreadException
+					// We try to use the stored sessionId here to reduce number of login() calls...
+					String oldSessionId = Controller.getInstance().sessionId();
+					String newSessionId = Controller.getInstance().getConnector().login(oldSessionId);
+					if (!oldSessionId.equals(newSessionId)) {
+						Log.d(TAG, "Saving new SessionId: " + newSessionId);
+						Controller.getInstance().setSessionId(newSessionId);
+					}
+					return null;
+				}
+			}.execute();
+			*/
 		}
 	}
 

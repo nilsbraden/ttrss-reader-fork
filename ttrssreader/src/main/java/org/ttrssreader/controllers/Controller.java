@@ -30,7 +30,6 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Environment;
-import android.preference.PreferenceManager;
 import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -67,6 +66,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.Set;
 
+import androidx.preference.PreferenceManager;
+
 /**
  * Not entirely sure why this is called the "Controller". Actually, in terms of MVC, it isn't the controller. There
  * isn't one in here but it's called like that and I don't have a better name so we stay with it.
@@ -92,6 +93,7 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 
 	private volatile JSONConnector ttrssConnector;
 	private static final Object lockConnector = new Object();
+	private String sessionId = null;
 
 	private volatile ImageCache imageCache = null;
 	private boolean imageCacheLoaded = false;
@@ -265,13 +267,11 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 						SSLUtils.trustAllHost();
 					}
 
-					/* This will be accessed when displaying an article or starting the imageCache. When caching it
-					 is done anyway so we can just do it in background and the ImageCache starts once it is done. */
-					//getImageCache();
-
-					// Only need once we are displaying the feed-list or an article...
-					Display display = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-					refreshDisplayMetrics(display);
+					// Only need this once we are displaying the feed-list or an article...
+					WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+					if (wm != null) {
+						refreshDisplayMetrics(wm.getDefaultDisplay());
+					}
 
 					enableHttpResponseCache(context.getCacheDir());
 
@@ -398,6 +398,22 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 
 		return url;
 	}
+
+	/*
+	 * See commented code in Data.initialize() -> AsyncTask
+	 * See commented code in JSONConnector.login()
+	 *
+	public String sessionId() {
+		if (sessionId == null)
+			sessionId = prefs.getString(SESSION_ID, EMPTY);
+		return sessionId;
+	}
+
+	public void setSessionId(String sessionId) {
+		put(SESSION_ID, sessionId);
+		this.sessionId = sessionId;
+	}
+	*/
 
 	private String base() {
 		// Load from Wifi-Preferences:
@@ -619,7 +635,6 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 		return c;
 	}
 
-	@SuppressWarnings("deprecation")
 	public JSONConnector getConnector() {
 		// Check if connector needs to be reinitialized because of per-wifi-settings:
 		// Initialized inside initializeController();

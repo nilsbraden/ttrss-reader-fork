@@ -274,8 +274,7 @@ public class DBHelper {
 		}.execute();
 	}
 
-	@SuppressWarnings("deprecation")
-	private synchronized boolean initializeDBHelper() {
+	private synchronized void initializeDBHelper() {
 		final Context context = MyApplication.context();
 
 		if (getOpenHelper() != null)
@@ -283,9 +282,6 @@ public class DBHelper {
 
 		openHelper = new OpenHelper(context);
 		SQLiteDatabase db = openHelper.getWritableDatabase();
-
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)
-			db.setLockingEnabled(true);
 
 		if (specialUpgradeSuccessful) {
 			// Re-open DB for final usage:
@@ -322,7 +318,6 @@ public class DBHelper {
 
 		db.acquireReference();
 		initialized = true;
-		return true;
 	}
 
 	private synchronized boolean deleteDB(final File dbFile) {

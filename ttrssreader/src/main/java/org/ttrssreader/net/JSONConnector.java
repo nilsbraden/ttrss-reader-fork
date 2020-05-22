@@ -92,6 +92,7 @@ public class JSONConnector {
 	private static final String PARAM_PREF = "pref_name";
 
 	private static final String VALUE_LOGIN = "login";
+	private static final String VALUE_IS_LOGGEDIN = "isLoggedIn";
 	private static final String VALUE_GET_CATEGORIES = "getCategories";
 	private static final String VALUE_GET_FEEDS = "getFeeds";
 	private static final String VALUE_GET_HEADLINES = "getHeadlines";
@@ -145,7 +146,7 @@ public class JSONConnector {
 
 	private String sessionId = null;
 
-	private final Object lock = new Object();
+	private final Object loginLock = new Object();
 	private int apiLevel = -1;
 
 	public static final int PARAM_LIMIT_MAX_VALUE = 200;
@@ -246,7 +247,6 @@ public class JSONConnector {
 	}
 
 	public void init() {
-
 		if (Controller.getInstance().useHttpAuth()) {
 			this.httpAuth = true;
 			String creds = Controller.getInstance().httpUsername() + ":" + Controller.getInstance().httpPassword();
@@ -255,7 +255,6 @@ public class JSONConnector {
 			this.httpAuth = false;
 			this.base64NameAndPw = null;
 		}
-
 	}
 
 	private void logRequest(final JSONObject json) throws JSONException {
@@ -323,7 +322,7 @@ public class JSONConnector {
 							break;
 						case NOT_LOGGED_IN:
 						case LOGIN_ERROR:
-							if (!login && retry && login())
+							if (!login && retry && internalLogin())
 								return readResult(params, false, false); // Just do the same request again
 							else
 								lastError = ctx.getString(R.string.Error_LoginFailed);
@@ -387,7 +386,7 @@ public class JSONConnector {
 					reader.beginObject();
 
 					String nextName = reader.nextName();
-					// We have a BEGIN_OBJECT here but its just the response to call "subscribeToFeed"
+					// We have a BEGIN_OBJECT here but its just the response to call "subscribeToFeed" or "isLoggedIn"
 					if ("status".equals(nextName))
 						return reader;
 
@@ -407,7 +406,7 @@ public class JSONConnector {
 
 						if (message.contains(NOT_LOGGED_IN)) {
 							lastError = NOT_LOGGED_IN;
-							if (firstCall && login() && !hasLastError)
+							if (firstCall && internalLogin() && !hasLastError)
 								return prepareReader(params, false); // Just do the same request again
 							else
 								return null;
@@ -435,7 +434,7 @@ public class JSONConnector {
 	private boolean sessionNotAlive() {
 		// Make sure we are logged in
 		if (sessionId == null || lastError.equals(NOT_LOGGED_IN))
-			if (!login())
+			if (!internalLogin())
 				return true;
 		return hasLastError;
 	}
@@ -490,14 +489,14 @@ public class JSONConnector {
 	 *
 	 * @return true on success, false otherwise
 	 */
-	private boolean login() {
+	private boolean internalLogin() {
 		long time = System.currentTimeMillis();
 
 		// Just login once, check if already logged in after acquiring the lock on mSessionId
 		if (sessionId != null && !lastError.equals(NOT_LOGGED_IN))
 			return true;
 
-		synchronized (lock) {
+		synchronized (loginLock) {
 			if (sessionId != null && !lastError.equals(NOT_LOGGED_IN))
 				return true; // Login done while we were waiting for the lock
 
@@ -513,7 +512,7 @@ public class JSONConnector {
 			try {
 				sessionId = readResult(params, true, false);
 				if (sessionId != null) {
-					Log.d(TAG, "login: " + (System.currentTimeMillis() - time) + "ms");
+					Log.d(TAG, "internalLogin: " + (System.currentTimeMillis() - time) + "ms");
 					return true;
 				}
 			} catch (IOException e) {
@@ -748,6 +747,79 @@ public class JSONConnector {
 	}
 
 	// ***************** Retrieve-Data-Methods **************************************************
+
+	/**
+	 * Does a login if necessary
+	 */
+	/*
+	 * See commented code in Controller.sessionId()
+	 * See commented code in Data.initialize() -> AsyncTask
+	 *
+	public String login(String savedSessionId) {
+		long time = System.currentTimeMillis();
+		try {
+			synchronized (loginLock) {
+
+				// Only do this for valid Session-IDs:
+				if (savedSessionId != null && !savedSessionId.equals(Constants.EMPTY)) {
+					// Try to get login status using the saved sessionId:
+					this.sessionId = savedSessionId;
+					if (isLoggedIn())
+						return sessionId;
+				}
+				Log.d(TAG, "login isLoggedIn() was false...");
+
+				// Attempt to acquire new sessionId:
+				if (internalLogin())
+					return sessionId;
+
+				// TODO: Handle errors here! Old error-handling is still in place so not necessary (yet)!
+				// Return new sessionId to be stored in preferences:
+				Log.d(TAG, "login ERROR-Handling would be necessary...");
+				return sessionId;
+			}
+		} finally {
+			Log.d(TAG, "login: " + (System.currentTimeMillis() - time) + "ms");
+		}
+	}
+	*/
+
+	/**
+	 * Checks if the current user is logged in properly.
+	 */
+	/*
+	 * See commented code in Controller.sessionId()
+	 * See commented code in Data.initialize() -> AsyncTask
+	 *
+	private boolean isLoggedIn() {
+		long time = System.currentTimeMillis();
+		boolean ret = false;
+
+		Map<String, String> params = new HashMap<>();
+		params.put(PARAM_OP, VALUE_IS_LOGGEDIN);
+
+		JsonReader reader = null;
+		try {
+			reader = prepareReader(params);
+
+			if (reader != null && reader.hasNext()) {
+				ret = reader.nextBoolean();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (reader != null)
+				try {
+					reader.close();
+				} catch (IOException e1) {
+					// Empty!
+				}
+		}
+
+		Log.d(TAG, "isLoggedIn: " + (System.currentTimeMillis() - time) + "ms, returned: " + ret);
+		return ret;
+	}
+	*/
 
 	/**
 	 * Retrieves all categories.

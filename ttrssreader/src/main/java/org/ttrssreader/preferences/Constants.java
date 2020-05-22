@@ -36,6 +36,7 @@ public class Constants {
 	// Connection
 	public static final String URL = "ConnectionUrlPreference";
 	public static final String URL_FEEDICONS = "ConnectionUrlFeedIconsPreference";
+	public static final String SESSION_ID = "ConnectionSessionId";
 	public static final String USERNAME = "ConnectionUsernamePreference";
 	public static final String PASSWORD = "ConnectionPasswordPreference";
 	public static final String USE_HTTP_AUTH = "ConnectionHttpPreference";
