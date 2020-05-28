@@ -30,6 +30,12 @@
     <!-- Necessary to be able to call the background update from Tasker/Locale plugin -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
+    <!-- Add features to extend range of Play Store supported devices to Android TV -->
+    <uses-feature android:name="android.hardware.faketouch" />
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false" />
+
     <!-- Although many of these default to true, some users with modified ROMs have trouble seeing apps unless these attributes are explicitly set. -->
     <supports-screens
         android:anyDensity="true"
