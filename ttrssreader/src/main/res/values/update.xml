@@ -17,7 +17,13 @@
 <resources>
 
     <string-array name="updates">
-	    <item>Version 1.94.7
+	    <item>Version 1.94.8
+		     * Fixed several potential error sources
+		     * Added better handling of unparseable JSON data in server replies
+		     * Fix username/password fields, no line breaks anymore and masked the password again
+		     * Fixed Locale/Tasker plugin
+	    </item>
+        <item>Version 1.94.7
 		     * Fixed #411: \"Tasker plugin not working when launched from Automate\" (please re-configure plugin in your tasks to make it work!)
 		     * Fixed #403: \"Font too small, article unreadable\" by enforcing reasonable boundaries for textZoom values
 		     * Fixed several problems with old Android API
