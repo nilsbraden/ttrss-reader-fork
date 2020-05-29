@@ -118,6 +118,9 @@ public class SubscribeActivity extends MenuActivity {
 			@Override
 			public void onClick(View v) {
 				String url = Utils.getTextFromClipboard(activity);
+				if (url == null)
+					return;
+
 				String text = feedUrl.getText() != null ? feedUrl.getText().toString() : "";
 				int start = feedUrl.getSelectionStart();
 				int end = feedUrl.getSelectionEnd();
@@ -136,13 +139,14 @@ public class SubscribeActivity extends MenuActivity {
 		return R.layout.feedsubscribe;
 	}
 
-	@Override
+	/*@Override
 	protected void onResume() {
 		super.onResume();
 		// Enable/Disable Paste-Button:
-		feedPasteButton.setEnabled(Utils.clipboardHasText(this));
+		// This doesn't seem to work in Android 10 since we can only access clipboard if we have focus which is not the case in onResume...
+		//feedPasteButton.setEnabled(Utils.clipboardHasText(getApplicationContext()));
 		doRefresh();
-	}
+	}*/
 
 	@Override
 	public void onSaveInstanceState(Bundle out) {
@@ -219,6 +223,7 @@ public class SubscribeActivity extends MenuActivity {
 			super(context, android.R.layout.simple_list_item_1);
 		}
 
+		@NonNull
 		@Override
 		public View getView(int position, View convertView, @NonNull ViewGroup parent) {
 			return initView(position, convertView, parent);
