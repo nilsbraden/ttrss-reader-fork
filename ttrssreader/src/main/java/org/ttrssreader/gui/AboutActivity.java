@@ -33,6 +33,8 @@ import org.ttrssreader.utils.Utils;
 
 import java.util.Date;
 
+import static org.ttrssreader.R.id.AboutActivity_ThanksText;
+
 public class AboutActivity extends Activity {
 
 	@SuppressWarnings("unused")
@@ -53,24 +55,28 @@ public class AboutActivity extends Activity {
 
 		w.setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, android.R.drawable.ic_dialog_info);
 
-		TextView versionText = (TextView) this.findViewById(R.id.AboutActivity_VersionText);
-		versionText.setText(this.getString(R.string.AboutActivity_VersionText) + " " + Utils.getAppVersionName(this));
-		TextView versionCodeText = (TextView) this.findViewById(R.id.AboutActivity_VersionCodeText);
-		versionCodeText.setText(this.getString(R.string.AboutActivity_VersionCodeText) + " " + Utils.getAppVersionCode(this));
+		TextView versionText = findViewById(R.id.AboutActivity_VersionText);
+		versionText.setText(getString(R.string.AboutActivity_VersionText, Utils.getAppVersionName(this)));
 
-		TextView licenseText = (TextView) this.findViewById(R.id.AboutActivity_LicenseText);
-		licenseText.setText(this.getString(R.string.AboutActivity_LicenseText) + " " + this.getString(R.string.AboutActivity_LicenseTextValue));
+		String versionCodeString = "" + Utils.getAppVersionCode(this);
+		TextView versionCodeText = findViewById(R.id.AboutActivity_VersionCodeText);
+		versionCodeText.setText(getString(R.string.AboutActivity_VersionCodeText, versionCodeString));
 
-		TextView urlText = (TextView) this.findViewById(R.id.AboutActivity_UrlText);
-		urlText.setText(this.getString(R.string.ProjectUrl));
+		String licenseTextString = getString(R.string.AboutActivity_LicenseTextValue);
+		TextView licenseText = findViewById(R.id.AboutActivity_LicenseText);
+		licenseText.setText(getString(R.string.AboutActivity_LicenseText, licenseTextString));
 
-		TextView lastSyncText = (TextView) this.findViewById(R.id.AboutActivity_LastSyncText);
-		lastSyncText.setText(this.getString(R.string.AboutActivity_LastSyncText) + " " + new Date(Controller.getInstance().getLastSync()));
+		TextView urlText = findViewById(R.id.AboutActivity_UrlText);
+		urlText.setText(getString(R.string.ProjectUrl));
 
-		TextView thanksText = (TextView) this.findViewById(R.id.AboutActivity_ThanksText);
-		thanksText.setText(this.getString(R.string.AboutActivity_ThanksTextValue));
+		Date lastSyncDate = new Date(Controller.getInstance().getLastSync());
+		TextView lastSyncText = findViewById(R.id.AboutActivity_LastSyncText);
+		lastSyncText.setText(getString(R.string.AboutActivity_LastSyncText, lastSyncDate.toString()));
 
-		Button closeBtn = (Button) this.findViewById(R.id.AboutActivity_CloseBtn);
+		TextView thanksText = findViewById(AboutActivity_ThanksText);
+		thanksText.setText(getString(R.string.AboutActivity_ThanksTextValue));
+
+		Button closeBtn = findViewById(R.id.AboutActivity_CloseBtn);
 		closeBtn.setOnClickListener(new View.OnClickListener() {
 
 			public void onClick(View view) {
@@ -78,7 +84,7 @@ public class AboutActivity extends Activity {
 			}
 		});
 
-		Button donateBtn = (Button) this.findViewById(R.id.AboutActivity_DonateBtn);
+		Button donateBtn = this.findViewById(R.id.AboutActivity_DonateBtn);
 		donateBtn.setOnClickListener(new View.OnClickListener() {
 
 			public void onClick(View view) {

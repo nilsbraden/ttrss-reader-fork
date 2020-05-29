@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright (c) 2015, Nils Braden
 
   This file is part of ttrss-reader-fork. This program is free software; you
@@ -15,9 +14,9 @@
   copy of the GNU General Public License along with this program; If
   not, see http://www.gnu.org/licenses/.
   -->
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
-	<string name="AboutActivity.ThanksTextValue" formatted="false" translatable="false">Special thanks to: \n
+	<string name="AboutActivity.ThanksTextValue" formatted="false" translatable="false" tools:ignore="ExtraTranslation">Special thanks to: \n
 			\n - J.Devauchelle for starting this project
 			\n - Andrew Dolgov for TT-RSS (http://tt-rss.org/)
 			\n - Google Inc. for some Code (Apache License)
