@@ -21,25 +21,25 @@
         android:id="@+id/Menu_Refresh"
         android:icon="@drawable/ic_menu_refresh"
         android:orderInCategory="50"
-        android:title="@string/Main.RefreshMenu"
+        android:title="@string/Main_RefreshMenu"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/Menu_MarkAllRead"
         android:icon="@drawable/ic_menu_mark"
         android:orderInCategory="60"
-        android:title="@string/Commons.MarkAllRead"
+        android:title="@string/Commons_MarkAllRead"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/Menu_MarkFeedsRead"
         android:icon="@drawable/ic_menu_mark"
         android:orderInCategory="60"
-        android:title="@string/Commons.MarkFeedsRead"
+        android:title="@string/Commons_MarkFeedsRead"
         app:showAsAction="ifRoom|withText" />
     <item
         android:id="@+id/Menu_MarkFeedRead"
         android:icon="@drawable/ic_menu_mark"
         android:orderInCategory="60"
-        android:title="@string/Commons.MarkFeedRead"
+        android:title="@string/Commons_MarkFeedRead"
         app:showAsAction="always|withText" />
     <item
         android:id="@+id/Menu_FeedSubscribe"
@@ -57,19 +57,19 @@
         android:id="@+id/Menu_DisplayOnlyUnread"
         android:icon="@drawable/ic_menu_view"
         android:orderInCategory="500"
-        android:title="@string/Commons.DisplayOnlyUnread"
+        android:title="@string/Commons_DisplayOnlyUnread"
         app:showAsAction="ifRoom|withText" />
     <item
         android:id="@+id/Menu_DisplayOnlyCachedImages"
         android:icon="@drawable/ic_menu_view"
         android:orderInCategory="501"
-        android:title="@string/Commons.DisplayOnlyCachedImages"
+        android:title="@string/Commons_DisplayOnlyCachedImages"
         app:showAsAction="ifRoom|withText" />
     <item
         android:id="@+id/Menu_InvertSort"
         android:icon="@drawable/ic_menu_rotate"
         android:orderInCategory="600"
-        android:title="@string/Commons.InvertSort"
+        android:title="@string/Commons_InvertSort"
         app:showAsAction="never|withText" />
     <item
         android:id="@+id/Menu_WorkOffline"
@@ -81,19 +81,19 @@
         android:id="@+id/Category_Menu_ImageCache"
         android:icon="@drawable/ic_menu_save"
         android:orderInCategory="800"
-        android:title="@string/Main.ImageCache"
+        android:title="@string/Main_ImageCache"
         app:showAsAction="never|withText" />
     <item
         android:id="@+id/Menu_ShowPreferences"
         android:icon="@drawable/ic_menu_preferences"
         android:orderInCategory="900"
-        android:title="@string/Main.ShowPreferencesMenu"
+        android:title="@string/Main_ShowPreferencesMenu"
         app:showAsAction="never|withText" />
     <item
         android:id="@+id/Menu_About"
         android:icon="@drawable/ic_menu_help"
         android:orderInCategory="1000"
-        android:title="@string/About.about"
+        android:title="@string/About_about"
         app:showAsAction="never|withText" />
 
 </menu>

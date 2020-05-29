@@ -22,7 +22,7 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/AboutActivity.ButtonBar"
+        android:layout_above="@+id/AboutActivity_ButtonBar"
         android:scrollbarDefaultDelayBeforeFade="1000000">
 
         <RelativeLayout
@@ -58,17 +58,17 @@
                         android:textStyle="bold" />
 
                     <TextView
-                        android:id="@+id/AboutActivity.VersionText"
+                        android:id="@+id/AboutActivity_VersionText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@+id/AboutActivity.VersionText"
+                        android:text="@+id/AboutActivity_VersionText"
                         android:textSize="11.5sp" />
 
                     <TextView
-                        android:id="@+id/AboutActivity.VersionCodeText"
+                        android:id="@+id/AboutActivity_VersionCodeText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@+id/AboutActivity.VersionCodeText"
+                        android:text="@+id/AboutActivity_VersionCodeText"
                         android:textSize="11.5sp" />
                 </LinearLayout>
             </LinearLayout>
@@ -87,36 +87,36 @@
                     android:textSize="11.0sp" />
 
                 <TextView
-                    android:id="@+id/AboutActivity.LicenseText"
+                    android:id="@+id/AboutActivity_LicenseText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="@+id/AboutActivity.UrlText"
+                    android:text="@+id/AboutActivity_UrlText"
                     android:textSize="12.5sp" />
 
                 <TextView
-                    android:id="@+id/AboutActivity.UrlText"
+                    android:id="@+id/AboutActivity_UrlText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:autoLink="web"
-                    android:text="@+id/AboutActivity.UrlText"
+                    android:text="@+id/AboutActivity_UrlText"
                     android:textSize="11.0sp" />
 
                 <TextView
-                    android:id="@+id/AboutActivity.LastSyncText"
+                    android:id="@+id/AboutActivity_LastSyncText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="@+id/AboutActivity.LastSyncText"
+                    android:text="@+id/AboutActivity_LastSyncText"
                     android:textSize="12.5sp" />
 
                 <TextView
-                    android:id="@+id/AboutActivity.ThanksText"
+                    android:id="@+id/AboutActivity_ThanksText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="@+id/AboutActivity.ThanksText"
+                    android:text="@+id/AboutActivity_ThanksText"
                     android:textSize="11.0sp" />
             </LinearLayout>
         </RelativeLayout>
@@ -124,7 +124,7 @@
     </ScrollView>
 
     <LinearLayout
-        android:id="@+id/AboutActivity.ButtonBar"
+        android:id="@+id/AboutActivity_ButtonBar"
         style="?android:attr/buttonBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -134,19 +134,19 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/AboutActivity.CloseBtn"
+            android:id="@+id/AboutActivity_CloseBtn"
             style="?android:attr/buttonBarButtonStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1.0"
-            android:text="@string/AboutActivity.CloseBtn" />
+            android:text="@string/AboutActivity_CloseBtn" />
 
         <Button
-            android:id="@+id/AboutActivity.DonateBtn"
+            android:id="@+id/AboutActivity_DonateBtn"
             style="?android:attr/buttonBarButtonStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1.0"
-            android:text="@string/AboutActivity.DonateBtn" />
+            android:text="@string/AboutActivity_DonateBtn" />
     </LinearLayout>
 </RelativeLayout>

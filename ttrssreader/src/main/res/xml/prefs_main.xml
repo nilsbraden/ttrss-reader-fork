@@ -16,42 +16,42 @@
   -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:title="@string/About.about">
+    android:title="@string/About_about">
 
 
     <PreferenceCategory android:title="@string/MainPreferenceCategoryTitle">
         <Preference
             android:icon="@drawable/ic_menu_account_list"
             android:title="@string/ConnectionPreferenceCategoryTitle"
-            app:fragment="org.ttrssreader.preferences.fragments.ConnectionPreferencesFragment" />
+            app:fragment="org.ttrssreader.Preferences_fragments.ConnectionPreferencesFragment" />
         <Preference
             android:icon="@android:drawable/ic_menu_sort_by_size"
             android:title="@string/ConnectionHttpPreferenceCategoryTitle"
-            app:fragment="org.ttrssreader.preferences.fragments.HttpPreferencesFragment" />
+            app:fragment="org.ttrssreader.Preferences_fragments.HttpPreferencesFragment" />
         <Preference
             android:icon="@drawable/ic_menu_login"
             android:title="@string/ConnectionSslPreferenceCategoryTitle"
-            app:fragment="org.ttrssreader.preferences.fragments.SSLPreferencesFragment" />
+            app:fragment="org.ttrssreader.Preferences_fragments.SSLPreferencesFragment" />
         <Preference
             android:icon="@drawable/stat_notify_wifi_in_range"
             android:summary="@string/ConnectionWifiPrefScreenSummary"
             android:title="@string/ConnectionWifiPrefScreenTitle"
-            app:fragment="org.ttrssreader.preferences.fragments.WifiListPreferencesFragment" />
+            app:fragment="org.ttrssreader.Preferences_fragments.WifiListPreferencesFragment" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/MiscellaneousPreferenceCategoryTitle">
         <Preference
             android:icon="@drawable/ic_sysbar_quicksettings"
             android:title="@string/UsagePreferenceCategoryTitle"
-            app:fragment="org.ttrssreader.preferences.fragments.UsagePreferencesFragment" />
+            app:fragment="org.ttrssreader.Preferences_fragments.UsagePreferencesFragment" />
         <Preference
             android:icon="@android:drawable/ic_menu_view"
             android:title="@string/DisplayPreferenceCategoryTitle"
-            app:fragment="org.ttrssreader.preferences.fragments.DisplayPreferencesFragment" />
+            app:fragment="org.ttrssreader.Preferences_fragments.DisplayPreferencesFragment" />
         <Preference
             android:icon="@android:drawable/ic_menu_manage"
             android:title="@string/SystemPreferenceCategoryTitle"
-            app:fragment="org.ttrssreader.preferences.fragments.SystemPreferencesFragment" />
+            app:fragment="org.ttrssreader.Preferences_fragments.SystemPreferencesFragment" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/ResetPreferenceCategoryTitle">
@@ -59,43 +59,43 @@
             android:id="@+id/Preferences_ResetPreferences"
             android:key="ResetPreferences"
             android:icon="@drawable/ic_menu_revert"
-            android:summary="@string/Preferences.Reset.Summary"
-            android:title="@string/Preferences.Reset" />
+            android:summary="@string/Preferences_Reset_Summary"
+            android:title="@string/Preferences_Reset" />
         <Preference
             android:id="@+id/Preferences_ResetDatabase"
             android:key="ResetDatabase"
             android:icon="@drawable/ic_menu_revert"
-            android:summary="@string/Preferences.ResetDatabase.Summary"
-            android:title="@string/Preferences.ResetDatabase" />
+            android:summary="@string/Preferences_ResetDatabase_Summary"
+            android:title="@string/Preferences_ResetDatabase" />
         <Preference
             android:id="@+id/Preferences_ResetCache"
             android:key="ResetCache"
             android:icon="@drawable/ic_menu_revert"
-            android:summary="@string/Preferences.ResetCache.Summary"
-            android:title="@string/Preferences.ResetCache" />
+            android:summary="@string/Preferences_ResetCache_Summary"
+            android:title="@string/Preferences_ResetCache" />
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/About.PrefCategory">
+    <PreferenceCategory android:title="@string/About_PrefCategory">
         <Preference
             android:icon="@android:drawable/ic_menu_info_details"
-            android:summary="@string/About.project_hint"
-            android:title="@string/About.project">
+            android:summary="@string/About_project_hint"
+            android:title="@string/About_project">
             <intent
                 android:action="android.intent.action.VIEW"
                 android:data="https://github.com/nilsbraden/ttrss-reader-fork" />
         </Preference>
         <Preference
             android:icon="@android:drawable/ic_menu_agenda"
-            android:summary="@string/About.feedback_hint"
-            android:title="@string/About.feedback">
+            android:summary="@string/About_feedback_hint"
+            android:title="@string/About_feedback">
             <intent
                 android:action="android.intent.action.VIEW"
                 android:data="https://github.com/nilsbraden/ttrss-reader-fork/issues" />
         </Preference>
         <Preference
             android:icon="@android:drawable/ic_menu_gallery"
-            android:summary="@string/About.about_hint"
-            android:title="@string/About.about">
+            android:summary="@string/About_about_hint"
+            android:title="@string/About_about">
             <intent
                 android:action="android.intent.action.MAIN"
                 android:targetClass="org.ttrssreader.gui.AboutActivity"

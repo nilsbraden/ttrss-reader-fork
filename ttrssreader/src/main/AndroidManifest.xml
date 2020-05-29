@@ -72,7 +72,7 @@
         <activity android:name=".gui.ErrorActivity" />
         <activity
             android:name=".gui.AboutActivity"
-            android:label="@string/AboutActivity.Title">
+            android:label="@string/AboutActivity_Title">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
             </intent-filter>

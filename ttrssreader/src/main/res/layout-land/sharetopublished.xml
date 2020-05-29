@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright (c) 2015, Nils Braden
 
   This file is part of ttrss-reader-fork. This program is free software; you
@@ -21,7 +20,7 @@
 
     <include
         android:id="@+id/toolbar"
-        layout="@layout/toolbar"/>
+        layout="@layout/toolbar" />
 
     <TextView
         android:id="@+id/labelTitle"
@@ -29,7 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/share_title"
         android:layout_below="@id/toolbar"
-        android:text="@string/Share.title"/>
+        android:text="@string/Share_title" />
 
     <EditText
         android:id="@+id/share_title"
@@ -40,15 +39,15 @@
         android:layout_marginTop="10dip"
         android:layout_toEndOf="@+id/labelTitle"
         android:layout_toRightOf="@+id/labelTitle"
-        android:hint="@string/Share.title"
-        android:singleLine="true"/>
+        android:hint="@string/Share_title"
+        android:singleLine="true" />
 
     <TextView
         android:id="@+id/labelURL"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/share_url"
-        android:text="@string/Share.url"/>
+        android:text="@string/Share_url" />
 
     <EditText
         android:id="@+id/share_url"
@@ -60,16 +59,16 @@
         android:layout_marginTop="10dip"
         android:layout_toEndOf="@+id/labelURL"
         android:layout_toRightOf="@+id/labelURL"
-        android:hint="@string/Share.url"
+        android:hint="@string/Share_url"
         android:inputType="textUri"
-        android:singleLine="true"/>
+        android:singleLine="true" />
 
     <TextView
         android:id="@+id/labelContent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/share_content"
-        android:text="@string/Share.content"/>
+        android:text="@string/Share_content" />
 
     <EditText
         android:id="@+id/share_content"
@@ -79,11 +78,11 @@
         android:layout_marginTop="10dip"
         android:layout_toEndOf="@+id/labelContent"
         android:layout_toRightOf="@+id/labelContent"
-        android:hint="@string/Share.content"
+        android:hint="@string/Share_content"
         android:inputType="textMultiLine"
         android:maxLines="3">
 
-        <requestFocus/>
+        <requestFocus />
     </EditText>
 
     <Button
@@ -97,6 +96,6 @@
         android:layout_alignRight="@+id/share_content"
         android:layout_below="@+id/share_content"
         android:layout_margin="20dp"
-        android:text="@string/Share.ok_button"/>
+        android:text="@string/Share_ok_button" />
 
 </RelativeLayout>

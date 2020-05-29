@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright (c) 2015, Nils Braden
 
   This file is part of ttrss-reader-fork. This program is free software; you
@@ -22,18 +21,18 @@
 
     <include
         android:id="@+id/toolbar"
-        layout="@layout/toolbar"/>
+        layout="@layout/toolbar" />
 
     <EditText
         android:id="@+id/subscribe_url"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/toolbar"
-        android:hint="@string/Subscribe.url"
+        android:hint="@string/Subscribe_url"
         android:inputType="textUri"
         android:singleLine="true">
 
-        <requestFocus/>
+        <requestFocus />
     </EditText>
 
     <Button
@@ -44,7 +43,7 @@
         android:layout_alignEnd="@+id/subscribe_url"
         android:layout_alignRight="@+id/subscribe_url"
         android:layout_below="@+id/subscribe_url"
-        android:text="@string/Subscribe.Paste"/>
+        android:text="@string/Subscribe_Paste" />
 
     <TextView
         android:id="@+id/subscribe_cat_label"
@@ -52,13 +51,13 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/subscribe_paste"
         android:paddingTop="20dp"
-        android:text="@string/Subscribe.Category_Label"/>
+        android:text="@string/Subscribe_Category_Label" />
 
     <Spinner
         android:id="@+id/subscribe_categories"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/subscribe_cat_label"/>
+        android:layout_below="@+id/subscribe_cat_label" />
 
     <Button
         android:id="@+id/subscribe_ok_button"
@@ -71,7 +70,7 @@
         android:layout_alignRight="@+id/subscribe_categories"
         android:layout_below="@+id/subscribe_categories"
         android:layout_margin="20dp"
-        android:text="@string/Subscribe.ok_button"
-        tools:ignore="ButtonOrder"/>
+        android:text="@string/Subscribe_ok_button"
+        tools:ignore="ButtonOrder" />
 
 </RelativeLayout>
