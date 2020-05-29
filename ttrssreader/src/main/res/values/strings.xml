@@ -139,7 +139,7 @@
     <string name="ConnectionHttpPasswordPreferenceSummary">The password for your HTTP-based authentication method</string>
     <string name="ConnectionFeedIconsUrlPreferenceTitle">Feed Icons path</string>
     <string name="ConnectionFeedIconsUrlPreferenceSummary">The base URL path to the feed icons</string>
-    <string name="ConnectionFeedIconsUrlPreferenceDefault">feed-icons</string>
+    <string name="ConnectionFeedIconsUrlPreferenceDefault" translatable="false">feed-icons</string>
     <string name="MiscellaneousPreferenceCategoryTitle">Miscellaneous Preferences</string>
     <string name="ResetPreferenceCategoryTitle">Reset to defaults</string>
     <string name="UsagePreferenceCategoryTitle">Usage</string>

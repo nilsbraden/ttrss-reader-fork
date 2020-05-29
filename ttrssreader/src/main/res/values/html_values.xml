@@ -18,7 +18,7 @@
 <resources>
 
     <!-- MAIN TEMPLATE -->
-    <string name="HTML_TEMPLATE" formatted="false">
+    <string name="HTML_TEMPLATE" formatted="false" translatable="false">
 <![CDATA[
 <!DOCTYPE html>
 <head>
@@ -75,7 +75,7 @@
 	</string>
 
     <!-- CHANGELOG TEMPLATE -->
-    <string name="HTML_TEMPLATE_CHANGELOG" formatted="false">
+    <string name="HTML_TEMPLATE_CHANGELOG" formatted="false" translatable="false">
 <![CDATA[
 <!DOCTYPE html>
 <head>
@@ -92,7 +92,7 @@
 
 
     <!-- CSS -->
-    <string name="STYLE_TEMPLATE" formatted="false">
+    <string name="STYLE_TEMPLATE" formatted="false" translatable="false">
 <![CDATA[
 <style type=\"text/css\">
 	body {
@@ -232,7 +232,7 @@
 	</string>
 
     <!-- HYPHENATION -->
-    <string name="JAVASCRIPT_HYPHENATION_TEMPLATE" formatted="false">
+    <string name="JAVASCRIPT_HYPHENATION_TEMPLATE" formatted="false" translatable="false">
 <![CDATA[
 <script src=\"file:///android_asset/Hyphenator.js\" type=\"text/javascript\"></script>
 <script type=\"text/javascript\">Hyphenator.run();</script>
@@ -240,7 +240,7 @@
 	</string>
 
     <!-- BOTTOM NAVIGATION -->
-    <string name="BOTTOM_NAVIGATION_TEMPLATE" formatted="false">
+    <string name="BOTTOM_NAVIGATION_TEMPLATE" formatted="false" translatable="false">
 <![CDATA[
 <style type=\"text/css\">
 	.bottom_navigation {
@@ -265,15 +265,15 @@
 	</string>
 
     <!-- ATTACHMENTS -->
-    <string name="ATTACHMENT_IMAGES_TEMPLATE" formatted="false"><![CDATA[<items:{it|\\<img src=\"<it>\" />\\<br/>\n}>]]></string>
-    <string name="ATTACHMENT_MEDIA_TEMPLATE" formatted="false"><![CDATA[<items:{it|\\<a href=\"<it>\"><linkText>\\</a>\n}>]]></string>
+    <string name="ATTACHMENT_IMAGES_TEMPLATE" formatted="false" translatable="false"><![CDATA[<items:{it|\\<img src=\"<it>\" />\\<br/>\n}>]]></string>
+    <string name="ATTACHMENT_MEDIA_TEMPLATE" formatted="false" translatable="false"><![CDATA[<items:{it|\\<a href=\"<it>\"><linkText>\\</a>\n}>]]></string>
 
     <!-- NOTES -->
-    <string name="NOTE_TEMPLATE" formatted="false"><![CDATA[<div id=\"note\">$NOTE$</div>]]></string>
+    <string name="NOTE_TEMPLATE" formatted="false" translatable="false"><![CDATA[<div id=\"note\">$NOTE$</div>]]></string>
 
     <!-- EVERYTHING ELSE -->
-    <string name="ALIGN_JUSTIFY">justify</string>
-    <string name="ALIGN_LEFT">left</string>
+    <string name="ALIGN_JUSTIFY" translatable="false">justify</string>
+    <string name="ALIGN_LEFT" translatable="false">left</string>
     <string name="HTML_THEME_DARK" translatable="false">darkTheme</string>
     <string name="HTML_THEME_LIGHT" translatable="false">lightTheme</string>
     <string name="HTML_THEME_BLACK" translatable="false">blackTheme</string>

@@ -17,7 +17,7 @@
   -->
 <resources>
 
-	<string name="AboutActivity.ThanksTextValue" formatted="false">Special thanks to: \n
+	<string name="AboutActivity.ThanksTextValue" formatted="false" translatable="false">Special thanks to: \n
 			\n - J.Devauchelle for starting this project
 			\n - Andrew Dolgov for TT-RSS (http://tt-rss.org/)
 			\n - Google Inc. for some Code (Apache License)
