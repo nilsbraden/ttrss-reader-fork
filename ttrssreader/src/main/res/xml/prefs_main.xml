@@ -23,35 +23,35 @@
         <Preference
             android:icon="@drawable/ic_menu_account_list"
             android:title="@string/ConnectionPreferenceCategoryTitle"
-            app:fragment="org.ttrssreader.Preferences_fragments.ConnectionPreferencesFragment" />
+            app:fragment="org.ttrssreader.preferences.fragments.ConnectionPreferencesFragment" />
         <Preference
             android:icon="@android:drawable/ic_menu_sort_by_size"
             android:title="@string/ConnectionHttpPreferenceCategoryTitle"
-            app:fragment="org.ttrssreader.Preferences_fragments.HttpPreferencesFragment" />
+            app:fragment="org.ttrssreader.preferences.fragments.HttpPreferencesFragment" />
         <Preference
             android:icon="@drawable/ic_menu_login"
             android:title="@string/ConnectionSslPreferenceCategoryTitle"
-            app:fragment="org.ttrssreader.Preferences_fragments.SSLPreferencesFragment" />
+            app:fragment="org.ttrssreader.preferences.fragments.SSLPreferencesFragment" />
         <Preference
             android:icon="@drawable/stat_notify_wifi_in_range"
             android:summary="@string/ConnectionWifiPrefScreenSummary"
             android:title="@string/ConnectionWifiPrefScreenTitle"
-            app:fragment="org.ttrssreader.Preferences_fragments.WifiListPreferencesFragment" />
+            app:fragment="org.ttrssreader.preferences.fragments.WifiListPreferencesFragment" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/MiscellaneousPreferenceCategoryTitle">
         <Preference
             android:icon="@drawable/ic_sysbar_quicksettings"
             android:title="@string/UsagePreferenceCategoryTitle"
-            app:fragment="org.ttrssreader.Preferences_fragments.UsagePreferencesFragment" />
+            app:fragment="org.ttrssreader.preferences.fragments.UsagePreferencesFragment" />
         <Preference
             android:icon="@android:drawable/ic_menu_view"
             android:title="@string/DisplayPreferenceCategoryTitle"
-            app:fragment="org.ttrssreader.Preferences_fragments.DisplayPreferencesFragment" />
+            app:fragment="org.ttrssreader.preferences.fragments.DisplayPreferencesFragment" />
         <Preference
             android:icon="@android:drawable/ic_menu_manage"
             android:title="@string/SystemPreferenceCategoryTitle"
-            app:fragment="org.ttrssreader.Preferences_fragments.SystemPreferencesFragment" />
+            app:fragment="org.ttrssreader.preferences.fragments.SystemPreferencesFragment" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/ResetPreferenceCategoryTitle">
