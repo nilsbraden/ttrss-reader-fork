@@ -17,7 +17,14 @@
 <resources>
 
     <string-array name="updates">
-	    <item>Version 1.94.8
+	    <item>Version 1.94.9
+		     * Support more devices without touchscreen (Android TV)
+		     * Fix #406: Access to clipboard changed with Android 10
+		     * Fixed some translation issues, unified strings accross translations
+		     * Fixed #415: Caching and refresh of http-auth username/password works now
+		     * Fixed masking of other password fields (HTTP-Auth, SSL keystore)
+	    </item>
+        <item>Version 1.94.8
 		     * Fixed several potential error sources
 		     * Added better handling of unparseable JSON data in server replies
 		     * Fix username/password fields, no line breaks anymore and masked the password again
