@@ -1394,12 +1394,12 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 				// reset variable, it will be re-read on next access
 				fieldName = constant2Var(field.getName());
 				Controller.class.getDeclaredField(fieldName).set(this, null); // "Declared" so also private
-				setPreferencesChanged(true);
-
 			} catch (Exception e) {
-				Log.e(TAG, "Field not found: " + fieldName);
+				Log.w(TAG, "Field not found: " + fieldName);
 			}
 
+			// Something changed, set changed anyway. Might have been a Wifi-Specific field..
+			setPreferencesChanged(true);
 		}
 	}
 
