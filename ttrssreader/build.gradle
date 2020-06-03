@@ -66,24 +66,18 @@ android {
 
 dependencies {
     implementation group: 'com.twofortyfouram', name: 'android-plugin-client-sdk-for-locale', version: '[4.0.3, 5.0['
-    implementation 'com.google.code.gson:gson:2.8.5'
-    implementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.5'
-    implementation 'org.antlr:ST4:4.1'
+    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.24'
+    implementation 'org.antlr:ST4:4.3'
 
     // Use AndroidX Preference implementation
     implementation 'androidx.preference:preference:1.1.1'
 
-    // Use Material Design everywhere, see here for latest versions: https://developer.android.com/topic/libraries/support-library/features.html#v7
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-
     // Remove any potentially harmful script-tags from incoming content
-    implementation 'org.jsoup:jsoup:1.12.1'
+    implementation 'org.jsoup:jsoup:1.13.1'
 
     // "Updating Your Security Provider to Protect Against SSL Exploits"
     // https://developer.android.com/training/articles/security-gms-provider.html
     // Only used in productFlavour "play"
-    playImplementation 'com.google.android.gms:play-services-base:17.2.1'
-
-    // Only added to avoid warning from versionedparcelable.aar, see here for explanation: https://stackoverflow.com/a/57641212
-    implementation "androidx.versionedparcelable:versionedparcelable:1.1.1"
+    playImplementation 'com.google.android.gms:play-services-base:17.3.0'
 }
