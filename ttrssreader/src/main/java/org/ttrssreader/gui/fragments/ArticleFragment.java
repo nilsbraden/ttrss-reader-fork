@@ -95,6 +95,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
@@ -187,7 +188,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 	}
 
 	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
+	public void onConfigurationChanged(@NonNull Configuration newConfig) {
 		// Remove the WebView from the old placeholder
 		if (webView != null)
 			webContainer.removeView(webView);
@@ -258,13 +259,11 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 				// Detect touch gestures like swipe and scroll down:
 				gestureDetector = new GestureDetector(getActivity(), new ArticleGestureDetector(actionBar, Controller.getInstance().hideActionbar()));
 
-				gestureListener = new View.OnTouchListener() {
-					public boolean onTouch(View v, MotionEvent event) {
-						gestureDetector.onTouchEvent(event);
-						// Call webView.onTouchEvent(event) everytime, seems to fix issues with webview not beeing
-						// refreshed after swiping:
-						return webView.onTouchEvent(event) || v.performClick();
-					}
+				gestureListener = (v, event) -> {
+					gestureDetector.onTouchEvent(event);
+					// Call webView.onTouchEvent(event) everytime, seems to fix issues with webview not beeing
+					// refreshed after swiping:
+					return webView.onTouchEvent(event) || v.performClick();
 				};
 			}
 			webView.setOnTouchListener(gestureListener);
@@ -536,7 +535,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 	}
 
 	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+	public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v, ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
 
 		HitTestResult result = ((WebView) v).getHitTestResult();
@@ -565,7 +564,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 		menu.add(ContextMenu.NONE, CONTEXT_MENU_COPY_CONTENT, 4, getResources().getString(R.string.ArticleActivity_CopyContent));
 	}
 
-	public void onPrepareOptionsMenu(Menu menu) {
+	public void onPrepareOptionsMenu(@NonNull Menu menu) {
 		if (getActivity() == null || article == null)
 			return;
 
@@ -603,7 +602,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 		}
 	}
 
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		if (article == null)
 			return false; // No article object -> no action!
 
@@ -712,7 +711,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 	/**
 	 * This is necessary to iterate over all HTML-Nodes and scan for images with ALT-Attributes.
 	 */
-	private class MyTagNodeVisitor implements TagNodeVisitor {
+	private static class MyTagNodeVisitor implements TagNodeVisitor {
 		private String alt = null;
 		private String extra;
 
@@ -731,8 +730,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 					if (alt != null)
 						return false;
 					alt = tag.getAttributeByName("alt");
-					if (alt != null)
-						return false;
+					return alt == null;
 				}
 			}
 			return true;
@@ -798,24 +796,21 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 		}
 	};
 
-	private OnKeyListener keyListener = new OnKeyListener() {
-		@Override
-		public boolean onKey(View v, int keyCode, KeyEvent event) {
-			if (Controller.getInstance().useVolumeKeys()) {
-				if (keyCode == KeyEvent.KEYCODE_N) {
-					FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
-					if (activity != null)
-						activity.openNextArticle(-1);
-					return true;
-				} else if (keyCode == KeyEvent.KEYCODE_B) {
-					FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
-					if (activity != null)
-						activity.openNextArticle(1);
-					return true;
-				}
+	private OnKeyListener keyListener = (v, keyCode, event) -> {
+		if (Controller.getInstance().useVolumeKeys()) {
+			if (keyCode == KeyEvent.KEYCODE_N) {
+				FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
+				if (activity != null)
+					activity.openNextArticle(-1);
+				return true;
+			} else if (keyCode == KeyEvent.KEYCODE_B) {
+				FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
+				if (activity != null)
+					activity.openNextArticle(1);
+				return true;
 			}
-			return false;
 		}
+		return false;
 	};
 
 	/**
@@ -849,12 +844,10 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 				return;
 
 			// loadurl on UI main thread
-			activity.runOnUiThread(new Runnable() {
-				public void run() {
-					FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
-					if (activity != null)
-						activity.openNextArticle(-1);
-				}
+			activity.runOnUiThread(() -> {
+				FeedHeadlineActivity activity1 = (FeedHeadlineActivity) getActivity();
+				if (activity1 != null)
+					activity1.openNextArticle(-1);
 			});
 		}
 
@@ -868,12 +861,10 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			if (activity.isFinishing())
 				return;
 
-			activity.runOnUiThread(new Runnable() {
-				public void run() {
-					FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
-					if (activity != null)
-						activity.openNextArticle(1);
-				}
+			activity.runOnUiThread(() -> {
+				FeedHeadlineActivity activity1 = (FeedHeadlineActivity) getActivity();
+				if (activity1 != null)
+					activity1.openNextArticle(1);
 			});
 		}
 
@@ -888,14 +879,12 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			if (activity.isFinishing())
 				return;
 
-			activity.runOnUiThread(new Runnable() {
-				public void run() {
-					ClipboardManager clipboard = (ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
-					if (clipboard != null) {
-						ClipData clip = ClipData.newHtmlText("HTML Text", contentPlain, prepareHTMLContentForClipboard(content));
-						//ClipData clip = ClipData.newPlainText("HTML Text", contentPlain);
-						clipboard.setPrimaryClip(clip);
-					}
+			activity.runOnUiThread(() -> {
+				ClipboardManager clipboard = (ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
+				if (clipboard != null) {
+					ClipData clip = ClipData.newHtmlText("HTML Text", contentPlain, prepareHTMLContentForClipboard(content));
+					//ClipData clip = ClipData.newPlainText("HTML Text", contentPlain);
+					clipboard.setPrimaryClip(clip);
 				}
 			});
 		}
@@ -915,12 +904,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 				return;
 
 			// loadurl on UI main thread
-			activity.runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					webView.loadUrl(webUrl);
-				}
-			});
+			activity.runOnUiThread(() -> webView.loadUrl(webUrl));
 		}
 
 	}

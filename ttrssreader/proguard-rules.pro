@@ -4,3 +4,7 @@
 -dontwarn org.antlr.**
 -dontwarn org.stringtemplate.v4.**
 -dontwarn org.jdom2.**
+-dontwarn javax.**
+-dontwarn org.jaxen.**
+-dontwarn java.awt.**
+-dontwarn org.apache.**
