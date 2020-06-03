@@ -101,6 +101,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.EasyPermissions;
 
 public class ArticleFragment extends Fragment implements TextInputAlertCallback {
 
@@ -211,6 +213,26 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 		super.onSaveInstanceState(instance);
 	}
 
+	/*
+	Wait for result when asking the storage permission, then call ArticleWebViewClient#downloadStoredUrl to resume the download..
+	 */
+	@Override
+	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+		// Forward results to EasyPermissions
+		EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+	}
+
+	@SuppressWarnings("unused")
+	@AfterPermissionGranted(ArticleWebViewClient.RC_STORAGE)
+	private void restartDownload() {
+		if (webView.getWebViewClient() instanceof ArticleWebViewClient) {
+			ArticleWebViewClient client = (ArticleWebViewClient) webView.getWebViewClient();
+			client.downloadStoredUrl();
+		}
+	}
+
 	@SuppressLint("ClickableViewAccessibility")
 	private void initUI() {
 		if (getActivity() == null)
@@ -227,7 +249,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 		// Initialize the WebView if necessary
 		if (webView == null) {
 			webView = new MyWebView(getActivity());
-			webView.setWebViewClient(new ArticleWebViewClient());
+			webView.setWebViewClient(new ArticleWebViewClient(this));
 			webView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
 			// Set theme background color. Should be possible via xml also.

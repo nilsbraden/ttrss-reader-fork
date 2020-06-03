@@ -279,6 +279,7 @@
     <string name="WebViewClientActivity_Download">Download</string>
     <string name="WebViewClientActivity_Display">Display in Mediaplayer</string>
     <string name="WebViewClientActivity_ChooseApp">Choose player app</string>
+    <string name="WebViewClientRequestStoragePermission">The following permission is required to download files: android.permission.WRITE_EXTERNAL_STORAGE</string>
     <string name="About_PrefCategory">Information</string>
     <string name="About_about">About</string>
     <string name="About_about_hint">About this app</string>

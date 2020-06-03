@@ -17,10 +17,10 @@
 
 package org.ttrssreader.gui.view;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -37,6 +37,7 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.MediaPlayerActivity;
+import org.ttrssreader.gui.fragments.ArticleFragment;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.FileUtils;
 import org.ttrssreader.utils.Utils;
@@ -52,9 +53,23 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Locale;
 
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.EasyPermissions;
+
 public class ArticleWebViewClient extends WebViewClient {
 
 	private static final String TAG = ArticleWebViewClient.class.getSimpleName();
+
+	public static final int RC_STORAGE = 13;
+
+	private ArticleFragment parentFragment;
+	private Context context;
+	private String urlDownload;
+
+	public ArticleWebViewClient(ArticleFragment parentFragment) {
+		this.parentFragment = parentFragment;
+		this.context = parentFragment.getContext();
+	}
 
 	/*
 	 * Uses old deprecated method call and should be removed some day but until then I won't duplicate the code
@@ -97,36 +112,28 @@ public class ArticleWebViewClient extends WebViewClient {
 
 			AlertDialog.Builder builder = new AlertDialog.Builder(context);
 			builder.setTitle("What shall we do?");
-			builder.setItems(items, new DialogInterface.OnClickListener() {
+			builder.setItems(items, (dialog, item) -> {
 
-				public void onClick(DialogInterface dialog, int item) {
-
-					Intent intent = new Intent();
-					switch (item) {
-						case 0:
-							Log.i(TAG, "Displaying file in mediaplayer: " + url);
-							intent.setClass(context, MediaPlayerActivity.class);
-							intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-							intent.putExtra(MediaPlayerActivity.URL, url);
-							context.startActivity(intent);
-							break;
-						case 1:
-							Log.i(TAG, "Downloading file: " + url);
-							try {
-								new AsyncMediaDownloader(context).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, new URL(url));
-							} catch (MalformedURLException e) {
-								e.printStackTrace();
-							}
-							break;
-						case 2:
-							intent.setAction(android.content.Intent.ACTION_VIEW);
-							intent.setDataAndType(Uri.parse(url), contentType);
-							context.startActivity(intent);
-							break;
-						default:
-							Log.e(TAG, "Doing nothing, but why is that?? Item: " + item);
-							break;
-					}
+				Intent intent = new Intent();
+				switch (item) {
+					case 0:
+						Log.i(TAG, "Displaying file in mediaplayer: " + url);
+						intent.setClass(context, MediaPlayerActivity.class);
+						intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+						intent.putExtra(MediaPlayerActivity.URL, url);
+						context.startActivity(intent);
+						break;
+					case 1:
+						checkStoragePermissionAndDownload(url);
+						break;
+					case 2:
+						intent.setAction(Intent.ACTION_VIEW);
+						intent.setDataAndType(Uri.parse(url), contentType);
+						context.startActivity(intent);
+						break;
+					default:
+						Log.e(TAG, "Doing nothing, but why is that?? Item: " + item);
+						break;
 				}
 			});
 			AlertDialog alert = builder.create();
@@ -146,7 +153,39 @@ public class ArticleWebViewClient extends WebViewClient {
 		return true;
 	}
 
-	private class AsyncMediaDownloader extends AsyncTask<URL, Void, Void> {
+	private void checkStoragePermissionAndDownload(String url) {
+		urlDownload = url;
+		if (parentFragment == null)
+			return;
+
+		if (context == null)
+			return;
+
+		String[] perms = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+		if (!EasyPermissions.hasPermissions(context, perms)) {
+			// Do not have permissions, request now
+			EasyPermissions.requestPermissions(parentFragment, context.getString(R.string.WebViewClientRequestStoragePermission), RC_STORAGE, perms);
+		} else {
+			downloadStoredUrl();
+		}
+	}
+
+	@SuppressWarnings("unused")
+	@AfterPermissionGranted(RC_STORAGE)
+	public void downloadStoredUrl() {
+		if (context == null || urlDownload == null)
+			return;
+
+		Log.i(TAG, "Downloading file: " + urlDownload);
+		try {
+			new AsyncMediaDownloader(context).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, new URL(urlDownload));
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
+		urlDownload = null;
+	}
+
+	private static class AsyncMediaDownloader extends AsyncTask<URL, Void, Void> {
 		private final String TAG = AsyncMediaDownloader.class.getSimpleName();
 		private final static int BUFFER = (int) Utils.KB;
 		private WeakReference<Context> contextRef;
@@ -180,6 +219,7 @@ public class ArticleWebViewClient extends WebViewClient {
 
 		@TargetApi(Build.VERSION_CODES.N)
 		private void downloadApi24(URL url) {
+			Log.w(TAG, "Downloading with downloadApi24() is not implemented: " + url);
 			// Use Controller.getInstance().saveAttachmentUri(); to get Uri instead of file path
 		}
 

@@ -231,6 +231,7 @@ not, see http://www.gnu.org/licenses/.
     <string name="WebViewClientActivity_Download">Download</string>
     <string name="WebViewClientActivity_Display">Im Mediaplayer anzeigen</string>
     <string name="WebViewClientActivity_ChooseApp">Player auswählen</string>
+    <string name="WebViewClientRequestStoragePermission">Die folgende Berechtigung ist notwendig um Dateien herunterzuladen: android.permission.WRITE_EXTERNAL_STORAGE</string>
     <string name="About_about">Über</string>
     <string name="About_about_hint">Über diese App</string>
     <string name="About_project">Projekt-Webseite</string>
