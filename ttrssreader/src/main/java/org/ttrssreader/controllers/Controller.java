@@ -203,8 +203,8 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 
 		/* Check signature, if we were installed from google play, if we are running in an emulator and if
 		debuggable=true */
-		boolean valid = true;
-		valid &= checkRightAppSignature(context);
+		boolean valid;
+		valid = checkRightAppSignature(context);
 		valid &= checkRightInstaller(context);
 		valid &= checkNoEmulator();
 		valid &= checkDebuggableDisabled(context);
@@ -724,7 +724,7 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 		this.useVolumeKeys = useVolumeKeys;
 	}
 
-	public boolean loadMedia() {
+	public boolean dontLoadMedia() {
 		if (loadImages == null)
 			loadImages = prefs.getBoolean(LOAD_IMAGES, LOAD_IMAGES_DEFAULT);
 		return loadImages;

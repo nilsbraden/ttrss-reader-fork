@@ -330,5 +330,16 @@ not, see http://www.gnu.org/licenses/.
     <string name="About_PrefCategory">Informationen</string>
     <string name="SubscribeActivity_noClip">Konnte Daten aus der Zwischenablage nicht einfügen.</string>
     <string name="ConnectionProxyPreferenceSummary">Verbindung über SOCKS Proxy aktivieren</string>
+    <string name="ConnectionWifiPrefCatScannedDescription">Netzwerke die konfiguriert werden können.</string>
+    <string name="ConnectionWifiPrefCatScannedTitle">Verfgübare Netzwerke</string>
+    <string name="ConnectionWifiPrefCatRefreshTitle">Optionen</string>
+    <string name="Preferences_WifibasedAddManual_Summary">SSID für neue Konfiguration manuell angeben</string>
+    <string name="Preferences_WifibasedAddManual_Title">Manuell hinzufügen</string>
+    <string name="ConnectionWifiAddManuallyTitle">SSID hinzufügen</string>
+    <string name="ConnectionWifiAddManuallyMessage">Name des Netzwerks hier angeben:</string>
+    <string name="ConnectionWifiRequestPermissions">Die folgenden Berechtigungen sind notwendig um die sichtbaren WLAN-Netzwerke anzuzeigen: android.permission.ACCESS_FINE_LOCATION\n\nDiese Anfrage kann ignoriert werden, sie ist optional und die WIFI-SSID kann auch manuell angegeben werden.</string>
+    <string name="Cancel">Abbrechen</string>
+    <string name="ConnectionWifiEnabled">Aktiviert</string>
+    <string name="ConnectionWifiDisabled">Inaktive Konfiguration</string>
 
 </resources>

@@ -354,6 +354,6 @@
     <string name="ConnectionProviderInstallSummary">Activates the automatic update of the security provider from Google Play services. Disable if you have problems with self-signed certificates. This should provide enhanced security, you should leave it enabled normally.</string>
     <string name="ConnectionProviderInstallTitle">Use Google Play services: Provider-Installer</string>
     <string name="ConnectionWifiEnabled">Enabled</string>
-    <string name="ConnectionWifiDisabled">Disabled</string>
+    <string name="ConnectionWifiDisabled">Disabled configuration</string>
 
 </resources>

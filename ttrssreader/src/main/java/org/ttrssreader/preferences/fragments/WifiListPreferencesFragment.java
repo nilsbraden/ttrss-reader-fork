@@ -199,7 +199,7 @@ public class WifiListPreferencesFragment extends PreferenceFragmentCompat implem
 	}
 
 	@Override
-	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
 		// Forward results to EasyPermissions
