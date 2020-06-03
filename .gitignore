@@ -4,10 +4,11 @@
 *.iml
 .DS_Store
 /build
-localeapi/build/
 ttrssreader/build/
 /captures
 
 signingconfig.gradle
-
 ttrssreader/google-services.json
+
+/TTRSS-Reader-*.apk
+/TTRSS-Reader-*_mapping.txt
