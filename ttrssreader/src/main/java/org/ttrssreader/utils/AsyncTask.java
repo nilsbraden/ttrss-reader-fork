@@ -39,12 +39,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import androidx.annotation.MainThread;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 
 /**
  * see @android.os.AsyncTask
  */
+@SuppressWarnings("unchecked")
 public abstract class AsyncTask<Params, Progress, Result> {
 	private static final String LOG_TAG = "AsyncTask";
 	// We keep only a single pool thread around all the time.
@@ -63,14 +65,13 @@ public abstract class AsyncTask<Params, Progress, Result> {
 	private static final ThreadFactory sThreadFactory = new ThreadFactory() {
 		private final AtomicInteger mCount = new AtomicInteger(1);
 
-		public Thread newThread(Runnable r) {
+		public Thread newThread(@NonNull Runnable r) {
 			return new Thread(r, "AsyncTask #" + mCount.getAndIncrement());
 		}
 	};
 	// Used only for rejected executions.
 	// Initialization protected by sRunOnSerialPolicy lock.
 	private static ThreadPoolExecutor sBackupExecutor;
-	private static LinkedBlockingQueue<Runnable> sBackupExecutorQueue;
 	private static final RejectedExecutionHandler sRunOnSerialPolicy = new RejectedExecutionHandler() {
 		public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
 			android.util.Log.w(LOG_TAG, "Exceeded ThreadPoolExecutor pool size");
@@ -78,7 +79,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
 			// Create this executor lazily, hopefully almost never.
 			synchronized (this) {
 				if (sBackupExecutor == null) {
-					sBackupExecutorQueue = new LinkedBlockingQueue<Runnable>();
+					LinkedBlockingQueue<Runnable> sBackupExecutorQueue = new LinkedBlockingQueue<>();
 					sBackupExecutor = new ThreadPoolExecutor(BACKUP_POOL_SIZE, BACKUP_POOL_SIZE, KEEP_ALIVE_SECONDS, TimeUnit.SECONDS, sBackupExecutorQueue, sThreadFactory);
 					sBackupExecutor.allowCoreThreadTimeOut(true);
 				}
@@ -92,7 +93,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
 	public static final Executor THREAD_POOL_EXECUTOR;
 
 	static {
-		ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(CORE_POOL_SIZE, MAXIMUM_POOL_SIZE, KEEP_ALIVE_SECONDS, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), sThreadFactory);
+		ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(CORE_POOL_SIZE, MAXIMUM_POOL_SIZE, KEEP_ALIVE_SECONDS, TimeUnit.SECONDS, new SynchronousQueue<>(), sThreadFactory);
 		threadPoolExecutor.setRejectedExecutionHandler(sRunOnSerialPolicy);
 		THREAD_POOL_EXECUTOR = threadPoolExecutor;
 	}
@@ -115,17 +116,15 @@ public abstract class AsyncTask<Params, Progress, Result> {
 	private final Handler mHandler;
 
 	private static class SerialExecutor implements Executor {
-		final ArrayDeque<Runnable> mTasks = new ArrayDeque<Runnable>();
+		final ArrayDeque<Runnable> mTasks = new ArrayDeque<>();
 		Runnable mActive;
 
-		public synchronized void execute(final Runnable r) {
-			mTasks.offer(new Runnable() {
-				public void run() {
-					try {
-						r.run();
-					} finally {
-						scheduleNext();
-					}
+		public synchronized void execute(@NonNull final Runnable r) {
+			mTasks.offer(() -> {
+				try {
+					r.run();
+				} finally {
+					scheduleNext();
 				}
 			});
 			if (mActive == null) {
@@ -173,13 +172,6 @@ public abstract class AsyncTask<Params, Progress, Result> {
 	}
 
 	/**
-	 * @hide
-	 */
-	public static void setDefaultExecutor(Executor exec) {
-		sDefaultExecutor = exec;
-	}
-
-	/**
 	 * Creates a new asynchronous task. This constructor must be invoked on the UI thread.
 	 */
 	public AsyncTask() {
@@ -188,8 +180,6 @@ public abstract class AsyncTask<Params, Progress, Result> {
 
 	/**
 	 * Creates a new asynchronous task. This constructor must be invoked on the UI thread.
-	 *
-	 * @hide
 	 */
 	public AsyncTask(@Nullable Handler handler) {
 		this(handler != null ? handler.getLooper() : null);
@@ -197,18 +187,15 @@ public abstract class AsyncTask<Params, Progress, Result> {
 
 	/**
 	 * Creates a new asynchronous task. This constructor must be invoked on the UI thread.
-	 *
-	 * @hide
 	 */
 	public AsyncTask(@Nullable Looper callbackLooper) {
 		mHandler = callbackLooper == null || callbackLooper == Looper.getMainLooper() ? getMainHandler() : new Handler(callbackLooper);
 		mWorker = new WorkerRunnable<Params, Result>() {
-			public Result call() throws Exception {
+			public Result call() {
 				mTaskInvoked.set(true);
 				Result result = null;
 				try {
 					Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
-					//noinspection unchecked
 					result = doInBackground(mParams);
 					Binder.flushPendingCommands();
 				} catch (Throwable tr) {
@@ -243,10 +230,9 @@ public abstract class AsyncTask<Params, Progress, Result> {
 		}
 	}
 
-	private Result postResult(Result result) {
-		@SuppressWarnings("unchecked") Message message = getHandler().obtainMessage(MESSAGE_POST_RESULT, new AsyncTaskResult<Result>(this, result));
+	private void postResult(Result result) {
+		@SuppressWarnings("unchecked") Message message = getHandler().obtainMessage(MESSAGE_POST_RESULT, new AsyncTaskResult<>(this, result));
 		message.sendToTarget();
-		return result;
 	}
 
 	/**
@@ -276,6 +262,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
 	 * @see #onPostExecute
 	 * @see #publishProgress
 	 */
+	@SuppressWarnings("unchecked")
 	@WorkerThread
 	protected abstract Result doInBackground(Params... params);
 
@@ -546,7 +533,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
 	@WorkerThread
 	protected final void publishProgress(Progress... values) {
 		if (!isCancelled()) {
-			getHandler().obtainMessage(MESSAGE_POST_PROGRESS, new AsyncTaskResult<Progress>(this, values)).sendToTarget();
+			getHandler().obtainMessage(MESSAGE_POST_PROGRESS, new AsyncTaskResult<>(this, values)).sendToTarget();
 		}
 	}
 
