@@ -141,9 +141,6 @@ public class JSONConnector {
 	// session id as an IN parameter
 	private static final String SID = "sid";
 
-	private boolean httpAuth = false;
-	private String base64NameAndPw = null;
-
 	private String sessionId = null;
 
 	private final Object loginLock = new Object();
@@ -183,8 +180,11 @@ public class JSONConnector {
 			con.setConnectTimeout((int) (8 * Utils.SECOND));
 
 			// HTTP-Basic Authentication
-			if (base64NameAndPw != null)
-				con.setRequestProperty("Authorization", "Basic " + base64NameAndPw);
+			if (Controller.getInstance().useHttpAuth()) {
+				String base64NameAndPw = getBase64NameAndPw();
+				if (base64NameAndPw != null)
+					con.setRequestProperty("Authorization", "Basic " + base64NameAndPw);
+			}
 
 			// Add POST data
 			con.getOutputStream().write(outputBytes);
@@ -247,14 +247,7 @@ public class JSONConnector {
 	}
 
 	public void init() {
-		if (Controller.getInstance().useHttpAuth()) {
-			this.httpAuth = true;
-			String creds = Controller.getInstance().httpUsername() + ":" + Controller.getInstance().httpPassword();
-			this.base64NameAndPw = Utils.encodeBase64ToString(creds);
-		} else {
-			this.httpAuth = false;
-			this.base64NameAndPw = null;
-		}
+		// Empty
 	}
 
 	private void logRequest(final JSONObject json) throws JSONException {
@@ -481,7 +474,7 @@ public class JSONConnector {
 	 * (ie. no username, no password, no user management)
 	 */
 	private boolean isSingleUser() {
-		return httpAuth && StringSupport.isEmpty(Controller.getInstance().username()) && StringSupport.isEmpty(Controller.getInstance().password());
+		return Controller.getInstance().useHttpAuth() && StringSupport.isEmpty(Controller.getInstance().username()) && StringSupport.isEmpty(Controller.getInstance().password());
 	}
 
 	/**
@@ -1364,8 +1357,13 @@ public class JSONConnector {
 		return msg + cause;
 	}
 
-	public String getBase64NameAndPw() {
-		return base64NameAndPw;
+	public static String getBase64NameAndPw() {
+		return encodeBase64NameAndPw(Controller.getInstance().httpUsername(), Controller.getInstance().httpPassword());
+	}
+
+	private static String encodeBase64NameAndPw(String name, String pw) {
+		String creds = name + ":" + pw;
+		return Utils.encodeBase64ToString(creds);
 	}
 
 }

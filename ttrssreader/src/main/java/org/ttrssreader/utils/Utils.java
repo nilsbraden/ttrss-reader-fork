@@ -45,6 +45,7 @@ import android.widget.Toast;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.net.JSONConnector;
 import org.ttrssreader.preferences.Constants;
 
 import java.io.BufferedInputStream;
@@ -506,9 +507,11 @@ public class Utils {
 			URLConnection con = Controller.getInstance().openConnection(url);
 
 			// HTTP-Basic Authentication
-			String base64NameAndPw = Controller.getInstance().getConnector().getBase64NameAndPw();
-			if (base64NameAndPw != null)
-				con.setRequestProperty("Authorization", "Basic " + base64NameAndPw);
+			if (Controller.getInstance().useHttpAuth()) {
+				String base64NameAndPw = JSONConnector.getBase64NameAndPw();
+				if (base64NameAndPw != null)
+					con.setRequestProperty("Authorization", "Basic " + base64NameAndPw);
+			}
 
 			con.connect();
 
