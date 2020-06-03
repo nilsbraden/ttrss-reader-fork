@@ -80,4 +80,7 @@ dependencies {
     // https://developer.android.com/training/articles/security-gms-provider.html
     // Only used in productFlavour "play"
     playImplementation 'com.google.android.gms:play-services-base:17.3.0'
+
+    // https://firebaseopensource.com/projects/googlesamples/easypermissions/
+    implementation 'pub.devrel:easypermissions:3.0.0'
 }

@@ -19,7 +19,6 @@ package org.ttrssreader.preferences;
 
 import android.app.backup.BackupManager;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.View;
 
 import org.ttrssreader.R;
@@ -36,6 +35,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
 
 public class PreferencesActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
 

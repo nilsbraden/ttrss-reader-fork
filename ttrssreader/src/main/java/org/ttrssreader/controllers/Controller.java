@@ -63,7 +63,9 @@ import java.net.URLConnection;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import androidx.preference.PreferenceManager;
@@ -360,6 +362,18 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	}
 
 	// ******* CONNECTION-Options ****************************
+
+	public Map<String, Boolean> getConfiguredWifiNetworks() {
+		Map<String, Boolean> ret = new HashMap<>();
+
+		for (String key : prefs.getAll().keySet()) {
+			if (key.endsWith(ENABLE_WIFI_BASED_SUFFIX)) {
+				String newKey = key.replaceAll(ENABLE_WIFI_BASED_SUFFIX, "");
+				ret.put(newKey, prefs.getBoolean(key, false));
+			}
+		}
+		return ret;
+	}
 
 	private boolean wifibasedPrefsEnabled() {
 		// Load from Wifi-Preferences:

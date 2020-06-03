@@ -18,8 +18,26 @@
     android:title="@string/ConnectionWifiPrefScreenTitle">
 
     <PreferenceCategory
-        android:key="wifibasedCategory"
+        android:key="wifibasedCategoryConfigured"
         android:summary="@string/ConnectionWifiPrefCatDescription"
         android:title="@string/ConnectionWifiPrefCatTitle" />
+
+    <PreferenceCategory
+        android:key="wifibasedCategoryScanned"
+        android:summary="@string/ConnectionWifiPrefCatScannedDescription"
+        android:title="@string/ConnectionWifiPrefCatScannedTitle" />
+
+    <PreferenceCategory
+        android:key="wifibasedCategoryRefresh"
+        android:summary="@string/Empty"
+        android:title="@string/ConnectionWifiPrefCatRefreshTitle">
+
+        <Preference
+            android:id="@+id/Preferences_WifibasedAddManual"
+            android:key="WifibasedAddManual"
+            android:icon="@drawable/ic_menu_compose"
+            android:summary="@string/Preferences_WifibasedAddManual_Summary"
+            android:title="@string/Preferences_WifibasedAddManual_Title" />
+    </PreferenceCategory>
 
 </PreferenceScreen>

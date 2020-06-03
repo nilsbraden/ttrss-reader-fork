@@ -22,7 +22,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.widget.Toast;
 
 import org.ttrssreader.R;
@@ -39,6 +38,7 @@ import androidx.annotation.Keep;
 import androidx.fragment.app.FragmentManager;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
 
 @Keep
 public class PreferencesFragment extends PreferenceFragmentCompat implements YesNoResultListener {

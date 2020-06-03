@@ -261,8 +261,16 @@
     <string name="ConnectionWifiPrefSelectionTitle">Wifi: “%1$s”</string>
     <string name="ConnectionWifiPrefCatTitle">Available networks</string>
     <string name="ConnectionWifiPrefCatDescription">Choose a Network and define special connection-settings to be used when connected.</string>
+    <string name="ConnectionWifiPrefCatScannedDescription">Networks that can be configured.</string>
+    <string name="ConnectionWifiPrefCatScannedTitle">Available networks</string>
+    <string name="ConnectionWifiPrefCatRefreshTitle">Options</string>
+    <string name="Preferences_WifibasedAddManual_Summary">Manually define a name for a new network.</string>
+    <string name="Preferences_WifibasedAddManual_Title">Add manually</string>
     <string name="ConnectionWifiConnected">Connected</string>
     <string name="ConnectionWifiNotInRange">Not in range</string>
+    <string name="ConnectionWifiAddManuallyTitle">Add SSID</string>
+    <string name="ConnectionWifiAddManuallyMessage">Insert the name of the Wifi network here:</string>
+    <string name="ConnectionWifiRequestPermissions">The following permissions are required to get results of the last WIFI scan: android.permission.ACCESS_FINE_LOCATION\n\nYou can ignore this, it is optional and you can also enter the WIFI SSID manually.</string>
     <string name="ErrorActivity_Title">Error</string>
     <string name="ErrorActivity_UserMessage">I was unable to connect to your Tiny Tiny RSS instance, please check your connection and/or connection settings.</string>
     <string name="ErrorActivity_ErrorTitle">Error details:</string>
@@ -321,6 +329,8 @@
     <string name="Dialog_MarkAllRead">Mark everything as read?</string>
     <string name="Yes">Yes</string>
     <string name="No">No</string>
+    <string name="Ok" translatable="false">OK</string>
+    <string name="Cancel">Cancel</string>
     <string name="Ignore">Ignore</string>
     <string name="Close">Close</string>
     <string name="Up">Up</string>
@@ -343,5 +353,7 @@
     <string name="Error_ApiUnknownError">Unknown API error (see log)</string>
     <string name="ConnectionProviderInstallSummary">Activates the automatic update of the security provider from Google Play services. Disable if you have problems with self-signed certificates. This should provide enhanced security, you should leave it enabled normally.</string>
     <string name="ConnectionProviderInstallTitle">Use Google Play services: Provider-Installer</string>
+    <string name="ConnectionWifiEnabled">Enabled</string>
+    <string name="ConnectionWifiDisabled">Disabled</string>
 
 </resources>
