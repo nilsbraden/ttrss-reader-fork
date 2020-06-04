@@ -724,7 +724,7 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 		this.useVolumeKeys = useVolumeKeys;
 	}
 
-	public boolean dontLoadMedia() {
+	public boolean loadMedia() {
 		if (loadImages == null)
 			loadImages = prefs.getBoolean(LOAD_IMAGES, LOAD_IMAGES_DEFAULT);
 		return loadImages;
