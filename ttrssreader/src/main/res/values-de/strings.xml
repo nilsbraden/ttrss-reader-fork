@@ -56,7 +56,7 @@ not, see http://www.gnu.org/licenses/.
     <string name="SubscribeActivity_contentIsHTML">Seite enthält HTML, keine Feeds verfügbar.</string>
     <string name="SubscribeActivity_multipleFeeds">Seite enthält HTML mit mehreren Feeds. Hier muss extractfeedurls im RPC-Backend aufgerufen werden, um alle möglichen Feeds zu extrahieren.</string>
     <string name="SubscribeActivity_cannotDownload">Konnte die Seite nicht laden.</string>
-    <string name="SubscribeActivity_errorCode">Server hat den Fehlercode %s und die folgende Nachricht zurückgegeben:</string>
+    <string name="SubscribeActivity_errorCode">Server hat den Fehlercode %s und die folgende Nachricht zurückgegeben: %s</string>
     <string name="Commons_DisplayOnlyUnread">Ungelesene anzeigen</string>
     <string name="Commons_DisplayOnlyCachedImages">Nur Artikel aus Cache</string>
     <string name="Commons_InvertSort">Sortierung umkehren</string>
@@ -84,7 +84,6 @@ not, see http://www.gnu.org/licenses/.
     <string name="CategoryActivity_NoServer">Kein Server angegeben.</string>
     <string name="CategoryActivity_Donate">Möchten Sie spenden?</string>
     <string name="ConnectionPreferenceCategoryTitle">Verbindung</string>
-    <string name="ConnectionPreferenceCategory">Verbindung</string>
     <string name="ConnectionUrlPreferenceTitle">Server-URL</string>
     <string name="ConnectionUrlPreferenceSummary">Die Adresse Ihrer \"Tiny Tiny RSS\"-Installation.</string>
     <string name="ConnectionUsernamePreferenceTitle">Benutzername</string>
@@ -221,8 +220,6 @@ not, see http://www.gnu.org/licenses/.
     <string name="ConnectionWifiPrefScreenSummary">Spezielle Konfiguration für bestimmte WLAN-Netzwerke</string>
     <string name="ConnectionWifiPrefCatTitle">Verfügbare Netzwerke</string>
     <string name="ConnectionWifiPrefCatDescription">Hier können für jedes WLAN-Netz besondere Einstellungen zur Verbindung vorgenommen werden.</string>
-    <string name="ConnectionWifiConnected">Verbunden</string>
-    <string name="ConnectionWifiNotInRange">Nicht verfügbar</string>
     <string name="ErrorActivity_Title">Fehler</string>
     <string name="ErrorActivity_UserMessage">Ich konnte keine Verbindung zu Ihrer \"Tiny Tiny RSS"-Instanz herstellen, bitte prüfen Sie die Verbindung und/oder die Verbindungseinstellungen.</string>
     <string name="ErrorActivity_ErrorTitle">Fehler-Details:</string>
@@ -306,7 +303,6 @@ not, see http://www.gnu.org/licenses/.
     <string name="CacheImageMinSizeSummary">Minimale Größe für Bilder zum zwischenspeichern (in KB)</string>
     <string name="ConnectionWifiPrefDisbledSummary">Einstellungen für dieses WLAN-Netzwerk sind deaktiviert.</string>
     <string name="ConnectionWifiPrefEnabledSummary">Einstellungen für dieses WLAN-Netzwerk sind aktiviert.</string>
-    <string name="ConnectionWifiPrefSelectionTitle">WLAN: “%1$s”</string>
     <string name="ConnectionWifiPrefEnableTitle">Einstellungen für dieses WLAN aktivieren?</string>
     <string name="Subscribe_ok_button">OK</string>
     <string name="Main_ImageCache_YesNoTitle">ImageCache starten?</string>
@@ -323,7 +319,7 @@ not, see http://www.gnu.org/licenses/.
     <string name="Preferences_ResetCache_Summary">Alle zwischengespeicherten Bilder werden aus dem Speicher gelöscht.</string>
     <string name="Preferences_ResetCache_YesNoMsg">ImageCache löschen?</string>
     <string name="PreferencesTitle">Einstellungen</string>
-    <string name="MainPreferenceCategoryTitle">" "</string>
+    <string name="MainPreferenceCategoryTitle">Main</string>
     <string name="ConnectionFeedIconsUrlPreferenceTitle">Pfad für Feed-Icons</string>
     <string name="ConnectionFeedIconsUrlPreferenceSummary">Der Basispfad auf dem Server für die Feed-Icons</string>
     <string name="ResetPreferenceCategoryTitle">Auf Standardeinstellungen zurücksetzen</string>

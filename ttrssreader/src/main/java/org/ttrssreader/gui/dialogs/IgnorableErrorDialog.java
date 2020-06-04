@@ -19,7 +19,6 @@ package org.ttrssreader.gui.dialogs;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 
 import org.ttrssreader.R;
@@ -40,18 +39,14 @@ public class IgnorableErrorDialog extends ErrorDialog {
 		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
 		alertDialogBuilder.setTitle("Error");
 		alertDialogBuilder.setMessage(message);
-		alertDialogBuilder.setNegativeButton(getActivity().getString(R.string.Ignore), new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				Controller.getInstance().setIgnoreUnsafeConnectionError();
-				dismiss();
-			}
-		});
-		alertDialogBuilder.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dismiss();
-			}
+
+		String sOk = getActivity() != null ? getActivity().getString(R.string.Ok) : "Ok";
+		String sIgnore = getActivity() != null ? getActivity().getString(R.string.Ignore) : "Ignore";
+
+		alertDialogBuilder.setNeutralButton(sOk, (dialog, which) -> dismiss());
+		alertDialogBuilder.setNegativeButton(sIgnore, (dialog, which) -> {
+			Controller.getInstance().setIgnoreUnsafeConnectionError();
+			dismiss();
 		});
 		return alertDialogBuilder.create();
 	}

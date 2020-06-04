@@ -40,6 +40,7 @@ import org.ttrssreader.model.ListContentProvider;
 import org.ttrssreader.model.updaters.IUpdatable;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
@@ -168,20 +169,15 @@ public class CategoryListFragment extends MainListFragment {
 		return THIS_TYPE;
 	}
 
+	@NonNull
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		if (id == TYPE_CAT_ID) {
-			categoryUri = ListContentProvider.CONTENT_URI_CAT;
-
-			FragmentActivity activity = getActivity();
-			if (activity != null)
-				return new CursorLoader(getActivity(), categoryUri, null, null, null, null);
-		}
-		return null;
+		categoryUri = ListContentProvider.CONTENT_URI_CAT;
+		return new CursorLoader(requireActivity(), categoryUri, null, null, null, null);
 	}
 
 	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
 		if (loader.getId() == TYPE_CAT_ID)
 			adapter.changeCursor(data);
 		super.onLoadFinished(loader, data);

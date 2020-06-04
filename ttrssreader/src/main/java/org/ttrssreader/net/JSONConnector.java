@@ -18,6 +18,7 @@
 package org.ttrssreader.net;
 
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 
 import com.google.gson.JsonObject;
@@ -48,6 +49,8 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.SocketException;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -92,7 +95,7 @@ public class JSONConnector {
 	private static final String PARAM_PREF = "pref_name";
 
 	private static final String VALUE_LOGIN = "login";
-	private static final String VALUE_IS_LOGGEDIN = "isLoggedIn";
+	//private static final String VALUE_IS_LOGGEDIN = "isLoggedIn";
 	private static final String VALUE_GET_CATEGORIES = "getCategories";
 	private static final String VALUE_GET_FEEDS = "getFeeds";
 	private static final String VALUE_GET_HEADLINES = "getHeadlines";
@@ -156,7 +159,13 @@ public class JSONConnector {
 			// note requests are not compressed
 			boolean askForResponseCompression = !("login".equals(params.get("op")));
 			JSONObject json = new JSONObject(params);
-			byte[] outputBytes = json.toString().getBytes("UTF-8");
+
+			byte[] outputBytes;
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT)
+				//noinspection CharsetObjectCanBeUsed
+				outputBytes = json.toString().getBytes(Charset.forName("UTF-8"));
+			else
+				outputBytes = json.toString().getBytes(StandardCharsets.UTF_8);
 
 			logRequest(json);
 
@@ -259,8 +268,8 @@ public class JSONConnector {
 		json.put(SID, paramSID);
 	}
 
-	private String readResult(Map<String, String> params, boolean login) throws IOException {
-		return readResult(params, login, true);
+	private String readResult(Map<String, String> params) throws IOException {
+		return readResult(params, false, true);
 	}
 
 	private String readResult(Map<String, String> params, boolean login, boolean retry) throws IOException {
@@ -271,9 +280,13 @@ public class JSONConnector {
 		JsonReader reader = null;
 		String ret = "";
 		try {
-			reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
-			// Check if content contains array or object, array indicates login-response or error, object is content
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT)
+				//noinspection CharsetObjectCanBeUsed
+				reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
+			else
+				reader = new JsonReader(new InputStreamReader(in, StandardCharsets.UTF_8));
 
+			// Check if content contains array or object, array indicates login-response or error, object is content
 			reader.beginObject();
 			while (reader.hasNext()) {
 				String name = reader.nextName();
@@ -342,7 +355,7 @@ public class JSONConnector {
 				reader.close();
 		}
 		if (ret.startsWith("\""))
-			ret = ret.substring(1, ret.length());
+			ret = ret.substring(1);
 		if (ret.endsWith("\""))
 			ret = ret.substring(0, ret.length() - 1);
 
@@ -357,7 +370,13 @@ public class JSONConnector {
 		InputStream in = doRequest(params);
 		if (in == null)
 			return null;
-		JsonReader reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
+
+		JsonReader reader;
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT)
+			//noinspection CharsetObjectCanBeUsed
+			reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
+		else
+			reader = new JsonReader(new InputStreamReader(in, StandardCharsets.UTF_8));
 
 		// Check if content contains array or object, array indicates login-response or error, object is content
 		try {
@@ -442,7 +461,7 @@ public class JSONConnector {
 			return false;
 
 		try {
-			String result = readResult(params, false);
+			String result = readResult(params);
 
 			// Reset error, this is only for an api-bug which returns an empty result for updateFeed
 			if (result == null)
@@ -651,13 +670,13 @@ public class JSONConnector {
 						a.url = reader.nextString();
 						// Some URLs may start with // to indicate that both, http and https can be used
 						if (a.url.startsWith("//"))
-							a.url = "https:" + a.url;
+							a.url = "https:".concat(a.url);
 						break;
 					case comments:
 						a.commentUrl = reader.nextString();
 						// Some URLs may start with // to indicate that both, http and https can be used
 						if (a.commentUrl.startsWith("//"))
-							a.commentUrl = "https:" + a.commentUrl;
+							a.commentUrl = "https:".concat(a.commentUrl);
 						break;
 					case attachments:
 						a.attachments = parseAttachments(reader);
@@ -957,7 +976,7 @@ public class JSONConnector {
 								break;
 						}
 					} catch (IllegalArgumentException e) {
-						Log.e(TAG, e.getMessage());
+						Log.e(TAG, (e.getMessage() != null ? e.getMessage() : "no exception message available"));
 						reader.skipValue();
 					}
 
@@ -979,7 +998,7 @@ public class JSONConnector {
 			}
 			reader.endArray();
 		} catch (IOException e) {
-			Log.e(TAG, e.getMessage());
+			Log.e(TAG, (e.getMessage() != null ? e.getMessage() : "no exception message available"));
 		} finally {
 			if (reader != null)
 				try {
@@ -1002,14 +1021,13 @@ public class JSONConnector {
 		return getFeeds(false);
 	}
 
-	private boolean makeLazyServerWork(Integer feedId) {
+	private void makeLazyServerWork(Integer feedId) {
 		if (Controller.getInstance().lazyServer()) {
 			Map<String, String> taskParams = new HashMap<>();
 			taskParams.put(PARAM_OP, VALUE_UPDATE_FEED);
 			taskParams.put(PARAM_FEED_ID, String.valueOf(feedId));
-			return doRequestNoAnswer(taskParams);
+			doRequestNoAnswer(taskParams);
 		}
-		return true;
 	}
 
 	private long noTaskUntil = 0;
@@ -1070,9 +1088,7 @@ public class JSONConnector {
 			if (search != null)
 				params.put(PARAM_SEARCH, search);
 
-			JsonReader reader = null;
-			try {
-				reader = prepareReader(params);
+			try (JsonReader reader = prepareReader(params)) {
 
 				if (hasLastError)
 					return;
@@ -1088,15 +1104,8 @@ public class JSONConnector {
 
 			} catch (IOException e) {
 				e.printStackTrace();
-			} finally {
-				if (reader != null) {
-					try {
-						reader.close();
-					} catch (IOException ignored) {
-						// Empty!
-					}
-				}
 			}
+			// Empty!
 		}
 
 		Log.d(TAG, "getHeadlines: " + (System.currentTimeMillis() - time) + "ms");
@@ -1231,7 +1240,7 @@ public class JSONConnector {
 		params.put(PARAM_PREF, pref);
 
 		try {
-			return readResult(params, false);
+			return readResult(params);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -1265,7 +1274,7 @@ public class JSONConnector {
 		return doRequestNoAnswer(params);
 	}
 
-	public class SubscriptionResponse {
+	public static class SubscriptionResponse {
 		public int code = -1;
 		public String message = null;
 	}

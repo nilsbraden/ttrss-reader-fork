@@ -3,7 +3,6 @@
     <string name="About_about">关于</string>
     <string name="About_about_hint">关于这款应用程序</string>
     <string name="Yes">确定</string>
-    <string name="ALIGN_JUSTIFY">自适应</string>
     <string name="About_feedback">反馈</string>
     <string name="About_feedback_hint">报告问题，请求新特性……</string>
     <string name="About_project">项目主页</string>
@@ -63,7 +62,6 @@
     <string name="ConnectionLazyServerPreferenceTitle">服务器延时</string>
     <string name="ConnectionPasswordPreferenceSummary">Tint Tiny RSS帐号的密码</string>
     <string name="ConnectionPasswordPreferenceTitle">密码</string>
-    <string name="ConnectionPreferenceCategory">连接</string>
     <string name="ConnectionPreferenceCategoryTitle">连接设置</string>
     <string name="ConnectionProviderInstallSummary">激活Google Play自动安全更新服务。如果你在使用自签名证书时遇到问题，请禁用该项。这可以保证相对均衡的安全策略，通常情况下你应该启用该项</string>
     <string name="ConnectionSslPreferenceSummary">接受所有SSL证书</string>
@@ -75,8 +73,6 @@
     <string name="ConnectionUseKeystorePreferenceTitle">自定义密钥</string>
     <string name="ConnectionUsernamePreferenceSummary">Tiny Tiny RSS帐号的用户名</string>
     <string name="ConnectionUsernamePreferenceTitle">用户名</string>
-    <string name="ConnectionWifiConnected">已连接</string>
-    <string name="ConnectionWifiNotInRange">不在范围内</string>
     <string name="ConnectionWifiPrefCatDescription">选择一个网络并定义当其连接时的一些特别设置</string>
     <string name="ConnectionWifiPrefCatTitle">已保存的网络</string>
     <string name="ConnectionWifiPrefDisbledSummary">Wi-Fi网络偏好设置已被禁用</string>
@@ -84,7 +80,6 @@
     <string name="ConnectionWifiPrefEnabledSummary">Wi-Fi网络偏好设置已被启用</string>
     <string name="ConnectionWifiPrefScreenSummary">Wi-Fi网络连接时的特别配置</string>
     <string name="ConnectionWifiPrefScreenTitle">Wi-Fi连接</string>
-    <string name="ConnectionWifiPrefSelectionTitle">Wi-Fi：“%1$s”</string>
     <string name="DarkTheme">暗色主题</string>
     <string name="DeleteDBOnNextStartupSummary">如果勾选，下次应用启动时，内部数据库将被删除</string>
     <string name="DeleteDBOnNextStartupTitle">下次启动时删除数据库</string>
@@ -184,7 +179,7 @@
     <string name="Subscribe_url">地址</string>
     <string name="SubscribeActivity_cannotDownload">无法下载该地址的内容</string>
     <string name="SubscribeActivity_contentIsHTML">该地址指向HTML格式文本，未发现可用的订阅内容</string>
-    <string name="SubscribeActivity_errorCode">服务器返回状态码%s，消息如下：</string>
+    <string name="SubscribeActivity_errorCode">服务器返回状态码%s，消息如下：%s</string>
     <string name="SubscribeActivity_invalidUrl">地址无效</string>
     <string name="SubscribeActivity_multipleFeeds">该地址指向包含多个订阅源的的HTML格式文本，你应该将其中所有可用的订阅源提取出来</string>
     <string name="SubscribeActivity_offline">进入离线模式，无法向服务器发出请求</string>
@@ -244,5 +239,4 @@
     <string name="AllowHyphenationTitle">允许断句</string>
     <string name="AllowTabletLayoutSummary">如果勾选，当你的设备屏幕尺寸大于7英寸时，将会使用表格布局</string>
     <string name="About_project_hint">关于开发、更新日志等</string>
-    <string name="ALIGN_LEFT">居左对齐</string>
 </resources>

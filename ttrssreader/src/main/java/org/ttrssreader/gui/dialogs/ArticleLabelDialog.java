@@ -21,13 +21,10 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -79,17 +76,14 @@ public class ArticleLabelDialog extends MyDialogFragment {
 			checkbox.setId(label.id);
 			checkbox.setText(label.caption);
 			checkbox.setChecked(label.checked);
-			checkbox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-				@Override
-				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-					if (buttonView instanceof CheckBox) {
-						CheckBox cb = (CheckBox) buttonView;
-						for (Label label : labels) {
-							if (label.id == cb.getId()) {
-								label.checked = isChecked;
-								label.checkedChanged = !label.checkedChanged;
-								break;
-							}
+			checkbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+				if (buttonView instanceof CheckBox) {
+					CheckBox cb = (CheckBox) buttonView;
+					for (Label label1 : labels) {
+						if (label1.id == cb.getId()) {
+							label1.checked = isChecked;
+							label1.checkedChanged = !label1.checkedChanged;
+							break;
 						}
 					}
 				}
@@ -110,23 +104,18 @@ public class ArticleLabelDialog extends MyDialogFragment {
 		// AboutDialog benutzt als Schriftfarbe automatisch die invertierte Hintergrundfarbe
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-		LayoutInflater inflater = getActivity().getLayoutInflater();
+		LayoutInflater inflater = requireActivity().getLayoutInflater();
 		View view = inflater.inflate(R.layout.articlelabeldialog, null);
-		builder.setView(view).setPositiveButton(R.string.Utils_OkayAction, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int id) {
-				new Updater(null, new ArticleLabelUpdater()).execute();
-				getActivity().setResult(Activity.RESULT_OK);
-				dismiss();
-			}
-		}).setNegativeButton(R.string.Utils_CancelAction, new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int id) {
-				getActivity().setResult(Activity.RESULT_CANCELED);
-				dismiss();
-			}
+		builder.setView(view).setPositiveButton(R.string.Utils_OkayAction, (dialog, id) -> {
+			new Updater(null, new ArticleLabelUpdater()).execute();
+			requireActivity().setResult(Activity.RESULT_OK);
+			dismiss();
+		}).setNegativeButton(R.string.Utils_CancelAction, (dialog, id) -> {
+			requireActivity().setResult(Activity.RESULT_CANCELED);
+			dismiss();
 		});
 
-		labelsView = (LinearLayout) view.findViewById(R.id.labels);
+		labelsView = view.findViewById(R.id.labels);
 
 		return builder.create();
 	}

@@ -56,19 +56,16 @@
 
     <PreferenceCategory android:title="@string/ResetPreferenceCategoryTitle">
         <Preference
-            android:id="@+id/Preferences_ResetPreferences"
             android:key="ResetPreferences"
             android:icon="@drawable/ic_menu_revert"
             android:summary="@string/Preferences_Reset_Summary"
             android:title="@string/Preferences_Reset" />
         <Preference
-            android:id="@+id/Preferences_ResetDatabase"
             android:key="ResetDatabase"
             android:icon="@drawable/ic_menu_revert"
             android:summary="@string/Preferences_ResetDatabase_Summary"
             android:title="@string/Preferences_ResetDatabase" />
         <Preference
-            android:id="@+id/Preferences_ResetCache"
             android:key="ResetCache"
             android:icon="@drawable/ic_menu_revert"
             android:summary="@string/Preferences_ResetCache_Summary"

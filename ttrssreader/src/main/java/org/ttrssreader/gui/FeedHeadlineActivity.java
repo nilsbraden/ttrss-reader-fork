@@ -227,7 +227,10 @@ public class FeedHeadlineActivity extends MenuActivity {
 
 	public void openNextFeed(int direction) {
 		FeedListFragment feedFragment = (FeedListFragment) getSupportFragmentManager().findFragmentByTag(FeedListFragment.FRAGMENT);
-		int newId = findNext(feedFragment.getFeedIds(), feedId, direction);
+		int newId = Integer.MIN_VALUE;
+		if (feedFragment != null) {
+			newId = findNext(feedFragment.getFeedIds(), feedId, direction);
+		}
 		if (newId == Integer.MIN_VALUE) {
 			Utils.alert(this, true);
 			return;
@@ -238,7 +241,10 @@ public class FeedHeadlineActivity extends MenuActivity {
 
 	public void openNextArticle(int direction) {
 		FeedHeadlineListFragment headlineFragment = (FeedHeadlineListFragment) getSupportFragmentManager().findFragmentByTag(FeedHeadlineListFragment.FRAGMENT);
-		int newId = findNext(headlineFragment.getArticleIds(), articleId, direction);
+		int newId = Integer.MIN_VALUE;
+		if (headlineFragment != null) {
+			newId = findNext(headlineFragment.getArticleIds(), articleId, direction);
+		}
 		if (newId == Integer.MIN_VALUE) {
 			Utils.alert(this, true);
 			return;

@@ -21,7 +21,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
-import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -79,11 +78,7 @@ public class FeedHeadlineAdapter extends MainAdapter {
 		} else if (a.isPublished) {
 			icon.setImageResource(R.drawable.published_blue48);
 		} else {
-			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-				icon.setBackgroundDrawable(null);
-			} else {
-				icon.setBackground(null);
-			}
+			icon.setBackground(null);
 			if (a.isUnread) {
 				icon.setImageResource(R.drawable.articleunread48);
 			} else {

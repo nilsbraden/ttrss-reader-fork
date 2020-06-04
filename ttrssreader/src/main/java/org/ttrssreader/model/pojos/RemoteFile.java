@@ -60,7 +60,7 @@ public class RemoteFile implements Comparable<RemoteFile> {
 	@Override
 	public boolean equals(Object o) {
 		boolean isEqual = false;
-		if (o != null && o instanceof RemoteFile) {
+		if (o instanceof RemoteFile) {
 			RemoteFile rf = (RemoteFile) o;
 			isEqual = (id == rf.id);
 		}

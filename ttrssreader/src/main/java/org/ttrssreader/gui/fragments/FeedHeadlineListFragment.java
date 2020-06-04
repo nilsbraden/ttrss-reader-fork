@@ -62,6 +62,7 @@ import org.ttrssreader.utils.AsyncTask;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentActivity;
@@ -346,24 +347,19 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
 		}
 	}
 
+	@NonNull
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		if (id == TYPE_HEADLINE_ID) {
-			Builder builder = ListContentProvider.CONTENT_URI_HEAD.buildUpon();
-			builder.appendQueryParameter(ListContentProvider.PARAM_CAT_ID, categoryId + "");
-			builder.appendQueryParameter(ListContentProvider.PARAM_FEED_ID, feedId + "");
-			builder.appendQueryParameter(ListContentProvider.PARAM_SELECT_FOR_CAT, (selectArticlesForCategory ? "1" : "0"));
-			headlineUri = builder.build();
-
-			FragmentActivity activity = getActivity();
-			if (activity != null)
-				return new CursorLoader(getActivity(), headlineUri, null, null, null, null);
-		}
-		return null;
+		Builder builder = ListContentProvider.CONTENT_URI_HEAD.buildUpon();
+		builder.appendQueryParameter(ListContentProvider.PARAM_CAT_ID, categoryId + "");
+		builder.appendQueryParameter(ListContentProvider.PARAM_FEED_ID, feedId + "");
+		builder.appendQueryParameter(ListContentProvider.PARAM_SELECT_FOR_CAT, (selectArticlesForCategory ? "1" : "0"));
+		headlineUri = builder.build();
+		return new CursorLoader(requireActivity(), headlineUri, null, null, null, null);
 	}
 
 	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
 		if (loader.getId() == TYPE_HEADLINE_ID)
 			adapter.changeCursor(data);
 		super.onLoadFinished(loader, data);

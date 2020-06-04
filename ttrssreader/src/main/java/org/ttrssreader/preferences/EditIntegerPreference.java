@@ -60,7 +60,7 @@ public class EditIntegerPreference extends EditTextPreference {
 
 		int intValue;
 		try {
-			intValue = Integer.valueOf(value);
+			intValue = Integer.parseInt(value);
 			return persistInt(intValue);
 		} catch (NumberFormatException ne) {
 			// Can be empty, either we catch the exception and return false

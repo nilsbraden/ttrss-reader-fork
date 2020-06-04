@@ -38,6 +38,7 @@ import java.security.Security;
  * <p>
  * See: <a href="http://android-developers.blogspot.de/2013/08/some-securerandom-thoughts.html">android-developers.blogspot.de</a>
  */
+@SuppressWarnings("ALL")
 public final class PRNGFixes {
 
 	private static final int VERSION_CODE_JELLY_BEAN = 16;
@@ -163,6 +164,7 @@ public final class PRNGFixes {
 		private static final File URANDOM_FILE = new File("/dev/urandom");
 
 		private static final Object sLock = new Object();
+		private static final Object sLock2 = new Object();
 
 		/**
 		 * Input stream for reading from Linux PRNG or {@code null} if not yet
@@ -217,7 +219,7 @@ public final class PRNGFixes {
 				synchronized (sLock) {
 					in = getUrandomInputStream();
 				}
-				synchronized (in) {
+				synchronized (sLock2) { // Don't sync on local variable
 					in.readFully(bytes);
 				}
 			} catch (IOException e) {

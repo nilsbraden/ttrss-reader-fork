@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="ALIGN_LEFT">links</string>
-    <string name="ALIGN_JUSTIFY">uitlijnen</string>
     <string name="About_about">Over</string>
     <string name="About_about_hint">Over deze app</string>
     <string name="About_feedback">Feedback</string>
@@ -90,7 +88,6 @@
     <string name="ConnectionLazyServerPreferenceTitle">Luie server</string>
     <string name="ConnectionPasswordPreferenceSummary">Wachtwoord van uw Tiny Tiny RSS account</string>
     <string name="ConnectionPasswordPreferenceTitle">Wachtwoord</string>
-    <string name="ConnectionPreferenceCategory">Verbinding</string>
     <string name="ConnectionPreferenceCategoryTitle">Verbinding</string>
     <string name="ConnectionProviderInstallSummary">Aktiveert de automatische update van de security provider van Google Play services. Vink dit uit als u problemen heeft met zelf-gesigneerd certificaten. Dit geeft evenwel verbeterde veiligheid, en wordt beter geaktiveerd.</string>
     <string name="ConnectionProviderInstallTitle">Gebruik Google Play Services Provider-Installer</string>
@@ -99,13 +96,11 @@
     <string name="ConnectionTrustHostsPreferenceSummary">Aanvaard certificaten van alle servers</string>
     <string name="ConnectionTrustHostsPreferenceTitle">Vertrouw alle servers</string>
     <string name="ConnectionUrlPreferenceSummary">Het adres van uw Tiny Tiny RSS installatie</string>
-    <string name="ConnectionUrlPreferenceTitle">"Verbindings URL "</string>
+    <string name="ConnectionUrlPreferenceTitle">Verbindings URL</string>
     <string name="ConnectionUseKeystorePreferenceSummary">Gebruik een eigen sleutelring</string>
     <string name="ConnectionUseKeystorePreferenceTitle">Eigen sleutelring</string>
     <string name="ConnectionUsernamePreferenceSummary">Gebruiker van uw Tiny Tiny RSS installatie</string>
     <string name="ConnectionUsernamePreferenceTitle">Gebruiker</string>
-    <string name="ConnectionWifiConnected">Verbonden</string>
-    <string name="ConnectionWifiNotInRange">Buiten bereik</string>
     <string name="ConnectionWifiPrefCatDescription">Kies een netwerk en definiëer instellingen voor de verbinding</string>
     <string name="ConnectionWifiPrefCatTitle">Beschikbare netwerken</string>
     <string name="ConnectionWifiPrefDisbledSummary">Voorkeuren voor dit wifi netwerk zijn uitgeschakeld</string>
@@ -113,7 +108,6 @@
     <string name="ConnectionWifiPrefEnabledSummary">Voorkeuren voor dit wifi netwerk zijn aktief</string>
     <string name="ConnectionWifiPrefScreenSummary">Speciale instelling voor het verbonden netwerk</string>
     <string name="ConnectionWifiPrefScreenTitle">Wifi instellingen (per netwerk)</string>
-    <string name="ConnectionWifiPrefSelectionTitle">Wifi “%1$s”</string>
     <string name="DarkTheme">Donkere layout</string>
     <string name="Utils_FileSaveTitle">Bewaar bijlage</string>
     <string name="Utils_FileSaveMessage">Geen bestandsbrowser gevonden. Wilt u de bijlage bewaren?</string>
@@ -259,7 +253,7 @@
     <string name="DisplayLoadImagesPreferenceTitle">Laad media</string>
     <string name="SubscribeActivity_cannotDownload">Kon de inhoud van de URL niet downloaden</string>
     <string name="SubscribeActivity_contentIsHTML">URL inhoud is HTML: geen feed beschikbaar</string>
-    <string name="SubscribeActivity_errorCode">"Server gaf code %s en het volgende bericht: "</string>
+    <string name="SubscribeActivity_errorCode">Server gaf code %s en het volgende bericht: %s</string>
     <string name="SubscribeActivity_invalidUrl">URL is niet geldig</string>
     <string name="SubscribeActivity_multipleFeeds">URL inhoud is HTML met meerdere feeds. Gelieve alle feeds te extraheren.</string>
     <string name="SubscribeActivity_offline">Offline, kan geen verbinding maken met de server.</string>

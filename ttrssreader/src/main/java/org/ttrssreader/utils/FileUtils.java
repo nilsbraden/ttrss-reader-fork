@@ -113,9 +113,12 @@ public class FileUtils {
 	public static boolean deleteFolderRecursive(final File dir) {
 		boolean ret = true;
 		if (dir.isDirectory()) {
+
 			String[] children = dir.list();
-			for (String aChildren : children) {
-				ret &= new File(dir, aChildren).delete();
+			if (children != null) {
+				for (String aChildren : children) {
+					ret &= new File(dir, aChildren).delete();
+				}
 			}
 		}
 		return ret;

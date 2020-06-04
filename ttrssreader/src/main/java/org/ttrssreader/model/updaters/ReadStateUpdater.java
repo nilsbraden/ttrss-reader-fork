@@ -34,7 +34,7 @@ public class ReadStateUpdater implements IUpdatable {
 		ALL_CATEGORIES, ALL_FEEDS, CATEGORY, FEED, ARTICLE
 	}
 
-	private TYPE type = TYPE.ARTICLE;
+	private TYPE type;
 	private int id;
 
 	private Collection<Category> categories = null;
@@ -56,13 +56,12 @@ public class ReadStateUpdater implements IUpdatable {
 
 	@SuppressWarnings("unused")
 	public ReadStateUpdater(int feedId, int dummy) {
-		if (feedId <= 0 && feedId >= -4) { // Virtual Category
-			type = TYPE.CATEGORY;
-			id = feedId;
-		} else {
+		if (feedId > 0 || feedId < -4) {
 			type = TYPE.FEED;
-			id = feedId;
+		} else { // Virtual Category
+			type = TYPE.CATEGORY;
 		}
+		id = feedId;
 	}
 
 	@Override

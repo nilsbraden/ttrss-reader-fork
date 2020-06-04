@@ -24,7 +24,6 @@ import org.ttrssreader.MyApplication;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.security.KeyManagementException;
@@ -82,17 +81,10 @@ public class SSLUtils {
 			if (!file.exists())
 				return null;
 
-			InputStream in = new FileInputStream(file);
-
-			try {
+			try (InputStream in = new FileInputStream(file)) {
 				trusted.load(in, keystorePassword.toCharArray());
-			} finally {
-				try {
-					in.close();
-				} catch (IOException e) {
-					// Empty!
-				}
 			}
+			// Empty!
 		} catch (Exception e) {
 			throw new GeneralSecurityException("Couldn't load keystore.", e);
 		}

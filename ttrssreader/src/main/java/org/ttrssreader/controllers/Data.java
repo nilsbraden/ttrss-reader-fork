@@ -300,14 +300,12 @@ public class Data {
 	private int calculateLimit(int feedId, boolean isCat) {
 		int limit;
 		switch (feedId) {
-			case VCAT_STAR: // Starred
-			case VCAT_PUB: // Published
+			case VCAT_STAR:  // Starred
+			case VCAT_PUB:   // Published
 				limit = JSONConnector.PARAM_LIMIT_MAX_VALUE;
 				break;
 			case VCAT_FRESH: // Fresh
-				limit = DBHelper.getInstance().getUnreadCount(feedId, true);
-				break;
-			case VCAT_ALL: // All Articles
+			case VCAT_ALL:   // All Articles
 				limit = DBHelper.getInstance().getUnreadCount(feedId, true);
 				break;
 			default: // Normal categories

@@ -32,7 +32,7 @@ public class ArticleReadStateUpdater implements IUpdatable {
 	private static final String TAG = ArticleReadStateUpdater.class.getSimpleName();
 
 	private int state;
-	private Collection<Article> articles = null;
+	private Collection<Article> articles;
 
 	/* articleState: 0 = mark as read, 1 = mark as unread */
 	public ArticleReadStateUpdater(Article article, int articleState) {

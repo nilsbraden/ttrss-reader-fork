@@ -41,6 +41,9 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
+
+import androidx.annotation.NonNull;
 
 /**
  * Exception report delivery via email and user interaction. Avoids giving an app the
@@ -113,7 +116,7 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
 	 * Call this method at the end of the protected code, usually in {@link #finalize()}.
 	 */
 	public void restoreOriginalHandler() {
-		if (Thread.getDefaultUncaughtExceptionHandler().equals(this))
+		if (Objects.equals(Thread.getDefaultUncaughtExceptionHandler(), this))
 			Thread.setDefaultUncaughtExceptionHandler(mDefaultUEH);
 	}
 
@@ -124,19 +127,18 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
 	}
 
 	@Override
-	public void uncaughtException(Thread t, Throwable e) {
+	public void uncaughtException(@NonNull Thread t, @NonNull Throwable e) {
 		boolean handleException = true;
 
-		if (e instanceof SecurityException) {
+		if (e instanceof SecurityException && e.getMessage() != null) {
 			// Cannot be reproduced, seems to be related to Cyanogenmod with Android 4.0.4 on some devices:
-			// http://stackoverflow.com/questions/11025182/webview-java-lang-securityexception-no-permission-to
-			// -modify-given-thread
+			// http://stackoverflow.com/questions/11025182/webview-java-lang-securityexception-no-permission-to-modify-given-thread
 			if (e.getMessage().toLowerCase(Locale.ENGLISH).contains("no permission to modify given thread")) {
 				Log.w(TAG, "Error-Reporting for Exception \"no permission to modify given thread\" is disabled.");
 				handleException = false;
 			}
 		}
-		if (e instanceof SQLiteException) {
+		if (e instanceof SQLiteException && e.getMessage() != null) {
 			if (e.getMessage().toLowerCase(Locale.ENGLISH).contains("database is locked")) {
 				Log.w(TAG, "Error-Reporting for Exception \"database is locked\" is disabled.");
 				handleException = false;
@@ -278,7 +280,7 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
 
 		// activity stack trace
 		List<CharSequence> theActivityTrace = getActivityTrace(null);
-		if (theActivityTrace != null && theActivityTrace.size() > 0) {
+		if (theActivityTrace.size() > 0) {
 			theErrReport.append("--- Activity Stacktrace -------------\n");
 			for (int i = 0; i < theActivityTrace.size(); i++) {
 				theErrReport.append("  " + theActivityTrace.get(i) + "\n");

@@ -1408,7 +1408,7 @@ public class DBHelper {
 	 * whereClause.
 	 */
 	private int safelyDeleteArticles(String whereClause, String[] whereArgs) {
-		int deletedCount = 0;
+		int deletedCount;
 
 		Collection<RemoteFile> rfs = getRemoteFilesForArticles(whereClause, whereArgs, true);
 		if (rfs != null && !rfs.isEmpty()) {
@@ -1709,7 +1709,7 @@ public class DBHelper {
 	 */
 	@SuppressLint("UseSparseArrays")
 	public Map<Integer, Long> getArticleIdUpdatedMap(String selection) {
-		Map<Integer, Long> ret = null;
+		Map<Integer, Long> ret;
 		if (!isDBAvailable())
 			return null;
 
@@ -2296,7 +2296,10 @@ public class DBHelper {
 			for (String url : remoteFiles.keySet()) {
 				ContentValues cv = new ContentValues(2);
 				Long size = remoteFiles.get(url);
-				if (size <= 0) {
+				if (size == null) {
+					cv.put("cached", false);
+					cv.put("length", 0);
+				} else if (size <= 0) {
 					cv.put("cached", false);
 					cv.put("length", -size);
 				} else {

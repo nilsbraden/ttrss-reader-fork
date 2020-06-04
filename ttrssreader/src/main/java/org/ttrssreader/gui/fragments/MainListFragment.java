@@ -24,11 +24,9 @@ import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
@@ -42,6 +40,7 @@ import org.ttrssreader.gui.view.MyGestureDetector;
 import org.ttrssreader.model.MainAdapter;
 import org.ttrssreader.utils.AsyncTask;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.ListFragment;
@@ -84,20 +83,15 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
 		return inflater.inflate(R.layout.item_list, container, false);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
+	public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
 		int[] attrs = new int[]{android.R.attr.windowBackground};
 		Activity activity = getActivity();
 		if (activity != null) {
 			TypedArray ta = activity.obtainStyledAttributes(attrs);
 			Drawable drawableFromTheme = ta.getDrawable(0);
 			ta.recycle();
-
-			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)
-				view.setBackgroundDrawable(drawableFromTheme);
-			else
-				view.setBackground(drawableFromTheme);
+			view.setBackground(drawableFromTheme);
 		}
 
 		super.onViewCreated(view, savedInstanceState);
@@ -124,11 +118,7 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
 			ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
 
 			gestureDetector = new GestureDetector(getActivity(), new MyGestureDetector(actionBar, Controller.getInstance().hideActionbar()), null);
-			gestureListener = new View.OnTouchListener() {
-				public boolean onTouch(View v, MotionEvent event) {
-					return gestureDetector.onTouchEvent(event) || v.performClick();
-				}
-			};
+			gestureListener = (v, event) -> gestureDetector.onTouchEvent(event) || v.performClick();
 			getListView().setOnTouchListener(gestureListener);
 		}
 
@@ -162,7 +152,7 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
 	}
 
 	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
+	public void onListItemClick(@NonNull ListView listview, @NonNull View view, int position, long id) {
 		selectedId = adapter.getId(position);
 
 		setChecked(selectedId);
@@ -201,9 +191,7 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
 	}
 
 	public int getUnread() {
-		if (unreadCount > 0)
-			return unreadCount;
-		return 0;
+		return Math.max(unreadCount, 0);
 	}
 
 	public abstract TYPE getType();
@@ -218,7 +206,7 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
 	 * we call {@link IDataChangedListener#dataLoadingFinished()} in the UI-thread again.
 	 */
 	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
 		adapter.notifyDataSetChanged();
 		updateTitleAndUnread();
 	}

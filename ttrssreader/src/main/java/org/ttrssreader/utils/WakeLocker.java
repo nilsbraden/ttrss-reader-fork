@@ -32,14 +32,17 @@ public abstract class WakeLocker {
 			wakeLock.release();
 
 		PowerManager pm = (PowerManager) ctx.getSystemService(Context.POWER_SERVICE);
-		wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
-		wakeLock.acquire(Utils.MINUTE * 10); // Timeout of 10 minutes?
+		if (pm != null) {
+			wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
+			wakeLock.acquire(Utils.MINUTE * 10); // Timeout of 10 minutes?
+		}
 	}
 
 	public static void release() {
-		if (wakeLock != null)
+		if (wakeLock != null) {
 			wakeLock.release();
-		wakeLock = null;
+			wakeLock = null;
+		}
 	}
 
 }

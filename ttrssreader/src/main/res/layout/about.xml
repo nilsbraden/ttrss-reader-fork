@@ -61,15 +61,13 @@
                         android:id="@+id/AboutActivity_VersionText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@+id/AboutActivity_VersionText"
-                        android:textSize="11.5sp" />
+                        android:text="@+id/AboutActivity_VersionText" />
 
                     <TextView
                         android:id="@+id/AboutActivity_VersionCodeText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@+id/AboutActivity_VersionCodeText"
-                        android:textSize="11.5sp" />
+                        android:text="@+id/AboutActivity_VersionCodeText" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -83,16 +81,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="@string/ApplicationDescription"
-                    android:textSize="11.0sp" />
+                    android:text="@string/ApplicationDescription" />
 
                 <TextView
                     android:id="@+id/AboutActivity_LicenseText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="@+id/AboutActivity_UrlText"
-                    android:textSize="12.5sp" />
+                    android:text="@+id/AboutActivity_UrlText" />
 
                 <TextView
                     android:id="@+id/AboutActivity_UrlText"
@@ -100,24 +96,21 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:autoLink="web"
-                    android:text="@+id/AboutActivity_UrlText"
-                    android:textSize="11.0sp" />
+                    android:text="@+id/AboutActivity_UrlText" />
 
                 <TextView
                     android:id="@+id/AboutActivity_LastSyncText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="@+id/AboutActivity_LastSyncText"
-                    android:textSize="12.5sp" />
+                    android:text="@+id/AboutActivity_LastSyncText" />
 
                 <TextView
                     android:id="@+id/AboutActivity_ThanksText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="@+id/AboutActivity_ThanksText"
-                    android:textSize="11.0sp" />
+                    android:text="@+id/AboutActivity_ThanksText" />
             </LinearLayout>
         </RelativeLayout>
 

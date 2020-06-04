@@ -69,7 +69,7 @@ public class WifiPreferencesFragment extends PreferenceFragmentCompat {
 
 		HashMap<String, String> dependencies = new HashMap<>();
 
-		SharedPreferences prefs = null;
+		SharedPreferences prefs;
 		if (context != null) {
 			// If this fails we dont have default values:
 			prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -145,7 +145,7 @@ public class WifiPreferencesFragment extends PreferenceFragmentCompat {
 			PreferenceCategory category = (PreferenceCategory) getPreferenceScreen().getPreference(0);
 			category.setTitle(getString(R.string.ConnectionWifiMainPrefScreenTitle, ssid));
 
-			SharedPreferences prefs = null;
+			SharedPreferences prefs;
 			Context context = getContext();
 			if (context != null) {
 				// If this fails we dont have default values:

@@ -194,7 +194,7 @@ public class SubscribeActivity extends MenuActivity {
 				else if (ret.code == 5)
 					showErrorDialog(getResources().getString(R.string.SubscribeActivity_cannotDownload) + " " + message);
 				else
-					showErrorDialog(String.format(getResources().getString(R.string.SubscribeActivity_errorCode), ret.code) + " " + message);
+					showErrorDialog(getResources().getString(R.string.SubscribeActivity_errorCode, String.valueOf(ret.code), message));
 
 			} catch (Exception e) {
 				showErrorDialog(e.getMessage());

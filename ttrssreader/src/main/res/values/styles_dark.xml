@@ -45,11 +45,4 @@
 
     </style>
 
-    <style name="TTRSS.Light.Dialog.Alert.Dark" parent="android:Theme.Material.Dialog">
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:windowMinWidthMajor">@android:dimen/dialog_min_width_major</item>
-        <item name="android:windowMinWidthMinor">@android:dimen/dialog_min_width_minor</item>
-    </style>
-
 </resources>

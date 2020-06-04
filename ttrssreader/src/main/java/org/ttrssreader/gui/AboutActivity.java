@@ -21,7 +21,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
@@ -77,20 +76,10 @@ public class AboutActivity extends Activity {
 		thanksText.setText(getString(R.string.AboutActivity_ThanksTextValue));
 
 		Button closeBtn = findViewById(R.id.AboutActivity_CloseBtn);
-		closeBtn.setOnClickListener(new View.OnClickListener() {
-
-			public void onClick(View view) {
-				closeButtonPressed();
-			}
-		});
+		closeBtn.setOnClickListener(view -> closeButtonPressed());
 
 		Button donateBtn = this.findViewById(R.id.AboutActivity_DonateBtn);
-		donateBtn.setOnClickListener(new View.OnClickListener() {
-
-			public void onClick(View view) {
-				donateButtonPressed();
-			}
-		});
+		donateBtn.setOnClickListener(view -> donateButtonPressed());
 	}
 
 	@Override

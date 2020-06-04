@@ -133,17 +133,13 @@
     <string name="ConnectionProxyHostPreferenceSummary">Adresse hôte du serveur proxy</string>
     <string name="ConnectionProxyPortPreferenceTitle">Port du proxy</string>
     <string name="ConnectionProxyPortPreferenceSummary">Numéro du port du proxy</string>
-    <string name="ConnectionPreferenceCategory">Connectivité</string>
     <string name="ConnectionTrustHostsPreferenceSummary">Accépter les certificats de tous les hôtes</string>
     <string name="ConnectionTrustHostsPreferenceTitle">Faire confiance à tous les hôtes</string>
-    <string name="ConnectionWifiConnected">Connecté</string>
-    <string name="ConnectionWifiNotInRange">Hors de portée</string>
     <string name="ConnectionWifiPrefCatTitle">Réseaux disponibles</string>
     <string name="ConnectionWifiPrefCatDescription">Sélectioner un réseau et définir les paramètres de connexion spécifiques à utiliser quand connecté. </string>
     <string name="ConnectionWifiPrefDisbledSummary">Les préférences de ce point d\'accès sont désactivées. </string>
     <string name="ConnectionWifiPrefEnabledSummary">Les préférences de ce point d\'accès sont activées. </string>
     <string name="ConnectionWifiPrefScreenTitle">Paramètres de connexion (par point d\'accès)</string>
-    <string name="ConnectionWifiPrefSelectionTitle">Point d\'accès: “%1$s”</string>
     <string name="DarkTheme">Thème sombre</string>
     <string name="Dialog_MarkAllRead">Tout marquer comme lu ? </string>
     <string name="Dialog_Title">Avertissement</string>

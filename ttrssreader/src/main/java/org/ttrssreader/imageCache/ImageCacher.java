@@ -540,13 +540,16 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 			return ret;
 
 		// Filter out URLs without leading http, we cannot work with relative URLs (yet?).
-		Matcher m = Utils.findImageUrlsPattern.matcher(html.substring(i, html.length()));
+		Matcher m = Utils.findImageUrlsPattern.matcher(html.substring(i));
 
 		while (m.find()) {
 			String url = m.group(1);
 
-			if (url.startsWith("http") || url.startsWith("ftp://"))
-				ret.add(url);
+			if (url != null) {
+				if (url.startsWith("http") || url.startsWith("ftp://")) {
+					ret.add(url);
+				}
+			}
 		}
 		return ret;
 	}

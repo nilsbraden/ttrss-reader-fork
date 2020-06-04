@@ -21,7 +21,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.View;
@@ -42,6 +41,7 @@ import org.ttrssreader.utils.AsyncTask;
 
 import java.util.List;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
@@ -136,23 +136,17 @@ public class FeedListFragment extends MainListFragment {
 		return adapter.getIds();
 	}
 
+	@NonNull
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		if (id == TYPE_FEED_ID) {
-			Builder builder = ListContentProvider.CONTENT_URI_FEED.buildUpon();
-			builder.appendQueryParameter(ListContentProvider.PARAM_CAT_ID, categoryId + "");
-			feedUri = builder.build();
-
-			FragmentActivity activity = getActivity();
-			if (activity != null)
-				return new CursorLoader(activity, feedUri, null, null, null, null);
-		}
-		Log.e(TAG, "FeedListFragment.onCreateLoader() returned NULL which should never happen! Provided ID was: " + id);
-		return null;
+		Builder builder = ListContentProvider.CONTENT_URI_FEED.buildUpon();
+		builder.appendQueryParameter(ListContentProvider.PARAM_CAT_ID, categoryId + "");
+		feedUri = builder.build();
+		return new CursorLoader(requireActivity(), feedUri, null, null, null, null);
 	}
 
 	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
 		if (loader.getId() == TYPE_FEED_ID)
 			adapter.changeCursor(data);
 		super.onLoadFinished(loader, data);

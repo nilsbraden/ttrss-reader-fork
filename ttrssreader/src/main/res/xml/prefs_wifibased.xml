@@ -33,7 +33,6 @@
         android:title="@string/ConnectionWifiPrefCatRefreshTitle">
 
         <Preference
-            android:id="@+id/Preferences_WifibasedAddManual"
             android:key="WifibasedAddManual"
             android:icon="@drawable/ic_menu_compose"
             android:summary="@string/Preferences_WifibasedAddManual_Summary"
