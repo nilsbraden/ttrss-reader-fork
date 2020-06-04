@@ -52,7 +52,6 @@ import org.ttrssreader.utils.Utils;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
@@ -60,6 +59,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -633,17 +634,18 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 		return false;
 	}
 
+	@SuppressWarnings("CharsetObjectCanBeUsed")
 	public URLConnection openConnection(URL url) throws IOException {
 		URLConnection c = url.openConnection();
 
 		if (this.urlNeedsAuthentication(url)) {
 			String auth = this.httpUsername() + ":" + this.httpPassword();
-			try {
-				String encoded = Base64.encodeToString(auth.getBytes("UTF-8"), Base64.NO_WRAP);
-				c.setRequestProperty("Authorization", "Basic " + encoded);
-			} catch (UnsupportedEncodingException e) {
-				Log.e(TAG, "Encoding failed in Base64 for Basic Auth: " + e.toString());
-			}
+			String encoded;
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT)
+				encoded = Base64.encodeToString(auth.getBytes(Charset.forName("UTF-8")), Base64.NO_WRAP);
+			else
+				encoded = Base64.encodeToString(auth.getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);
+			c.setRequestProperty("Authorization", "Basic " + encoded);
 		}
 
 		return c;
@@ -724,6 +726,7 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 		this.useVolumeKeys = useVolumeKeys;
 	}
 
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	public boolean loadMedia() {
 		if (loadImages == null)
 			loadImages = prefs.getBoolean(LOAD_IMAGES, LOAD_IMAGES_DEFAULT);

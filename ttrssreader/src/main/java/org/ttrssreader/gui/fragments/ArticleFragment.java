@@ -217,7 +217,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 	Wait for result when asking the storage permission, then call ArticleWebViewClient#downloadStoredUrl to resume the download..
 	 */
 	@Override
-	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
 		// Forward results to EasyPermissions
@@ -687,6 +687,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 				return null;
 
 			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
+				//noinspection deprecation
 				return Html.fromHtml(tnv.alt).toString();
 			else
 				return Html.fromHtml(tnv.alt, Html.FROM_HTML_MODE_COMPACT).toString();

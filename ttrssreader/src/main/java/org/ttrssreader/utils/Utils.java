@@ -59,6 +59,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -268,12 +269,7 @@ public class Utils {
 	 */
 	public static void showBackgroundToast(final Context context, final String message, final int length) {
 		Handler handler = new Handler(context.getMainLooper());
-		handler.post(new Runnable() {
-			@Override
-			public void run() {
-				Toast.makeText(context, message, length).show();
-			}
-		});
+		handler.post(() -> Toast.makeText(context, message, length).show());
 	}
 
 	public static void showFinishedNotification(String content, int time, boolean error, Context context, String NOTIFICATION_CHANNEL_ID_INFO) {
@@ -547,7 +543,12 @@ public class Utils {
 	 * @param input the string to be encoded
 	 * @return the base64 encoded representation of the string
 	 */
+	@SuppressWarnings("CharsetObjectCanBeUsed")
 	public static String encodeBase64ToString(String input) {
-		return Base64.encodeToString(input.getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT)
+			return Base64.encodeToString(input.getBytes(Charset.forName("UTF-8")), Base64.NO_WRAP);
+		else
+			return Base64.encodeToString(input.getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);
 	}
+
 }
