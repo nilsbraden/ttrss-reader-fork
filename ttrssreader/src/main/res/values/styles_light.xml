@@ -21,23 +21,23 @@
 
     <style name="TTRSS.Base.Light" parent="Theme.AppCompat.Light.NoActionBar">
 
-        <item name="android:colorPrimary">@color/themeLightPrimary</item>
-        <item name="android:colorPrimaryDark">@color/themeLightPrimaryDark</item>
-        <item name="android:colorAccent">@color/themeLightAccent</item>
+        <item name="colorPrimary">@color/themeLightPrimary</item>
+        <item name="colorPrimaryDark">@color/themeLightPrimaryDark</item>
+        <item name="colorAccent">@color/themeLightAccent</item>
         <item name="colorAccentDark">@color/themeLightAccentDark</item>
         <item name="colorBackground">@color/themeLightBackground</item>
         <item name="android:textColorPrimary">@color/themeLightTextColorPrimary</item>
         <item name="android:textColor">@color/themeLightTextColor</item>
 
         <!-- Window settings -->
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
 
         <!-- Overall background -->
         <item name="android:windowBackground">?colorBackground</item>
 
         <!-- Background for Button-Navigation -->
-        <item name="android:buttonBarStyle">@style/CustomButtonBarStyle</item>
+        <item name="buttonBarStyle">@style/CustomButtonBarStyle</item>
         <!-- Color for Navigation-Buttons in ArticleView -->
         <item name="htmlHeaderBackgound">@color/themeLightHtmlHeaderBackgound</item>
         <!-- Theme for preferences -->
