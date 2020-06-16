@@ -67,8 +67,11 @@ android {
 dependencies {
     implementation group: 'com.twofortyfouram', name: 'android-plugin-client-sdk-for-locale', version: '[4.0.3, 5.0['
     implementation 'com.google.code.gson:gson:2.8.6'
-    implementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.24'
     implementation 'org.antlr:ST4:4.3'
+
+    //Don't bump to 2.24 because of error in Utils.isEmptyString, based on wrong Flags for java.util.regex.Pattern
+    // -> java.lang.IllegalArgumentException: Unsupported flags: 256
+    implementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.5'
 
     // Use AndroidX Preference implementation
     implementation 'androidx.preference:preference:1.1.1'

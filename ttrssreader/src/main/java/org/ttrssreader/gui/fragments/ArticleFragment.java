@@ -692,8 +692,9 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			else
 				return Html.fromHtml(tnv.alt, Html.FROM_HTML_MODE_COMPACT).toString();
 		} catch (Throwable t) {
+			t.printStackTrace();
 			Toast.makeText(getContext(), "ALT-Tag could not be parsed from HTML.", Toast.LENGTH_SHORT).show();
-			Log.e(TAG, "Serious error while parsing HTML!");
+			Log.e(TAG, "Serious error while parsing HTML! Error: " + t.getMessage(), t);
 		}
 
 		return null;
