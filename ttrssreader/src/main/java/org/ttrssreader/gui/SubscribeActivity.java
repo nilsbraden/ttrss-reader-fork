@@ -101,6 +101,11 @@ public class SubscribeActivity extends MenuActivity {
 				Log.e(TAG, "Couldn't find selected category #" + itemNumber);
 				return;
 			}
+			if (categoriesAdapter.getCount() == 0) {
+				Toast.makeText(getApplicationContext(), "Could not read categories.", Toast.LENGTH_SHORT).show();
+				Log.e(TAG, "Could not read categories.");
+				return;
+			}
 
 			Toast.makeText(getApplicationContext(), "Sending update...", Toast.LENGTH_SHORT).show();
 			m_UrlValue = feedUrl.getText().toString();
