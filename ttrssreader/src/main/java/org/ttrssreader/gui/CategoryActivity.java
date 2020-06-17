@@ -44,6 +44,7 @@ import org.ttrssreader.utils.Utils;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -129,7 +130,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle outState) {
+	public void onSaveInstanceState(@NonNull Bundle outState) {
 		outState.putInt(SELECTED, selectedCategoryId);
 		super.onSaveInstanceState(outState);
 	}
@@ -202,7 +203,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 	}
 
 	@Override
-	public final boolean onOptionsItemSelected(final MenuItem item) {
+	public final boolean onOptionsItemSelected(@NonNull final MenuItem item) {
 		if (super.onOptionsItemSelected(item))
 			return true;
 

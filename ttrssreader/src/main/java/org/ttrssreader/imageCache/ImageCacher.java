@@ -62,6 +62,7 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 	private static final int DEFAULT_TASK_COUNT = 5;
 	private static final int ON_CACHE_END = -1;
 	private static final int ON_CACHE_INTERRUPTED = -2;
+	private static final int ON_CACHE_START = -3;
 
 	private ICacheEndListener parent;
 	ConnectivityManager cm;
@@ -131,23 +132,23 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 				}
 			}
 		}
-		handler.post(new Runnable() {
-			@Override
-			public void run() {
-				Looper looper = Looper.myLooper();
-				if (looper != null)
-					looper.quitSafely();
-			}
+		handler.post(() -> {
+			Looper looper = Looper.myLooper();
+			if (looper != null)
+				looper.quitSafely();
 		});
 	}
 
 	@Override
 	protected Void doInBackground(Void... params) {
 		long start = System.currentTimeMillis();
-
+		publishProgress(ON_CACHE_START); // Call onCacheStart()
 		doProcess();
 
-		Log.i(TAG, String.format("Cache: %s MB (Limit: %s MB, took %s seconds)", folderSize / 1048576, cacheSizeMax / 1048576, (System.currentTimeMillis() - start) / Utils.SECOND));
+		long folderSizeMB = folderSize / 1048576;
+		long cacheSizeMaxMB = cacheSizeMax / 1048576;
+		long timeSecs = (System.currentTimeMillis() - start) / Utils.SECOND;
+		Log.i(TAG, String.format("Cache: %s MB (Limit: %s MB, took %s seconds)", folderSizeMB, cacheSizeMaxMB, timeSecs));
 
 		// Cleanup
 		publishProgress(ON_CACHE_END); // Call onCacheEnd()
@@ -233,7 +234,9 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 	@Override
 	protected void onProgressUpdate(Integer... values) {
 		if (parent != null) {
-			if (values[0] == ON_CACHE_END) {
+			if (values[0] == ON_CACHE_START) {
+				parent.onCacheStart();
+			} else if (values[0] == ON_CACHE_END) {
 				parent.onCacheEnd();
 			} else if (values[0] == ON_CACHE_INTERRUPTED) {
 				Log.i(TAG, "Flag ON_CACHE_INTERRUPTED has been set...");

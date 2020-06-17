@@ -149,7 +149,7 @@ public class SubscribeActivity extends MenuActivity {
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle out) {
+	public void onSaveInstanceState(@NonNull Bundle out) {
 		super.onSaveInstanceState(out);
 		EditText url = findViewById(R.id.subscribe_url);
 		out.putString(PARAM_FEEDURL, url.getText().toString());

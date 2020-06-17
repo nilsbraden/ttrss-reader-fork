@@ -34,6 +34,8 @@ import org.ttrssreader.gui.fragments.MainListFragment;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 
+import androidx.annotation.NonNull;
+
 public class ShareActivity extends MenuActivity {
 
 	@SuppressWarnings("unused")
@@ -107,7 +109,7 @@ public class ShareActivity extends MenuActivity {
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle out) {
+	public void onSaveInstanceState(@NonNull Bundle out) {
 		super.onSaveInstanceState(out);
 
 		EditText url = findViewById(R.id.share_url);

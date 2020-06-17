@@ -57,6 +57,7 @@ import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 import org.ttrssreader.utils.Utils;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 
@@ -270,7 +271,7 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle outState) {
+	public void onSaveInstanceState(@NonNull Bundle outState) {
 		mOnSaveInstanceStateCalled = true;
 		super.onSaveInstanceState(outState);
 	}
@@ -369,7 +370,7 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(final MenuItem item) {
+	public boolean onOptionsItemSelected(@NonNull final MenuItem item) {
 		if (super.onOptionsItemSelected(item))
 			return true;
 
@@ -484,7 +485,10 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 		intent.setClass(this.getApplicationContext(), ForegroundService.class);
 
 		this.startService(intent);
+	}
 
+	@Override
+	public void onCacheStart() {
 		ProgressBarManager.getInstance().addProgress(this);
 	}
 

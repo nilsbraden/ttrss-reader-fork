@@ -66,6 +66,12 @@ public class ForegroundService extends Service implements ICacheEndListener {
 		super.onCreate();
 	}
 
+	@Override
+	public void onCacheStart() {
+		if (parent != null)
+			parent.onCacheStart();
+	}
+
 	/**
 	 * Cleans up all running notifications, notifies waiting activities and clears the instance of the service.
 	 */

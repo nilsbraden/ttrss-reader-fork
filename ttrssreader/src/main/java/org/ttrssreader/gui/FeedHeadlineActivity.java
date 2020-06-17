@@ -36,6 +36,7 @@ import org.ttrssreader.utils.Utils;
 
 import java.util.List;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -101,7 +102,7 @@ public class FeedHeadlineActivity extends MenuActivity {
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle outState) {
+	public void onSaveInstanceState(@NonNull Bundle outState) {
 		outState.putInt(FeedHeadlineListFragment.FEED_CAT_ID, categoryId);
 		outState.putInt(FeedHeadlineListFragment.FEED_ID, feedId);
 		outState.putBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES, selectArticlesForCategory);
@@ -182,7 +183,7 @@ public class FeedHeadlineActivity extends MenuActivity {
 	}
 
 	@Override
-	public final boolean onOptionsItemSelected(final MenuItem item) {
+	public final boolean onOptionsItemSelected(@NonNull final MenuItem item) {
 		if (super.onOptionsItemSelected(item))
 			return true;
 
