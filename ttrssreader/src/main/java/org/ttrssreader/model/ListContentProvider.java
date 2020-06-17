@@ -22,8 +22,11 @@ import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.net.Uri;
+import android.util.Log;
 
 import org.ttrssreader.controllers.DBHelper;
+
+import androidx.annotation.NonNull;
 
 public class ListContentProvider extends ContentProvider {
 
@@ -66,10 +69,7 @@ public class ListContentProvider extends ContentProvider {
 	}
 
 	@Override
-	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-		if (uri == null)
-			return null; // Should not happen but apparently, it does...
-
+	public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		// Parse parameters:
 		int categoryId = -1;
 		int feedId = -1;
@@ -104,7 +104,13 @@ public class ListContentProvider extends ContentProvider {
 				throw new IllegalArgumentException("Unknown URI: " + uri);
 		}
 
-		Cursor cursor = cursorHelper.makeQuery(DBHelper.getInstance().getOpenHelper().getReadableDatabase());
+		DBHelper.OpenHelper dbOpenHelper = DBHelper.getInstance().getOpenHelper();
+		if (dbOpenHelper == null) {
+			Log.e(TAG, "Failed to create proper cursor, fall-back to empty dummy cursor...");
+			return cursorHelper.createDummyCursor();
+		}
+
+		Cursor cursor = cursorHelper.makeQuery(dbOpenHelper.getReadableDatabase());
 		if (getContext() != null && cursor != null)
 			cursor.setNotificationUri(getContext().getContentResolver(), uri);
 
@@ -112,22 +118,22 @@ public class ListContentProvider extends ContentProvider {
 	}
 
 	@Override
-	public String getType(Uri uri) {
+	public String getType(@NonNull Uri uri) {
 		return null;
 	}
 
 	@Override
-	final public Uri insert(Uri uri, ContentValues values) {
+	final public Uri insert(@NonNull Uri uri, ContentValues values) {
 		throw new NoSuchMethodError(); // Not implemented!
 	}
 
 	@Override
-	final public int delete(Uri uri, String selection, String[] selectionArgs) {
+	final public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
 		throw new NoSuchMethodError(); // Not implemented!
 	}
 
 	@Override
-	final public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+	final public int update(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
 		throw new NoSuchMethodError(); // Not implemented!
 	}
 

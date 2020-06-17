@@ -18,6 +18,7 @@
 package org.ttrssreader.model;
 
 import android.database.Cursor;
+import android.database.MatrixCursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import org.ttrssreader.controllers.Controller;
@@ -28,6 +29,7 @@ class FeedCursorHelper extends MainCursorHelper {
 
 	@SuppressWarnings("unused")
 	private static final String TAG = FeedCursorHelper.class.getSimpleName();
+	public static final String[] FEED_COLUMNS = new String[]{"_id", "title", "unread", "icon"};
 
 	FeedCursorHelper(int categoryId) {
 		super();
@@ -70,6 +72,13 @@ class FeedCursorHelper extends MainCursorHelper {
 		query.append(buildSafeQuery ? " LIMIT 400" : " LIMIT 1000");
 
 		return db.rawQuery(query.toString(), null);
+	}
+
+	@Override
+	Cursor createDummyCursor() {
+		MatrixCursor cursor = new MatrixCursor(FEED_COLUMNS, 0);
+		cursor.addRow(new Object[]{-1, "error! check logcat.", 0, new byte[]{}});
+		return cursor;
 	}
 
 }

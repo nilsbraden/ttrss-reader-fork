@@ -18,6 +18,7 @@
 package org.ttrssreader.model;
 
 import android.database.Cursor;
+import android.database.MatrixCursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import org.ttrssreader.controllers.Controller;
@@ -25,10 +26,13 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.utils.Utils;
 
+import java.util.Date;
+
 class FeedHeadlineCursorHelper extends MainCursorHelper {
 
 	@SuppressWarnings("unused")
 	private static final String TAG = FeedHeadlineCursorHelper.class.getSimpleName();
+	public static final String[] FEEDHEADLINE_COLUMNS = new String[]{"_id", "feedId", "title", "unread", "updateDate", "isStarred", "isPublished", "note", "feedTitle"};
 
 	FeedHeadlineCursorHelper(int feedId, int categoryId, boolean selectArticlesForCategory) {
 		this.feedId = feedId;
@@ -157,6 +161,13 @@ class FeedHeadlineCursorHelper extends MainCursorHelper {
 		query.append(invertSortArticles ? "ASC" : "DESC");
 		query.append(" LIMIT 1000 ");
 		return query.toString();
+	}
+
+	@Override
+	Cursor createDummyCursor() {
+		MatrixCursor cursor = new MatrixCursor(FEEDHEADLINE_COLUMNS, 0);
+		cursor.addRow(new Object[]{-1, -1, "error! check logcat.", 0, new Date().getTime(), 0, 0, "dummy note", "dummy title"});
+		return cursor;
 	}
 
 }

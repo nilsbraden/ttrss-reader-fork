@@ -98,4 +98,6 @@ abstract class MainCursorHelper {
 
 	abstract Cursor createCursor(SQLiteDatabase db, boolean overrideDisplayUnread, boolean buildSafeQuery);
 
+	abstract Cursor createDummyCursor();
+
 }

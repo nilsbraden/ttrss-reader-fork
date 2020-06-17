@@ -54,4 +54,11 @@ class CategoryCursorHelper extends MainCursorHelper {
 
 	}
 
+	@Override
+	Cursor createDummyCursor() {
+		MatrixCursor cursor = new MatrixCursor(DBHelper.CATEGORIES_COLUMNS, 0);
+		cursor.addRow(new Object[]{0, "error! check logcat.", 0});
+		return cursor;
+	}
+
 }
