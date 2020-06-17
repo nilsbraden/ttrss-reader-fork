@@ -17,7 +17,14 @@
 <resources>
 
     <string-array name="updates">
-	    <item>Version 1.94.9
+	    <item>Version 1.95.0
+		     * Completely rebuilt Wifibased-Preferences for Android 10
+		     * Fixed a lot of missing translations
+		     * Request Permsissions when they are needed (Storage, Location)
+		     * Fixed compatibility with older Android versions
+		     * Fixed FC when starting ImageCache after asking about mobile/metered network
+		     * Use new API to get current network state</item>
+        <item>Version 1.94.9
 		     * Support more devices without touchscreen (Android TV)
 		     * Fix #406: Access to clipboard changed with Android 10
 		     * Fixed some translation issues, unified strings accross translations
