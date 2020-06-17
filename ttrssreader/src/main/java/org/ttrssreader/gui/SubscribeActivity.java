@@ -23,7 +23,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -94,45 +93,39 @@ public class SubscribeActivity extends MenuActivity {
 		categoryUpdater.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
 		Button okButton = findViewById(R.id.subscribe_ok_button);
-		okButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
+		okButton.setOnClickListener(v -> {
 
-				int itemNumber = (int) categorieSpinner.getSelectedItemId();
-				if (itemNumber < 0 || categoriesAdapter.getCount() < itemNumber) {
-					Toast.makeText(getApplicationContext(), "Couldn't find selected category.", Toast.LENGTH_SHORT).show();
-					Log.e(TAG, "Couldn't find selected category #" + itemNumber);
-					return;
-				}
-
-				Toast.makeText(getApplicationContext(), "Sending update...", Toast.LENGTH_SHORT).show();
-				m_UrlValue = feedUrl.getText().toString();
-				m_Category = categoriesAdapter.getItem(itemNumber);
-
-				new MyPublisherTask().execute();
+			int itemNumber = (int) categorieSpinner.getSelectedItemId();
+			if (itemNumber < 0 || categoriesAdapter.getCount() < itemNumber) {
+				Toast.makeText(getApplicationContext(), "Couldn't find selected category.", Toast.LENGTH_SHORT).show();
+				Log.e(TAG, "Couldn't find selected category #" + itemNumber);
+				return;
 			}
+
+			Toast.makeText(getApplicationContext(), "Sending update...", Toast.LENGTH_SHORT).show();
+			m_UrlValue = feedUrl.getText().toString();
+			m_Category = categoriesAdapter.getItem(itemNumber);
+
+			new MyPublisherTask().execute();
 		});
 
 		feedPasteButton = findViewById(R.id.subscribe_paste);
-		feedPasteButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				String url = Utils.getTextFromClipboard(activity);
-				if (url == null) {
-					Toast.makeText(getApplicationContext(), R.string.SubscribeActivity_noClip, Toast.LENGTH_SHORT).show();
-					return;
-				}
-
-				String text = feedUrl.getText() != null ? feedUrl.getText().toString() : "";
-				int start = feedUrl.getSelectionStart();
-				int end = feedUrl.getSelectionEnd();
-				// Insert text at current position, replace text if selected
-				if (start <= end && end <= text.length()) {
-					text = text.substring(0, start) + url + text.substring(end);
-				}
-				feedUrl.setText(text);
-				feedUrl.setSelection(end);
+		feedPasteButton.setOnClickListener(v -> {
+			String url = Utils.getTextFromClipboard(activity);
+			if (url == null) {
+				Toast.makeText(getApplicationContext(), R.string.SubscribeActivity_noClip, Toast.LENGTH_SHORT).show();
+				return;
 			}
+
+			String text = feedUrl.getText() != null ? feedUrl.getText().toString() : "";
+			int start = feedUrl.getSelectionStart();
+			int end = feedUrl.getSelectionEnd();
+			// Insert text at current position, replace text if selected
+			if (start <= end && end <= text.length()) {
+				text = text.substring(0, start) + url + text.substring(end);
+			}
+			feedUrl.setText(text);
+			feedUrl.setSelection(end);
 		});
 	}
 

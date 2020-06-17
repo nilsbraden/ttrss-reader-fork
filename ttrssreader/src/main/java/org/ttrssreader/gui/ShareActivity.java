@@ -17,12 +17,10 @@
 
 package org.ttrssreader.gui;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -60,8 +58,6 @@ public class ShareActivity extends MenuActivity {
 		setTheme(Controller.getInstance().getTheme());
 		mDamageReport.initialize();
 
-		final Context context = this;
-
 		setTitle(R.string.IntentPublish);
 
 		String titleValue = getIntent().getStringExtra(Intent.EXTRA_SUBJECT);
@@ -82,18 +78,15 @@ public class ShareActivity extends MenuActivity {
 		url.setText(urlValue);
 		content.setText(contentValue);
 
-		Button shareButton = (Button) findViewById(R.id.share_ok_button);
-		shareButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Toast.makeText(getApplicationContext(), "Sending update...", Toast.LENGTH_SHORT).show();
+		Button shareButton = findViewById(R.id.share_ok_button);
+		shareButton.setOnClickListener(v -> {
+			Toast.makeText(getApplicationContext(), "Sending update...", Toast.LENGTH_SHORT).show();
 
-				m_TitleValue = title.getText().toString();
-				m_UrlValue = url.getText().toString();
-				m_ContentValue = content.getText().toString();
+			m_TitleValue = title.getText().toString();
+			m_UrlValue = url.getText().toString();
+			m_ContentValue = content.getText().toString();
 
-				new MyPublisherTask().execute();
-			}
+			new MyPublisherTask().execute();
 		});
 	}
 
