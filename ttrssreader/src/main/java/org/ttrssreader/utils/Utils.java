@@ -30,6 +30,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.ConnectivityManager;
+import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
@@ -63,6 +64,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.regex.Pattern;
+
+import androidx.annotation.RequiresApi;
 
 public class Utils {
 
@@ -229,6 +232,15 @@ public class Utils {
 	 * Only checks the connectivity without regard to the preferences
 	 */
 	public static boolean checkConnected(ConnectivityManager cm, boolean onlyWifi, boolean onlyUnmeteredNetwork) {
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+			return checkConnectedApi21(cm, onlyWifi, onlyUnmeteredNetwork);
+		} else {
+			return checkConnectedApiCurrent(cm, onlyWifi, onlyUnmeteredNetwork);
+		}
+	}
+
+	// To be deleted as soon as API level 21 is the minimum api level
+	private static boolean checkConnectedApi21(ConnectivityManager cm, boolean onlyWifi, boolean onlyUnmeteredNetwork) {
 		if (cm == null)
 			return false;
 
@@ -245,7 +257,38 @@ public class Utils {
 		return false;
 	}
 
+
+	@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+	private static boolean checkConnectedApiCurrent(final ConnectivityManager cm, boolean onlyWifi, boolean onlyUnmeteredNetwork) {
+		if (cm == null)
+			return false;
+
+		NetworkCapabilities caps = cm.getNetworkCapabilities(cm.getActiveNetwork());
+		//LinkProperties props = cm.getLinkProperties(cm.getActiveNetwork());
+
+		if (caps != null && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
+			boolean isWifi = caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI);
+			if (onlyWifi && !isWifi) {
+				return false;
+			}
+			if (onlyUnmeteredNetwork) {
+				return !caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED);
+			}
+			return true;
+		}
+		return false;
+	}
+
 	public static int getNetworkType(final ConnectivityManager cm) {
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+			return getNetworkTypeApi21(cm);
+		} else {
+			return getNetworkTypeApiCurrent(cm);
+		}
+	}
+
+	// To be deleted as soon as API level 21 is the minimum api level
+	public static int getNetworkTypeApi21(final ConnectivityManager cm) {
 		if (cm == null)
 			return NETWORK_NONE;
 		final NetworkInfo info = cm.getActiveNetworkInfo();
@@ -257,6 +300,37 @@ public class Utils {
 			return NETWORK_METERED;
 		} else {
 			return NETWORK_WIFI;
+		}
+	}
+
+	@SuppressWarnings({"ConstantConditions", "UnusedAssignment"})
+	@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+	public static int getNetworkTypeApiCurrent(final ConnectivityManager cm) {
+		if (cm == null)
+			return NETWORK_NONE;
+
+		final NetworkCapabilities caps = cm.getNetworkCapabilities(cm.getActiveNetwork());
+		if (caps == null)
+			return NETWORK_NONE;
+
+		boolean isConnected = caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
+		boolean isWifi = caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI);
+		boolean isMetered = !caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED);
+
+		// Disable this for now, for some reason NET_CAPABILITY_NOT_METEREDalways returns false...
+		isMetered = false;
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+			isConnected &= caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
+
+		if (!isConnected) {
+			return NETWORK_NONE;
+		} else if (isWifi) {
+			return NETWORK_WIFI;
+		} else if (isMetered) {
+			return NETWORK_METERED;
+		} else {
+			return NETWORK_MOBILE;
 		}
 	}
 
