@@ -47,7 +47,7 @@
             android:title="@string/CacheFolderMaxSizeTitle" />
         <org.ttrssreader.preferences.EditIntegerPreference
             android:name="@string/CacheImageMaxSizeTitle"
-            android:defaultValue="6000"
+            android:defaultValue="32768"
             android:inputType="number"
             android:key="CacheImageMaxSizePreference"
             android:maxLength="5"
