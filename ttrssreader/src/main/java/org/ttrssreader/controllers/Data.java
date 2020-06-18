@@ -60,6 +60,8 @@ public class Data {
 	private static final String VIEW_ALL = "all_articles";
 	private static final String VIEW_UNREAD = "unread";
 
+	private static final int FETCH_ARTICLES_LIMIT = 1000;
+
 	private long time;
 	private long articlesCached;
 	private Map<Integer, Long> articlesChanged;
@@ -147,7 +149,7 @@ public class Data {
 	 *                        considered
 	 */
 	public void cacheArticles(boolean overrideOffline, boolean overrideDelay) {
-		int limit = 400;
+		int limit = FETCH_ARTICLES_LIMIT;
 		if (Controller.getInstance().isLowMemory())
 			limit = limit / 2;
 
@@ -262,6 +264,8 @@ public class Data {
 
 		// Calculate an appropriate upper limit for the number of articles
 		int limit = calculateLimit(feedId, isCat);
+		if (limit < FETCH_ARTICLES_LIMIT)
+			limit = FETCH_ARTICLES_LIMIT; // Set higher limit to try to update some more articles, fetching only 2 is just not worth the time
 		if (Controller.getInstance().isLowMemory())
 			limit = limit / 2;
 
