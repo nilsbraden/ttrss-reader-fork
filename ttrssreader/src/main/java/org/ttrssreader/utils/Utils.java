@@ -241,6 +241,7 @@ public class Utils {
 
 	// To be deleted as soon as API level 21 is the minimum api level
 	private static boolean checkConnectedApi21(ConnectivityManager cm, boolean onlyWifi, boolean onlyUnmeteredNetwork) {
+		Log.d(TAG, "CheckConnected, using old API...");
 		if (cm == null)
 			return false;
 
@@ -257,25 +258,42 @@ public class Utils {
 		return false;
 	}
 
-
+	@SuppressWarnings({"ConstantConditions"})
 	@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 	private static boolean checkConnectedApiCurrent(final ConnectivityManager cm, boolean onlyWifi, boolean onlyUnmeteredNetwork) {
+		Log.d(TAG, "CheckConnected, using *new* API...");
 		if (cm == null)
 			return false;
 
-		NetworkCapabilities caps = cm.getNetworkCapabilities(cm.getActiveNetwork());
-		//LinkProperties props = cm.getLinkProperties(cm.getActiveNetwork());
+		final NetworkCapabilities caps = cm.getNetworkCapabilities(cm.getActiveNetwork());
+		if (caps == null)
+			return false;
 
-		if (caps != null && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
+		boolean isConnected = caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
+		boolean isMetered = !caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED);
+
+		Log.d(TAG, String.format("CheckConnected isConnected: %s, isMetered: %s (Params: onlyWifi %s, onlyUnmeteredNetwork %s)", isConnected, isMetered, onlyWifi, onlyUnmeteredNetwork));
+
+		// Disable this for now, for some reason NET_CAPABILITY_NOT_METERED always returns false...
+		isMetered = false;
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+			isConnected &= caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
+
+		if (isConnected) {
 			boolean isWifi = caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI);
 			if (onlyWifi && !isWifi) {
+				Log.d(TAG, "CheckConnected: false (onlyWifi && !isWifi)");
 				return false;
 			}
 			if (onlyUnmeteredNetwork) {
-				return !caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED);
+				Log.d(TAG, "CheckConnected: " + (!isMetered) + " (onlyUnmeteredNetwork)");
+				return !isMetered;
 			}
+			Log.d(TAG, "CheckConnected: true");
 			return true;
 		}
+		Log.d(TAG, "CheckConnected: false");
 		return false;
 	}
 
@@ -289,6 +307,7 @@ public class Utils {
 
 	// To be deleted as soon as API level 21 is the minimum api level
 	public static int getNetworkTypeApi21(final ConnectivityManager cm) {
+		Log.d(TAG, "GetNetworkType, using old API...");
 		if (cm == null)
 			return NETWORK_NONE;
 		final NetworkInfo info = cm.getActiveNetworkInfo();
@@ -303,9 +322,10 @@ public class Utils {
 		}
 	}
 
-	@SuppressWarnings({"ConstantConditions", "UnusedAssignment"})
+	@SuppressWarnings({"ConstantConditions"})
 	@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 	public static int getNetworkTypeApiCurrent(final ConnectivityManager cm) {
+		Log.d(TAG, "GetNetworkType, using *new* API...");
 		if (cm == null)
 			return NETWORK_NONE;
 
@@ -317,19 +337,25 @@ public class Utils {
 		boolean isWifi = caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI);
 		boolean isMetered = !caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED);
 
-		// Disable this for now, for some reason NET_CAPABILITY_NOT_METEREDalways returns false...
+		Log.d(TAG, String.format("GetNetworkType isConnected: %s, isWifi: %s, isMetered: %s", isConnected, isWifi, isMetered));
+
+		// Disable this for now, for some reason NET_CAPABILITY_NOT_METERED always returns false...
 		isMetered = false;
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
 			isConnected &= caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
 
 		if (!isConnected) {
+			Log.d(TAG, "GetNetworkType: NETWORK_NONE");
 			return NETWORK_NONE;
 		} else if (isWifi) {
+			Log.d(TAG, "GetNetworkType: NETWORK_WIFI");
 			return NETWORK_WIFI;
 		} else if (isMetered) {
+			Log.d(TAG, "GetNetworkType: NETWORK_METERED");
 			return NETWORK_METERED;
 		} else {
+			Log.d(TAG, "GetNetworkType: NETWORK_MOBILE");
 			return NETWORK_MOBILE;
 		}
 	}
