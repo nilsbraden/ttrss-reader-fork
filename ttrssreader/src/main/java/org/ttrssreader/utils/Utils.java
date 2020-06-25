@@ -232,68 +232,17 @@ public class Utils {
 	 * Only checks the connectivity without regard to the preferences
 	 */
 	public static boolean checkConnected(ConnectivityManager cm, boolean onlyWifi, boolean onlyUnmeteredNetwork) {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-			return checkConnectedApi21(cm, onlyWifi, onlyUnmeteredNetwork);
-		} else {
-			return checkConnectedApiCurrent(cm, onlyWifi, onlyUnmeteredNetwork);
-		}
-	}
-
-	// To be deleted as soon as API level 21 is the minimum api level
-	private static boolean checkConnectedApi21(ConnectivityManager cm, boolean onlyWifi, boolean onlyUnmeteredNetwork) {
-		Log.d(TAG, "CheckConnected, using old API...");
 		if (cm == null)
 			return false;
 
-		NetworkInfo info = cm.getActiveNetworkInfo();
-		if (info != null && info.isConnected()) {
-			if (onlyWifi && info.getType() != ConnectivityManager.TYPE_WIFI) {
+		int networkType = getNetworkType(cm);
+		if (networkType != NETWORK_NONE) {
+			if (onlyWifi && networkType != NETWORK_WIFI)
 				return false;
-			}
-			if (onlyUnmeteredNetwork) {
-				return !cm.isActiveNetworkMetered();
-			}
+			if (onlyUnmeteredNetwork)
+				return networkType != NETWORK_METERED;
 			return true;
 		}
-		return false;
-	}
-
-	@SuppressWarnings({"ConstantConditions"})
-	@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-	private static boolean checkConnectedApiCurrent(final ConnectivityManager cm, boolean onlyWifi, boolean onlyUnmeteredNetwork) {
-		Log.d(TAG, "CheckConnected, using *new* API...");
-		if (cm == null)
-			return false;
-
-		final NetworkCapabilities caps = cm.getNetworkCapabilities(cm.getActiveNetwork());
-		if (caps == null)
-			return false;
-
-		boolean isConnected = caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
-		boolean isMetered = !caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED);
-
-		Log.d(TAG, String.format("CheckConnected isConnected: %s, isMetered: %s (Params: onlyWifi %s, onlyUnmeteredNetwork %s)", isConnected, isMetered, onlyWifi, onlyUnmeteredNetwork));
-
-		// Disable this for now, for some reason NET_CAPABILITY_NOT_METERED always returns false...
-		isMetered = false;
-
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-			isConnected &= caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
-
-		if (isConnected) {
-			boolean isWifi = caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI);
-			if (onlyWifi && !isWifi) {
-				Log.d(TAG, "CheckConnected: false (onlyWifi && !isWifi)");
-				return false;
-			}
-			if (onlyUnmeteredNetwork) {
-				Log.d(TAG, "CheckConnected: " + (!isMetered) + " (onlyUnmeteredNetwork)");
-				return !isMetered;
-			}
-			Log.d(TAG, "CheckConnected: true");
-			return true;
-		}
-		Log.d(TAG, "CheckConnected: false");
 		return false;
 	}
 
