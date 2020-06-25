@@ -238,6 +238,12 @@ public class SubscribeActivity extends MenuActivity {
 
 			TextView tvText1 = convertView.findViewById(android.R.id.text1);
 
+			if (position < 0 || getCount() < position || getCount() == 0) {
+				Toast.makeText(getApplicationContext(), "CategoryAdapter: Couldn't find selected item.", Toast.LENGTH_SHORT).show();
+				Log.e(TAG, "CategoryAdapter: Couldn't find selected category #" + position);
+				return convertView;
+			}
+
 			Category cat = getItem(position);
 			if (cat != null)
 				tvText1.setText(cat.title);
