@@ -372,7 +372,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 		// Back button automatically finishes the activity since Lollipop
 		// so we have to work around by checking the backstack before
 		FragmentManager fm = getSupportFragmentManager();
-		if (fm.getBackStackEntryCount() > 0) {
+		if (fm.getBackStackEntryCount() > 0 && fm.isStateSaved()) {
 			fm.popBackStack();
 			CategoryListFragment fragment = getCategoryListFragment();
 			if (fragment != null) {

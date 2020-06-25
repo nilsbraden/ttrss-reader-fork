@@ -389,7 +389,7 @@ public class FeedHeadlineActivity extends MenuActivity {
 	public void onBackPressed() {
 		articleId = Integer.MIN_VALUE;
 		// Back button automatically finishes the activity since Lollipop so we have to work around by checking the backstack before
-		if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+		if (getSupportFragmentManager().getBackStackEntryCount() > 0 && getSupportFragmentManager().isStateSaved()) {
 			getSupportFragmentManager().popBackStack();
 		} else {
 			super.onBackPressed();
