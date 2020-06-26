@@ -247,15 +247,18 @@ public class Utils {
 	}
 
 	public static int getNetworkType(final ConnectivityManager cm) {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-			return getNetworkTypeApi21(cm);
+		int ret;
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+			ret = getNetworkTypeApi23(cm);
 		} else {
-			return getNetworkTypeApiCurrent(cm);
+			ret = getNetworkTypeApiCurrent(cm);
 		}
+		Log.d(TAG, "GetNetworkType: Type = " + ret + " (0 = none, 1 = mobile, 2 = metered, 3 = wifi)");
+		return ret;
 	}
 
 	// To be deleted as soon as API level 21 is the minimum api level
-	public static int getNetworkTypeApi21(final ConnectivityManager cm) {
+	public static int getNetworkTypeApi23(final ConnectivityManager cm) {
 		Log.d(TAG, "GetNetworkType, using old API...");
 		if (cm == null)
 			return NETWORK_NONE;
@@ -271,8 +274,7 @@ public class Utils {
 		}
 	}
 
-	@SuppressWarnings({"ConstantConditions"})
-	@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+	@RequiresApi(api = Build.VERSION_CODES.M)
 	public static int getNetworkTypeApiCurrent(final ConnectivityManager cm) {
 		Log.d(TAG, "GetNetworkType, using *new* API...");
 		if (cm == null)
@@ -285,26 +287,19 @@ public class Utils {
 		boolean isConnected = caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
 		boolean isWifi = caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI);
 		boolean isMetered = !caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED);
-
 		Log.d(TAG, String.format("GetNetworkType isConnected: %s, isWifi: %s, isMetered: %s", isConnected, isWifi, isMetered));
 
-		// Disable this for now, for some reason NET_CAPABILITY_NOT_METERED always returns false...
-		isMetered = false;
-
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-			isConnected &= caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
+		// Disable this for now, some devices are not reporting correct information here:
+		//isConnected &= caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
 
 		if (!isConnected) {
-			Log.d(TAG, "GetNetworkType: NETWORK_NONE");
 			return NETWORK_NONE;
 		} else if (isWifi) {
-			Log.d(TAG, "GetNetworkType: NETWORK_WIFI");
 			return NETWORK_WIFI;
-		} else if (isMetered) {
+		/*} else if (isMetered) { // Disable this for now, for some reason NET_CAPABILITY_NOT_METERED always returns false...
 			Log.d(TAG, "GetNetworkType: NETWORK_METERED");
-			return NETWORK_METERED;
+			return NETWORK_METERED;*/
 		} else {
-			Log.d(TAG, "GetNetworkType: NETWORK_MOBILE");
 			return NETWORK_MOBILE;
 		}
 	}
