@@ -17,6 +17,8 @@
 <resources>
 
     <string-array name="updates">
+	    <item>Version 1.95.1
+		     * Bugfixes (connectivity problems with new API, empty result lists, subscribing to new feed, FC on back pressed, …)</item>
 	    <item>Version 1.95.0
 		     * Completely rebuilt Wifibased-Preferences for Android 10
 		     * Fixed a lot of missing translations
