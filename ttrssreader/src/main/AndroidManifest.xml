@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="internalOnly"
-    android:versionCode="1952"
+    android:versionCode="1953"
     android:versionName="1.95.1">
 
     <!-- Check connectivity -->
