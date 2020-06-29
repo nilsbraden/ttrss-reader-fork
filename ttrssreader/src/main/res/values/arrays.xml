@@ -118,12 +118,14 @@
         <item>uk</item>
     </string-array>
     <string-array name="themeEntries" translatable="false">
+        <item>@string/AutoTheme</item>
         <item>@string/DarkTheme</item>
         <item>@string/LightTheme</item>
         <item>@string/BlackTheme</item>
         <item>@string/WhiteTheme</item>
     </string-array>
     <string-array name="themeValues" translatable="false">
+        <item>0</item>
         <item>1</item>
         <item>2</item>
         <item>3</item>

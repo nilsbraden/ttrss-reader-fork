@@ -39,7 +39,8 @@ public final class EditPluginActivity extends AbstractPluginActivity {
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setTheme(Controller.getInstance().getTheme());
+		setTheme(Controller.getInstance().getThemeResource());
+		Controller.getInstance().initializeThemeMode();
 		mDamageReport.initialize();
 		setContentView(R.layout.localeplugin);
 	}

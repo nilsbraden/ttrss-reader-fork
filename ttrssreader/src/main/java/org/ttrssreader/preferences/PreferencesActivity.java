@@ -53,7 +53,8 @@ public class PreferencesActivity extends AppCompatActivity implements Preference
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setTheme(Controller.getInstance().getTheme());
+		setTheme(Controller.getInstance().getThemeResource());
+		Controller.getInstance().initializeThemeMode();
 		setTitle(R.string.PreferencesTitle);
 		setContentView(R.layout.preferences);
 

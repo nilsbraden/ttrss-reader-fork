@@ -239,7 +239,7 @@
     <string name="DisplayDateTimeFormatSummary">Specify a format string for the date with time (see Wiki). Defaults to \"dd.MM.yyyy kk:mm\". Invalid values will be silently ignored and the default will be used.</string>
     <string name="DisplayDateTimeFormatDefault" translatable="false">dd.MM.yyyy kk:mm</string>
     <string name="DisplayThemeTitle">Select App-Theme</string>
-    <string name="DisplayThemeSummary">Black/White are a completely black font on a white background (or inverse) to allow use on an ereader.</string>
+    <string name="DisplayThemeSummary">Select \"Auto\" to follow the system settings for dark mode (or battery-safer on Android 9 and below).</string>
     <string name="DisplayAnimationsTitle">Enable Animations</string>
     <string name="DisplayAnimationsSummary">Enables transition animations when switching articles and feeds.</string>
     <string name="SystemPreferenceCategoryTitle">System</string>
@@ -337,6 +337,7 @@
     <string name="LightTheme">Light Theme</string>
     <string name="BlackTheme">Black Theme</string>
     <string name="WhiteTheme">White Theme</string>
+    <string name="AutoTheme">Auto (follow system or battery-safer)</string>
     <string name="Error_SSL_Keystore">Couldn\'t load private keystore.</string>
     <string name="Error_SSL_TrustAllHosts">Couldn\'t configure SSL to trust all hosts.</string>
     <string name="Error_SSL_TrustClientCerts">Couldn\'t configure SSL to trust the provided client certificate.</string>

@@ -73,7 +73,7 @@ public class ChangelogDialog extends MyDialogFragment {
 		final ST htmlTmpl = new ST(getString(R.string.HTML_TEMPLATE_CHANGELOG), '$', '$');
 		htmlTmpl.add("STYLE", getResources().getString(R.string.STYLE_TEMPLATE));
 		htmlTmpl.add("TEXT_ALIGN", getString(R.string.ALIGN_JUSTIFY));
-		htmlTmpl.add("THEME", getResources().getString(Controller.getInstance().getThemeHTML()));
+		htmlTmpl.add("THEME", getResources().getString(Controller.getInstance().getThemeHTML(getActivity())));
 		htmlTmpl.add("TITLE", getResources().getString(R.string.Changelog_Title));
 		htmlTmpl.add("CONTENT", htmlBuf.toString());
 		webView.loadDataWithBaseURL("file:///android_asset/", htmlTmpl.render(), "text/html", "utf-8", null);

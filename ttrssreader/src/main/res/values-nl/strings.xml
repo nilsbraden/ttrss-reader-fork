@@ -270,7 +270,6 @@
     <string name="Error_UnsafeConnection">Automatische update van de beveiligings provider van Google Play services is niet gelukt. Let op: uw verbinding is mogelijks onveilig.</string>
     <string name="DisplayPreferenceCategoryTitle">Toon</string>
     <string name="DisplayThemeTitle">Kies app layout</string>
-    <string name="DisplayThemeSummary">Zwart-wit is een volledig zwart lettertype met witte achtergrond (of omgekeerd) om gebruik op een ereader toe te laten</string>
     <string name="DisplayTimeFormatTitle">Eigen tijdsformaat</string>
     <string name="DisplayVirtualPreferenceTitle">Toon virtuele feeds</string>
     <string name="DisplayVirtualPreferenceSummary">Vink uit om virtuele feeds te verbergen</string>

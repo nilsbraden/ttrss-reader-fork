@@ -94,7 +94,9 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 
 	@Override
 	protected void onCreate(Bundle instance) {
-		setTheme(Controller.getInstance().getTheme());
+		setTheme(Controller.getInstance().getThemeResource());
+		Controller.getInstance().initializeThemeMode();
+
 		super.onCreate(instance);
 		mDamageReport.initialize();
 		activity = this;

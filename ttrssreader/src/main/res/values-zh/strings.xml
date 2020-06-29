@@ -101,7 +101,6 @@
     <string name="DisplayLoadImagesPreferenceSummary">取消勾选将禁止加载文章里的媒体资源，包括图片、音频和视频等</string>
     <string name="DisplayLoadImagesPreferenceTitle">加载媒体资源</string>
     <string name="DisplayPreferenceCategoryTitle">显示</string>
-    <string name="DisplayThemeSummary">黑色/白色主题是指黑色的字体和白色的背景（或相反）</string>
     <string name="DisplayThemeTitle">选择应用主题</string>
     <string name="DisplayTimeFormatSummary">为时间指定格式（见Wiki），默认是“kk:mm”。无效的格式将会被默认的格式代替</string>
     <string name="DisplayTimeFormatTitle">自定义时间格式</string>

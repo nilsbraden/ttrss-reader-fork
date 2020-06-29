@@ -251,19 +251,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			webView = new MyWebView(getActivity());
 			webView.setWebViewClient(new ArticleWebViewClient(this));
 			webView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-
-			// Set theme background color. Should be possible via xml also.
-			switch (Controller.getInstance().getTheme()) {
-				case R.style.TTRSS_Light:
-					webView.setBackgroundColor(getResources().getColor(R.color.themeLightBackground));
-				case R.style.TTRSS_White:
-					webView.setBackgroundColor(getResources().getColor(R.color.themeWhiteBackground));
-				case R.style.TTRSS_Dark:
-					webView.setBackgroundColor(getResources().getColor(R.color.themeDarkBackground));
-				case R.style.TTRSS_Black:
-					webView.setBackgroundColor(getResources().getColor(R.color.themeBlackBackground));
-			}
-
+			webView.setBackgroundColor(0); // Set background transparent, html will set background anyway
 			boolean supportZoom = Controller.getInstance().supportZoomControls();
 			webView.getSettings().setSupportZoom(supportZoom);
 			webView.getSettings().setBuiltInZoomControls(supportZoom);
@@ -438,7 +426,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			htmlTmpl.add("STYLE", stylesST.render());
 
 			// General values
-			htmlTmpl.add("THEME", getResources().getString(Controller.getInstance().getThemeHTML()));
+			htmlTmpl.add("THEME", getResources().getString(Controller.getInstance().getThemeHTML(getActivity())));
 			htmlTmpl.add("CACHE_DIR", Controller.getInstance().cacheFolder());
 			htmlTmpl.add("LANGUAGE", Controller.getInstance().hyphenationLanguage());
 

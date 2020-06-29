@@ -109,14 +109,19 @@ public class Constants {
 	public static final String DATE_TIME_STRING = "DisplayDateTimeFormatPreference";
 	public static final String DISPLAY_FEED_ICONS = "DisplayFeedIconsPreference";
 	// Display Default Values
-	public static final String THEME_DEFAULT = "1";
+	public static final int THEME_AUTO = 0;
+	public static final int THEME_DARK = 1;
+	public static final int THEME_LIGHT = 2;
+	public static final int THEME_BLACK = 3;
+	public static final int THEME_WHITE = 4;
+	public static final String THEME_DEFAULT = "1"; // Needs to be a string
 	public static final boolean ANIMATIONS_DEFAULT = true;
 	public static final int TEXT_ZOOM_DEFAULT = 100;
 	public static final boolean SUPPORT_ZOOM_CONTROLS_DEFAULT = true;
 	public static final boolean ALLOW_HYPHENATION_DEFAULT = false;
 	public static final String HYPHENATION_LANGUAGE_DEFAULT = "en-gb";
 	public static final boolean SHOW_VIRTUAL_DEFAULT = true;
-	public static final String SHOW_BUTTONS_MODE_DEFAULT = "0";
+	public static final String SHOW_BUTTONS_MODE_DEFAULT = "0"; // Needs to be a string
 	public static final int SHOW_BUTTONS_MODE_ALLWAYS = 1;
 	public static final int SHOW_BUTTONS_MODE_HTML = 2;
 	public static final boolean ONLY_UNREAD_DEFAULT = false;
@@ -168,7 +173,7 @@ public class Constants {
 	// Internal Default Values
 	public static final long APP_VERSION_CHECK_TIME_DEFAULT = 0;
 	public static final int APP_LATEST_VERSION_DEFAULT = 0;
-	public static final String LAST_VERSION_RUN_DEFAULT = "1";
+	public static final String LAST_VERSION_RUN_DEFAULT = "1"; // Needs to be a string
 	public static final long FRESH_ARTICLE_MAX_AGE_DEFAULT = Utils.DAY;
 	public static final long FRESH_ARTICLE_MAX_AGE_DATE_DEFAULT = 0;
 	public static final int SINCE_ID_DEFAULT = 0;

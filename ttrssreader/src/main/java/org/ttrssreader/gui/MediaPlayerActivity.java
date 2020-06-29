@@ -39,7 +39,8 @@ public class MediaPlayerActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle instance) {
 		super.onCreate(instance);
-		setTheme(Controller.getInstance().getTheme());
+		setTheme(Controller.getInstance().getThemeResource());
+		Controller.getInstance().initializeThemeMode();
 		mDamageReport.initialize();
 
 		setContentView(R.layout.media);

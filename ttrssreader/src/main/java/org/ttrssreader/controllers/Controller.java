@@ -25,6 +25,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.content.res.Configuration;
 import android.net.http.HttpResponseCache;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -69,6 +70,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.preference.PreferenceManager;
 
 /**
@@ -86,11 +88,6 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 
 	private final static char TEMPLATE_DELIMITER_START = '$';
 	private final static char TEMPLATE_DELIMITER_END = '$';
-
-	private static final int THEME_DARK = 1;
-	private static final int THEME_LIGHT = 2;
-	private static final int THEME_BLACK = 3;
-	private static final int THEME_WHITE = 4;
 
 	private WifiManager wifiManager;
 
@@ -139,6 +136,7 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	private String timeString = null;
 	private String dateTimeString = null;
 	private Integer theme = null;
+	private Integer themeCurrent = null;
 
 	private String saveAttachment = null;
 	private String saveAttachmentUri = null;
@@ -341,6 +339,26 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 			HttpResponseCache.install(httpCacheDir, httpCacheSize);
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+	}
+
+	public void initializeThemeMode() {
+		switch (getSelectedTheme()) {
+			case Constants.THEME_BLACK:
+			case Constants.THEME_DARK:
+				AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+				break;
+			case Constants.THEME_WHITE:
+			case Constants.THEME_LIGHT:
+				AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+				break;
+			case Constants.THEME_AUTO:
+			default:
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+					AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+				else
+					AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY);
+				break;
 		}
 	}
 
@@ -1017,40 +1035,64 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 		this.dateTimeString = dateTimeString;
 	}
 
-	public int getTheme() {
-		switch (getThemeInternal()) {
-			case THEME_LIGHT:
-				return R.style.TTRSS_Light;
+	public int getThemeResource() {
+		switch (getSelectedTheme()) {
 			case THEME_BLACK:
-				return R.style.TTRSS_Black;
+				return R.style.Theme_MyApp_Black;
 			case THEME_WHITE:
-				return R.style.TTRSS_White;
+				return R.style.Theme_MyApp_White;
+			case THEME_LIGHT:
 			case THEME_DARK:
 			default:
-				return R.style.TTRSS_Dark;
+				return R.style.Theme_MyApp;
 		}
 	}
 
-	private int getThemeInternal() {
+	/**
+	 * Evaluate currently selected theme and auto night mode or battery saving options
+	 *
+	 * @return the theme that is to be used right now
+	 */
+	public int getSelectedTheme() {
 		if (theme == null)
 			theme = Integer.parseInt(prefs.getString(THEME, THEME_DEFAULT));
 		return theme;
 	}
 
+	/**
+	 * Save the selection, either "auto" or one of the available themes. Auto switches between light/dark theme based
+	 * on battery-saving options or the system-wide night mode.
+	 *
+	 * @param theme the selected theme or "auto"
+	 */
 	public void setTheme(int theme) {
 		this.theme = theme;
 		put(THEME, theme + "");
 	}
 
-	public int getThemeHTML() {
-		switch (getThemeInternal()) {
-			case THEME_LIGHT:
-				return R.string.HTML_THEME_LIGHT;
+	public int getThemeHTML(Context context) {
+		switch (getSelectedTheme()) {
 			case THEME_BLACK:
 				return R.string.HTML_THEME_BLACK;
 			case THEME_WHITE:
 				return R.string.HTML_THEME_WHITE;
+			case THEME_LIGHT:
+				return R.string.HTML_THEME_LIGHT;
+			case THEME_AUTO:
+				return decideThemeHTMLMode(context);
 			case THEME_DARK:
+			default:
+				return R.string.HTML_THEME_DARK;
+		}
+	}
+
+	private int decideThemeHTMLMode(Context context) {
+		int nightModeFlags = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+		switch (nightModeFlags) {
+			case Configuration.UI_MODE_NIGHT_NO:
+				return R.string.HTML_THEME_LIGHT;
+			case Configuration.UI_MODE_NIGHT_YES:
+			case Configuration.UI_MODE_NIGHT_UNDEFINED:
 			default:
 				return R.string.HTML_THEME_DARK;
 		}
@@ -1383,7 +1425,7 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 		// Indicate Restart of App is necessary if Theme-Pref is changed and value differs from old value:
 		if (key.equals(THEME)) {
 			int newTheme = Integer.parseInt(prefs.getString(key, THEME_DEFAULT));
-			if (newTheme != getThemeInternal()) {
+			if (newTheme != getSelectedTheme()) {
 				setTheme(newTheme);
 				scheduledRestart = true;
 			}

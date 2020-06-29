@@ -204,7 +204,6 @@ not, see http://www.gnu.org/licenses/.
     <string name="DisplayDateTimeFormatTitle">Eigenes Datums- und Zeitformat</string>
     <string name="DisplayDateTimeFormatSummary">Gibt ein eigenes Format für Datum mit Zeit an (siehe Wiki). Standard ist \"dd.MM.yyyy kk:mm\". Ungültige Werte werden stillschweigend ignoriert und die Standardwerte gesetzt.</string>
     <string name="DisplayThemeTitle">App-Theme auswählen</string>
-    <string name="DisplayThemeSummary">Schwarz/Weiß verwendet schwarze Schrift auf weißem Hintergrund (oder umgekehrt), um das Lesen auf E-Book-Readern zu ermöglichen.</string>
     <string name="DisplayAnimationsTitle">Nutze Animationen</string>
     <string name="DisplayAnimationsSummary">Aktiviert Animationen beim Anzeigen von Feeds und Artikeln.</string>
     <string name="SystemPreferenceCategoryTitle">System</string>
