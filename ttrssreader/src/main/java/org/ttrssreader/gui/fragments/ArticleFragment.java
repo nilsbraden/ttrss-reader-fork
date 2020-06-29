@@ -251,7 +251,25 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			webView = new MyWebView(getActivity());
 			webView.setWebViewClient(new ArticleWebViewClient(this));
 			webView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-			webView.setBackgroundColor(0); // Set background transparent, html will set background anyway
+
+			// Set theme background color. Should be possible via xml also.
+			switch (Controller.getInstance().getSelectedTheme()) {
+				case Constants.THEME_BLACK:
+					webView.setBackgroundColor(getResources().getColor(R.color.themeBlackBackground));
+				case Constants.THEME_WHITE:
+					webView.setBackgroundColor(getResources().getColor(R.color.themeWhiteBackground));
+				case Constants.THEME_LIGHT:
+					webView.setBackgroundColor(getResources().getColor(R.color.themeLightBackground));
+				case Constants.THEME_DARK:
+					webView.setBackgroundColor(getResources().getColor(R.color.themeDarkBackground));
+				case Constants.THEME_AUTO:
+				default:
+					if (Controller.getInstance().isThemeLight(getActivity()))
+						webView.setBackgroundColor(getResources().getColor(R.color.themeLightBackground));
+					else
+						webView.setBackgroundColor(getResources().getColor(R.color.themeDarkBackground));
+			}
+
 			boolean supportZoom = Controller.getInstance().supportZoomControls();
 			webView.getSettings().setSupportZoom(supportZoom);
 			webView.getSettings().setBuiltInZoomControls(supportZoom);

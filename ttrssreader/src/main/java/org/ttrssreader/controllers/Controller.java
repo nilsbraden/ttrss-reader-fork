@@ -1043,6 +1043,7 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 				return R.style.Theme_MyApp_White;
 			case THEME_LIGHT:
 			case THEME_DARK:
+			case THEME_AUTO:
 			default:
 				return R.style.Theme_MyApp;
 		}
@@ -1078,23 +1079,26 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 				return R.string.HTML_THEME_WHITE;
 			case THEME_LIGHT:
 				return R.string.HTML_THEME_LIGHT;
-			case THEME_AUTO:
-				return decideThemeHTMLMode(context);
 			case THEME_DARK:
-			default:
 				return R.string.HTML_THEME_DARK;
+			case THEME_AUTO:
+			default:
+				if (isThemeLight(context))
+					return R.string.HTML_THEME_LIGHT;
+				else
+					return R.string.HTML_THEME_DARK;
 		}
 	}
 
-	private int decideThemeHTMLMode(Context context) {
+	public boolean isThemeLight(Context context) {
 		int nightModeFlags = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
 		switch (nightModeFlags) {
 			case Configuration.UI_MODE_NIGHT_NO:
-				return R.string.HTML_THEME_LIGHT;
+				return true;
 			case Configuration.UI_MODE_NIGHT_YES:
 			case Configuration.UI_MODE_NIGHT_UNDEFINED:
 			default:
-				return R.string.HTML_THEME_DARK;
+				return false;
 		}
 	}
 
