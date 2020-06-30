@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright (c) 2015, Nils Braden
 
   This file is part of ttrss-reader-fork. This program is free software; you
@@ -30,36 +29,34 @@
         <FrameLayout
             android:id="@+id/article_webView_Container"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent" />
     </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/article_button_view"
-        style="?android:attr/buttonBarStyle"
         android:layout_width="match_parent"
-        android:layout_height="45dip"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:background="@android:drawable/bottom_bar"
+        android:gravity="center"
         android:orientation="horizontal"
         android:visibility="gone">
 
         <Button
             android:id="@+id/article_buttonNext"
-            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="1.0"
-            android:padding="4dip"
-            android:text="@string/Up"/>
+            android:layout_margin="4dp"
+            android:text="@string/Up" />
 
         <Button
             android:id="@+id/article_buttonPrev"
-            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="1.0"
-            android:padding="4dip"
-            android:text="@string/Down"/>
+            android:layout_margin="4dp"
+            android:text="@string/Down" />
     </LinearLayout>
 
 </RelativeLayout>

@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright (c) 2015, Nils Braden
 
   This file is part of ttrss-reader-fork. This program is free software; you
@@ -115,6 +114,9 @@
 	body#darkTheme a:visited {
 		color: #FFF;
 	}
+	body#darkTheme #bottomNavigation button {
+		background-color: #303030;
+	}
 
 	/*** THEME: LIGHT ***/
 	body#lightTheme {
@@ -130,6 +132,9 @@
 	body#lightTheme a:visited {
 		color: #000;
 	}
+	body#lightTheme #bottomNavigation button {
+		background-color: #E3E3E3;
+	}
 
 	/*** THEME: BLACK ***/
 	body#blackTheme {
@@ -137,13 +142,16 @@
 		color: #CCC;
 	}
 	body#blackTheme #header {
-		background-color: #858585;
+		background-color: #282828;
 	}
 	body#blackTheme a:link, a:active, a:hover {
 		color: #E1E1E1;
 	}
 	body#blackTheme a:visited {
 		color: #FFF;
+	}
+	body#blackTheme #bottomNavigation button {
+		background-color: #222;
 	}
 
 	/*** THEME: WHITE ***/
@@ -152,13 +160,16 @@
 		color: #3A3931;
 	}
 	body#whiteTheme #header {
-		background-color: #B7B7B7;
+		background-color: #E1E1E1;
 	}
 	body#whiteTheme a:link, a:active, a:hover {
 		color: #555;
 	}
 	body#whiteTheme a:visited {
 		color: #000;
+	}
+	body#whiteTheme #bottomNavigation button {
+		background-color: #EEE;
 	}
 	/************ END THEMES ************/
 
@@ -243,24 +254,20 @@
     <string name="BOTTOM_NAVIGATION_TEMPLATE" formatted="false" translatable="false">
 <![CDATA[
 <style type=\"text/css\">
-	.bottom_navigation {
-		text-align: justify;
-	}
-	.bottom_navigation button {
-		display: block;
-		width: 40%;
+	#bottomNavigation button {
+		width: 45%;
 		font-size: 230%;
 	}
-	.bottom_navigation button.first {
+	#bottomNavigation #btnPrev {
 		float: left;
 	}
-	.bottom_navigation button.last {
+	#bottomNavigation #btnNext {
 		float: right;
 	}
 </style>
-<div class=\"bottom_navigation\">
-	<button id=\"btnPrev\" class=\"first prev\" onclick=\"articleController.prev();\">&leftarrow;</button>
-	<button id=\"btnNext\" class=\"last next\" onclick=\"articleController.next();\">&rightarrow;</button>
+<div id=\"bottomNavigation\">
+	<button id=\"btnPrev\" onclick=\"articleController.prev();\">&leftarrow;</button>
+	<button id=\"btnNext\" onclick=\"articleController.next();\">&rightarrow;</button>
 </div>]]>
 	</string>
 

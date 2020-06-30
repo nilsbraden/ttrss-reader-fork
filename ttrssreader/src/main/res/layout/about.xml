@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:isScrollContainer="true"
             android:orientation="vertical"
-            android:padding="5dip"
+            android:padding="15dip"
             android:scrollbars="vertical">
 
 
@@ -118,7 +118,6 @@
 
     <LinearLayout
         android:id="@+id/AboutActivity_ButtonBar"
-        style="?android:attr/buttonBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -128,7 +127,6 @@
 
         <Button
             android:id="@+id/AboutActivity_CloseBtn"
-            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1.0"
@@ -136,10 +134,10 @@
 
         <Button
             android:id="@+id/AboutActivity_DonateBtn"
-            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1.0"
             android:text="@string/AboutActivity_DonateBtn" />
     </LinearLayout>
+
 </RelativeLayout>

@@ -62,7 +62,6 @@
         </LinearLayout>
 
         <LinearLayout
-            style="?android:attr/buttonBarStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dip"
@@ -70,7 +69,6 @@
 
             <Button
                 android:id="@+id/Preferences.Btn"
-                style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="0dip"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.5"
@@ -78,7 +76,6 @@
         </LinearLayout>
 
         <LinearLayout
-            style="?android:attr/buttonBarStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dip"
@@ -86,7 +83,6 @@
 
             <Button
                 android:id="@+id/ErrorActivity_CloseBtn"
-                style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.5"
@@ -94,7 +90,6 @@
 
             <Button
                 android:id="@+id/ErrorActivity_ExitBtn"
-                style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.5"

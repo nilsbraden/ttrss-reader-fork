@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.MyApp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.MyApp" parent="Theme.Base.MyApp" />
+
+    <style name="Theme.Base.MyApp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">@color/themeDarkPrimary</item>
         <item name="colorPrimaryDark">@color/themeDarkPrimaryDark</item>
         <item name="colorAccent">@color/themeDarkAccent</item>
@@ -17,8 +19,6 @@
         <!-- Overall background -->
         <item name="android:windowBackground">?colorBackground</item>
 
-        <!-- Background for Button-Navigation -->
-        <item name="buttonBarStyle">@style/CustomButtonBarStyle</item>
         <!-- Color for Navigation-Buttons in ArticleView -->
         <item name="htmlHeaderBackgound">@color/themeDarkHtmlHeaderBackgound</item>
         <!-- Theme for preferences -->
