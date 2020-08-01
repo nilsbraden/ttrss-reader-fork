@@ -56,8 +56,6 @@ For more information you may want to visit [Donations](https://github.com/nilsbr
 
 [1]: https://nilsbraden.de/android/tt-rss/btn_donateCC_LG.gif
 [2]: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SD4AN4APNW6B4
-[3]: https://www.nilsbraden.de/android/tt-rss/60_avail_market_logo2.png
+[3]: https://www.nilsbraden.de/android/tt-rss/google-play-badge.png
 [4]: https://play.google.com/store/apps/details?id=org.ttrssreader
 [5]: https://www.nilsbraden.de/android/tt-rss/qrcode.png
-[6]: https://www.nilsbraden.de/android/tt-rss/Flattr.svg.png
-[7]: http://flattr.com/thing/382465/TTRSS-Reader
