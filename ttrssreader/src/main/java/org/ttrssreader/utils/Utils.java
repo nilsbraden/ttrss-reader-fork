@@ -260,7 +260,6 @@ public class Utils {
 	}
 
 	public static int getNetworkTypeApi23(final ConnectivityManager cm) {
-		Log.d(TAG, "GetNetworkType, using old API...");
 		if (cm == null)
 			return NETWORK_NONE;
 		final NetworkInfo info = cm.getActiveNetworkInfo();
@@ -277,7 +276,6 @@ public class Utils {
 
 	@RequiresApi(api = Build.VERSION_CODES.Q)
 	public static int getNetworkTypeApiCurrent(final ConnectivityManager cm) {
-		Log.d(TAG, "GetNetworkType, using Q API...");
 		if (cm == null)
 			return NETWORK_NONE;
 
@@ -289,8 +287,6 @@ public class Utils {
 		isConnected &= caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
 		boolean isWifi = caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI);
 		boolean isMetered = !caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED);
-		Log.d(TAG, String.format("GetNetworkType isConnected: %s, isWifi: %s, isMetered: %s", isConnected, isWifi, isMetered));
-
 
 		if (!isConnected) {
 			return NETWORK_NONE;

@@ -265,33 +265,31 @@ public class JSONConnector {
 		*/
 
 		String ret = "";
-		JsonReader reader = null;
+		Reader reader = doRequest(params);
+		if (reader == null)
+			return null;
 
-		try (Reader in = doRequest(params)) {
-			if (in == null)
-				return null;
+		// Check if content contains array or object, array indicates login-response or error, object is content
+		try (JsonReader json = new JsonReader(reader)) {
+			json.beginObject();
 
-			// Check if content contains array or object, array indicates login-response or error, object is content
-			reader = new JsonReader(in);
-			reader.beginObject();
-
-			while (reader.hasNext()) {
-				String name = reader.nextName();
+			while (json.hasNext()) {
+				String name = json.nextName();
 				if (!name.equals("content")) {
-					reader.skipValue();
+					json.skipValue();
 					continue;
 				}
 
-				JsonToken t = reader.peek();
+				JsonToken t = json.peek();
 				if (!t.equals(JsonToken.BEGIN_OBJECT))
 					continue;
 
 				JsonObject object = new JsonObject();
-				reader.beginObject();
-				while (reader.hasNext()) {
-					object.addProperty(reader.nextName(), reader.nextString());
+				json.beginObject();
+				while (json.hasNext()) {
+					object.addProperty(json.nextName(), json.nextString());
 				}
-				reader.endObject();
+				json.endObject();
 
 				if (object.get(SESSION_ID) != null) {
 					ret = object.get(SESSION_ID).getAsString();
@@ -337,10 +335,8 @@ public class JSONConnector {
 				}
 
 			}
-		} finally {
-			if (reader != null)
-				reader.close();
 		}
+
 		if (ret.startsWith("\""))
 			ret = ret.substring(1);
 		if (ret.endsWith("\""))
@@ -355,72 +351,68 @@ public class JSONConnector {
 
 	private JsonReader prepareReader(Map<String, String> params, boolean firstCall) throws IOException {
 		JsonReader reader = null;
-		try (Reader in = doRequest(params)) {
-			if (in == null)
-				return null;
+		Reader in = doRequest(params);
+		if (in == null)
+			return null;
 
-			// Check if content contains array or object, array indicates login-response or error, object is content
-			reader = new JsonReader(in);
-			reader.beginObject();
+		// Check if content contains array or object, array indicates login-response or error, object is content
+		reader = new JsonReader(in);
+		reader.beginObject();
 
-			while (reader.hasNext()) {
-				String name = reader.nextName();
-				if (name.equals("content")) {
-					JsonToken t = reader.peek();
+		while (reader.hasNext()) {
+			String name = reader.nextName();
+			if (name.equals("content")) {
+				JsonToken t = reader.peek();
 
-					if (t.equals(JsonToken.BEGIN_ARRAY)) {
+				if (t.equals(JsonToken.BEGIN_ARRAY)) {
+					return reader;
+				} else if (t.equals(JsonToken.BEGIN_OBJECT)) {
+
+					JsonObject object = new JsonObject();
+					reader.beginObject();
+
+					String nextName = reader.nextName();
+					// We have a BEGIN_OBJECT here but its just the response to call "subscribeToFeed" or "isLoggedIn"
+					if ("status".equals(nextName))
 						return reader;
-					} else if (t.equals(JsonToken.BEGIN_OBJECT)) {
 
-						JsonObject object = new JsonObject();
-						reader.beginObject();
-
-						String nextName = reader.nextName();
-						// We have a BEGIN_OBJECT here but its just the response to call "subscribeToFeed" or "isLoggedIn"
-						if ("status".equals(nextName))
-							return reader;
-
-						// Handle error
-						while (reader.hasNext()) {
-							if (nextName != null) {
-								object.addProperty(nextName, reader.nextString());
-								nextName = null;
-							} else {
-								object.addProperty(reader.nextName(), reader.nextString());
-							}
-						}
-						reader.endObject();
-
-						if (object.get(ERROR) != null) {
-							String message = object.get(ERROR).toString();
-
-							if (message.contains(NOT_LOGGED_IN)) {
-								lastError = NOT_LOGGED_IN;
-								if (firstCall && internalLogin() && !hasLastError)
-									return prepareReader(params, false); // Just do the same request again
-								else
-									return null;
-							}
-
-							if (message.contains(API_DISABLED)) {
-								hasLastError = true;
-								lastError = MyApplication.context().getString(R.string.Error_ApiDisabled, Controller.getInstance().username());
-								return null;
-							}
-
-							// Any other error
-							hasLastError = true;
-							lastError = message;
+					// Handle error
+					while (reader.hasNext()) {
+						if (nextName != null) {
+							object.addProperty(nextName, reader.nextString());
+							nextName = null;
+						} else {
+							object.addProperty(reader.nextName(), reader.nextString());
 						}
 					}
+					reader.endObject();
 
-				} else {
-					reader.skipValue();
+					if (object.get(ERROR) != null) {
+						String message = object.get(ERROR).toString();
+
+						if (message.contains(NOT_LOGGED_IN)) {
+							lastError = NOT_LOGGED_IN;
+							if (firstCall && internalLogin() && !hasLastError)
+								return prepareReader(params, false); // Just do the same request again
+							else
+								return null;
+						}
+
+						if (message.contains(API_DISABLED)) {
+							hasLastError = true;
+							lastError = MyApplication.context().getString(R.string.Error_ApiDisabled, Controller.getInstance().username());
+							return null;
+						}
+
+						// Any other error
+						hasLastError = true;
+						lastError = message;
+					}
 				}
+
+			} else {
+				reader.skipValue();
 			}
-		} finally {
-			if (reader != null)
-				reader.close();
 		}
 		return null;
 	}
@@ -602,7 +594,6 @@ public class JSONConnector {
 			Log.e(TAG, "Input data could not be read: " + e.getMessage() + " (" + e.getCause() + ")", e);
 		}
 
-		Log.d(TAG, String.format("parseArticleArray: parsing %s articles took %s ms", count, (System.currentTimeMillis() - time)));
 		return count;
 	}
 
@@ -829,10 +820,7 @@ public class JSONConnector {
 		Map<String, String> params = new HashMap<>();
 		params.put(PARAM_OP, VALUE_GET_CATEGORIES);
 
-		JsonReader reader = null;
-		try {
-			reader = prepareReader(params);
-
+		try (JsonReader reader = prepareReader(params)) {
 			if (reader == null)
 				return ret;
 
@@ -882,13 +870,6 @@ public class JSONConnector {
 			reader.endArray();
 		} catch (IOException e) {
 			e.printStackTrace();
-		} finally {
-			if (reader != null)
-				try {
-					reader.close();
-				} catch (IOException e1) {
-					// Empty!
-				}
 		}
 
 		Log.d(TAG, "getCategories: " + (System.currentTimeMillis() - time) + "ms");
@@ -917,10 +898,7 @@ public class JSONConnector {
 		params.put(PARAM_CAT_ID, Data.VCAT_ALL + ""); // Hardcoded -4 fetches all feeds. See
 		// http://tt-rss.org/redmine/wiki/tt-rss/JsonApiReference#getFeeds
 
-		JsonReader reader = null;
-		try {
-			reader = prepareReader(params);
-
+		try (JsonReader reader = prepareReader(params)) {
 			if (reader == null)
 				return ret;
 
@@ -981,13 +959,6 @@ public class JSONConnector {
 			reader.endArray();
 		} catch (IOException e) {
 			Log.e(TAG, (e.getMessage() != null ? e.getMessage() : "no exception message available"));
-		} finally {
-			if (reader != null)
-				try {
-					reader.close();
-				} catch (IOException e1) {
-					// Empty!
-				}
 		}
 
 		Log.d(TAG, "getFeeds: " + (System.currentTimeMillis() - time) + "ms");
@@ -1273,9 +1244,8 @@ public class JSONConnector {
 
 		String code = "";
 		String message = null;
-		JsonReader reader = null;
-		try {
-			reader = prepareReader(params);
+
+		try (JsonReader reader = prepareReader(params)) {
 			if (reader == null)
 				return ret;
 
@@ -1301,13 +1271,6 @@ public class JSONConnector {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-		} finally {
-			if (reader != null)
-				try {
-					reader.close();
-				} catch (IOException e1) {
-					// Empty!
-				}
 		}
 
 		return ret;
