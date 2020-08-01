@@ -46,10 +46,8 @@ import android.widget.Toast;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.net.JSONConnector;
 import org.ttrssreader.preferences.Constants;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -59,13 +57,17 @@ import java.net.Proxy;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 import androidx.annotation.RequiresApi;
+import okhttp3.Credentials;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public class Utils {
 
@@ -542,30 +544,37 @@ public class Utils {
 	public static byte[] download(URL url) {
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		try {
-			URLConnection con = Controller.getInstance().openConnection(url);
+			// Build Request-Object:
+			Request.Builder reqBuilder = new Request.Builder();
+			reqBuilder.url(url);
 
 			// HTTP-Basic Authentication
 			if (Controller.getInstance().useHttpAuth()) {
-				String base64NameAndPw = JSONConnector.getBase64NameAndPw();
-				if (base64NameAndPw != null)
-					con.setRequestProperty("Authorization", "Basic " + base64NameAndPw);
+				String user = Controller.getInstance().httpUsername();
+				String pw = Controller.getInstance().httpPassword();
+				reqBuilder.addHeader("Authorization", Credentials.basic(user, pw));
 			}
 
-			con.connect();
+			Request request = reqBuilder.build();
+			Response response = new OkHttpClient().newCall(request).execute();
 
 			// download the file
-			InputStream input = new BufferedInputStream(url.openStream(), 8192);
+			try (ResponseBody body = response.body()) {
+				if (body != null) {
+					InputStream input = body.byteStream();
 
-			byte[] data = new byte[1024];
-			int count;
-			while ((count = input.read(data)) != -1) {
-				// writing data to file
-				output.write(data, 0, count);
+					byte[] data = new byte[1024];
+					int count;
+					while ((count = input.read(data)) != -1) {
+						// writing data to file
+						output.write(data, 0, count);
+					}
+
+					// closing streams
+					output.close();
+					input.close();
+				}
 			}
-
-			// closing streams
-			output.close();
-			input.close();
 
 		} catch (Exception e) {
 			Log.e(TAG, "Error while downloading feed icon: " + e.getMessage());
