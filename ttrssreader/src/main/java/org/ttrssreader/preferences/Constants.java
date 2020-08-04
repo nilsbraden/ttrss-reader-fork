@@ -90,7 +90,7 @@ public class Constants {
 	public static final boolean HIDE_FEED_READ_BUTTONS_DEFAULT = false;
 
 	// Display
-	public static final String THEME = "DisplayThemePreference";
+	public static final String THEME = "DisplayThemePreferenceAuto";
 	public static final String ANIMATIONS = "DisplayAnimationsPreference";
 	public static final String TEXT_ZOOM = "TextZoomPreference";
 	public static final String SUPPORT_ZOOM_CONTROLS = "SupportZoomControlsPreference";
@@ -114,7 +114,7 @@ public class Constants {
 	public static final int THEME_LIGHT = 2;
 	public static final int THEME_BLACK = 3;
 	public static final int THEME_WHITE = 4;
-	public static final String THEME_DEFAULT = "1"; // Needs to be a string
+	public static final String THEME_DEFAULT = "0"; // Needs to be a string
 	public static final boolean ANIMATIONS_DEFAULT = true;
 	public static final int TEXT_ZOOM_DEFAULT = 100;
 	public static final boolean SUPPORT_ZOOM_CONTROLS_DEFAULT = true;

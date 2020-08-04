@@ -19,9 +19,10 @@
 
     <PreferenceCategory android:title="@string/DisplayPreferenceCategoryTitle">
         <ListPreference
+            android:defaultValue="0"
             android:entries="@array/themeEntries"
             android:entryValues="@array/themeValues"
-            android:key="DisplayThemePreference"
+            android:key="DisplayThemePreferenceAuto"
             android:summary="@string/DisplayThemeSummary"
             android:title="@string/DisplayThemeTitle" />
         <CheckBoxPreference
@@ -95,7 +96,7 @@
             android:title="@string/HyphenationLanguageTitle" />
 
         <CheckBoxPreference
-            android:defaultValue="false"
+            android:defaultValue="true"
             android:enabled="true"
             android:key="AllowTabletLayoutPreference"
             android:summary="@string/AllowTabletLayoutSummary"
