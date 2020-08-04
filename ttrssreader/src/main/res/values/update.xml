@@ -17,7 +17,7 @@
 <resources>
 
     <string-array name="updates">
-	    <item>Version 1.95.6
+	    <item>Version 1.95.7
 	         * Implement dark mode following system-wide dark mode (or battery-saver on Android Pie or earlier)
 		     * Enable automatic dark theme by default
 		     * Use OkHttp library to allow using TLSv1.3 on Android Pie or earlier</item>
