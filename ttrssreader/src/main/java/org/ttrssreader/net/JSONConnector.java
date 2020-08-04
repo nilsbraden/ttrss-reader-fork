@@ -18,10 +18,10 @@
 package org.ttrssreader.net;
 
 import android.content.Context;
-import android.os.Build;
 import android.util.Log;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.MalformedJsonException;
@@ -41,26 +41,26 @@ import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.InterruptedIOException;
-import java.net.HttpURLConnection;
+import java.io.Reader;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
-import java.net.SocketException;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.zip.GZIPInputStream;
+import java.util.concurrent.TimeUnit;
 
-import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLPeerUnverifiedException;
+
+import okhttp3.Credentials;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public class JSONConnector {
 
@@ -140,6 +140,7 @@ public class JSONConnector {
 	private static final String VALUE = "value";
 
 	private static final int MAX_ID_LIST_LENGTH = 100;
+	private static final MediaType MEDIATYPE_JSON = MediaType.parse("application/json; charset=utf-8");
 
 	// session id as an IN parameter
 	private static final String SID = "sid";
@@ -151,95 +152,63 @@ public class JSONConnector {
 
 	public static final int PARAM_LIMIT_MAX_VALUE = 200;
 
-	private InputStream doRequest(Map<String, String> params) {
+	private Reader doRequest(Map<String, String> params) {
 		try {
 			if (sessionId != null)
 				params.put(SID, sessionId);
-			// ask server to compress responses when available, except the login response
-			// note requests are not compressed
-			boolean askForResponseCompression = !("login".equals(params.get("op")));
+
 			JSONObject json = new JSONObject(params);
-
-			byte[] outputBytes;
-			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT)
-				//noinspection CharsetObjectCanBeUsed
-				outputBytes = json.toString().getBytes(Charset.forName("UTF-8"));
-			else
-				outputBytes = json.toString().getBytes(StandardCharsets.UTF_8);
-
 			logRequest(json);
 
-			URL url = Controller.getInstance().url();
-			HttpURLConnection con = (HttpURLConnection) url.openConnection(getProxy());
-			con.setDoInput(true);
-			con.setDoOutput(true);
-			con.setUseCaches(false);
+			// Set longer timeouts for lazy loading servers
+			TimeUnit timeoutUnit = Controller.getInstance().lazyServer() ? TimeUnit.MINUTES : TimeUnit.SECONDS;
 
-			// Content
-			con.setRequestProperty("Content-Type", "application/json"); // requests are never compressed
-			con.setRequestProperty("Accept", "application/json");
-			if (askForResponseCompression) {
-				con.setRequestProperty("Accept-Encoding", "gzip");
-			}
-			con.setRequestProperty("Content-Length", Integer.toString(outputBytes.length));
-
-			// Timeouts
-			long timeoutSocket = (Controller.getInstance().lazyServer()) ? 15 * Utils.MINUTE : 10 * Utils.SECOND;
-			con.setReadTimeout((int) timeoutSocket);
-			con.setConnectTimeout((int) (8 * Utils.SECOND));
+			// Build Request-Object:
+			Request.Builder reqBuilder = new Request.Builder();
+			reqBuilder.url(Controller.getInstance().hostname());
+			reqBuilder.post(RequestBody.create(json.toString(), MEDIATYPE_JSON));
 
 			// HTTP-Basic Authentication
 			if (Controller.getInstance().useHttpAuth()) {
-				String base64NameAndPw = getBase64NameAndPw();
-				if (base64NameAndPw != null)
-					con.setRequestProperty("Authorization", "Basic " + base64NameAndPw);
+				String user = Controller.getInstance().httpUsername();
+				String pw = Controller.getInstance().httpPassword();
+				reqBuilder.addHeader("Authorization", Credentials.basic(user, pw));
 			}
 
-			// Add POST data
-			con.getOutputStream().write(outputBytes);
+			Request request = reqBuilder.build();
 
-			// Try to check for HTTP Status codes
-			int code = con.getResponseCode();
-			if (code >= 400 && code < 600) {
+			// Build Client-Object:
+			OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder();
+			clientBuilder.proxy(getProxy());
+			clientBuilder.readTimeout(10, timeoutUnit);
+			OkHttpClient client = clientBuilder.build();
+
+			// Call Server:
+			Response response = client.newCall(request).execute();
+
+			// Check for HTTP Status codes:
+			int code = response.code();
+			if (!response.isSuccessful() || code >= 400 && code < 600) {
 				hasLastError = true;
-				lastError = "Server returned status: " + code + " (Message: " + con.getResponseMessage() + ")";
+				lastError = "Server returned status: " + code + " (Message: " + response.message() + ")";
 				return null;
 			}
 
-			// Decompress if necessary
-			String encoding = con.getContentEncoding();
-			InputStream data = con.getInputStream();
-			if (encoding != null && (encoding.contains("gzip") || encoding.endsWith("gz"))) {
-				data = new GZIPInputStream(data);
-			}
+			// Read Response as stream:
+			ResponseBody body = response.body();
+			if (body != null)
+				return body.charStream();
 
-			// Everything is fine!
-			return data;
-
+		} catch (JsonSyntaxException e) {
+			hasLastError = true;
+			lastError = "JsonSyntaxException (Invalid JSON Data) in doRequest(): " + formatException(e);
 		} catch (SSLPeerUnverifiedException e) {
-			// Probably related: http://stackoverflow.com/questions/6035171/no-peer-cert-not-sure-which-route-to-take
-			// Not doing anything here since this error should happen only when no certificate is received from the
-			// server.
-			Log.w(TAG, "SSLPeerUnverifiedException in doRequest(): " + formatException(e));
-		} catch (SSLException e) {
-			if ("No peer certificate".equals(e.getMessage())) {
-				// Handle this by ignoring it, this occurrs very often when the connection is instable.
-				Log.w(TAG, "SSLException in doRequest(): " + formatException(e));
-			} else {
-				hasLastError = true;
-				lastError = "SSLException in doRequest(): " + formatException(e);
-			}
-		} catch (InterruptedIOException e) {
-			Log.w(TAG, "InterruptedIOException in doRequest(): " + formatException(e));
-		} catch (SocketException e) {
-			// http://stackoverflow.com/questions/693997/how-to-set-httpresponse-timeout-for-android-in-java/1565243
-			// #1565243
-			Log.w(TAG, "SocketException in doRequest(): " + formatException(e));
+			hasLastError = true;
+			lastError = "SSLPeerUnverifiedException in doRequest(): " + formatException(e);
 		} catch (Exception e) {
 			hasLastError = true;
 			lastError = "Exception in doRequest(): " + formatException(e);
 		}
-
 		return null;
 	}
 
@@ -273,38 +242,54 @@ public class JSONConnector {
 	}
 
 	private String readResult(Map<String, String> params, boolean login, boolean retry) throws IOException {
-		InputStream in = doRequest(params);
-		if (in == null)
+
+		/*
+		Response response = doRequest(params);
+		if (response == null)
 			return null;
 
-		JsonReader reader = null;
-		String ret = "";
-		try {
-			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT)
-				//noinspection CharsetObjectCanBeUsed
-				reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
-			else
-				reader = new JsonReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+		ResponseBody responseBody = response.body();
+		if (responseBody == null)
+			return null;
 
-			// Check if content contains array or object, array indicates login-response or error, object is content
-			reader.beginObject();
-			while (reader.hasNext()) {
-				String name = reader.nextName();
+		try {
+			String body = responseBody.string();
+			JsonElement result = JsonParser.parseString(body);
+			JsonObject resultObj = result.getAsJsonObject();
+
+			// TODO...
+
+		} finally {
+			responseBody.close();
+		}
+		*/
+
+		String ret = "";
+		Reader reader = doRequest(params);
+		if (reader == null)
+			return null;
+
+		// Check if content contains array or object, array indicates login-response or error, object is content
+		try (JsonReader json = new JsonReader(reader)) {
+			json.beginObject();
+
+			while (json.hasNext()) {
+				String name = json.nextName();
 				if (!name.equals("content")) {
-					reader.skipValue();
+					json.skipValue();
 					continue;
 				}
 
-				JsonToken t = reader.peek();
+				JsonToken t = json.peek();
 				if (!t.equals(JsonToken.BEGIN_OBJECT))
 					continue;
 
 				JsonObject object = new JsonObject();
-				reader.beginObject();
-				while (reader.hasNext()) {
-					object.addProperty(reader.nextName(), reader.nextString());
+				json.beginObject();
+				while (json.hasNext()) {
+					object.addProperty(json.nextName(), json.nextString());
 				}
-				reader.endObject();
+				json.endObject();
 
 				if (object.get(SESSION_ID) != null) {
 					ret = object.get(SESSION_ID).getAsString();
@@ -350,10 +335,8 @@ public class JSONConnector {
 				}
 
 			}
-		} finally {
-			if (reader != null)
-				reader.close();
 		}
+
 		if (ret.startsWith("\""))
 			ret = ret.substring(1);
 		if (ret.endsWith("\""))
@@ -367,24 +350,15 @@ public class JSONConnector {
 	}
 
 	private JsonReader prepareReader(Map<String, String> params, boolean firstCall) throws IOException {
-		InputStream in = doRequest(params);
+		JsonReader reader = null;
+		Reader in = doRequest(params);
 		if (in == null)
 			return null;
 
-		JsonReader reader;
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT)
-			//noinspection CharsetObjectCanBeUsed
-			reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
-		else
-			reader = new JsonReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-
 		// Check if content contains array or object, array indicates login-response or error, object is content
-		try {
-			reader.beginObject();
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
+		reader = new JsonReader(in);
+		reader.beginObject();
+
 		while (reader.hasNext()) {
 			String name = reader.nextName();
 			if (name.equals("content")) {
@@ -620,7 +594,6 @@ public class JSONConnector {
 			Log.e(TAG, "Input data could not be read: " + e.getMessage() + " (" + e.getCause() + ")", e);
 		}
 
-		Log.d(TAG, String.format("parseArticleArray: parsing %s articles took %s ms", count, (System.currentTimeMillis() - time)));
 		return count;
 	}
 
@@ -847,10 +820,7 @@ public class JSONConnector {
 		Map<String, String> params = new HashMap<>();
 		params.put(PARAM_OP, VALUE_GET_CATEGORIES);
 
-		JsonReader reader = null;
-		try {
-			reader = prepareReader(params);
-
+		try (JsonReader reader = prepareReader(params)) {
 			if (reader == null)
 				return ret;
 
@@ -900,13 +870,6 @@ public class JSONConnector {
 			reader.endArray();
 		} catch (IOException e) {
 			e.printStackTrace();
-		} finally {
-			if (reader != null)
-				try {
-					reader.close();
-				} catch (IOException e1) {
-					// Empty!
-				}
 		}
 
 		Log.d(TAG, "getCategories: " + (System.currentTimeMillis() - time) + "ms");
@@ -935,10 +898,7 @@ public class JSONConnector {
 		params.put(PARAM_CAT_ID, Data.VCAT_ALL + ""); // Hardcoded -4 fetches all feeds. See
 		// http://tt-rss.org/redmine/wiki/tt-rss/JsonApiReference#getFeeds
 
-		JsonReader reader = null;
-		try {
-			reader = prepareReader(params);
-
+		try (JsonReader reader = prepareReader(params)) {
 			if (reader == null)
 				return ret;
 
@@ -999,13 +959,6 @@ public class JSONConnector {
 			reader.endArray();
 		} catch (IOException e) {
 			Log.e(TAG, (e.getMessage() != null ? e.getMessage() : "no exception message available"));
-		} finally {
-			if (reader != null)
-				try {
-					reader.close();
-				} catch (IOException e1) {
-					// Empty!
-				}
 		}
 
 		Log.d(TAG, "getFeeds: " + (System.currentTimeMillis() - time) + "ms");
@@ -1291,9 +1244,8 @@ public class JSONConnector {
 
 		String code = "";
 		String message = null;
-		JsonReader reader = null;
-		try {
-			reader = prepareReader(params);
+
+		try (JsonReader reader = prepareReader(params)) {
 			if (reader == null)
 				return ret;
 
@@ -1319,13 +1271,6 @@ public class JSONConnector {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-		} finally {
-			if (reader != null)
-				try {
-					reader.close();
-				} catch (IOException e1) {
-					// Empty!
-				}
 		}
 
 		return ret;
@@ -1364,15 +1309,6 @@ public class JSONConnector {
 		String msg = e.getMessage() != null ? "Exception-Message: " + e.getMessage() + " " : "No Exception-Message available. ";
 		String cause = e.getCause() != null ? "Exception-Cause: " + e.getCause() : "No Exception-Cause available.";
 		return msg + cause;
-	}
-
-	public static String getBase64NameAndPw() {
-		return encodeBase64NameAndPw(Controller.getInstance().httpUsername(), Controller.getInstance().httpPassword());
-	}
-
-	private static String encodeBase64NameAndPw(String name, String pw) {
-		String creds = name + ":" + pw;
-		return Utils.encodeBase64ToString(creds);
 	}
 
 }
