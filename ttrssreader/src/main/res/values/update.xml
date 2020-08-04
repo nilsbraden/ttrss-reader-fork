@@ -17,9 +17,14 @@
 <resources>
 
     <string-array name="updates">
-	    <item>Version 1.95.1
+	    <item>Version 1.95.5
+	         * Implement dark mode following system-wide dark mode (or battery-saver on Android Pie or earlier)
+		     * Enable automatic dark theme by default
+		     * Use OkHttp library to allow using TLSv1.3 on Android Pie or earlier
+	    </item>
+        <item>Version 1.95.1
 		     * Bugfixes (connectivity problems with new API, empty result lists, subscribing to new feed, FC on back pressed, …)</item>
-	    <item>Version 1.95.0
+        <item>Version 1.95.0
 		     * Completely rebuilt Wifibased-Preferences for Android 10
 		     * Fixed a lot of missing translations
 		     * Request Permsissions when they are needed (Storage, Location)
