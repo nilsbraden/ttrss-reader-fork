@@ -166,7 +166,7 @@ public class JSONConnector {
 			// Build Request-Object:
 			Request.Builder reqBuilder = new Request.Builder();
 			reqBuilder.url(Controller.getInstance().hostname());
-			reqBuilder.post(RequestBody.create(json.toString(), MEDIATYPE_JSON));
+			reqBuilder.post(RequestBody.create(MEDIATYPE_JSON, json.toString()));
 
 			// HTTP-Basic Authentication
 			if (Controller.getInstance().useHttpAuth()) {
