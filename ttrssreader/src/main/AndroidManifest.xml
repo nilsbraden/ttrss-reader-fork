@@ -3,8 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="internalOnly"
-    android:versionCode="1957"
-    android:versionName="1.95.7">
+    android:versionCode="1958"
+    android:versionName="1.95.8">
 
     <!-- Check connectivity -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
