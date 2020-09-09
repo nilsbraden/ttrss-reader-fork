@@ -152,6 +152,19 @@ public class JSONConnector {
 
 	public static final int PARAM_LIMIT_MAX_VALUE = 200;
 
+	private OkHttpClient client;
+
+	public JSONConnector() {
+		// Set longer timeouts for lazy loading servers
+		TimeUnit timeoutUnit = Controller.getInstance().lazyServer() ? TimeUnit.MINUTES : TimeUnit.SECONDS;
+
+		// Build Client-Object:
+		OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder();
+		clientBuilder.proxy(getProxy());
+		clientBuilder.readTimeout(10, timeoutUnit);
+		this.client = clientBuilder.build();
+	}
+
 	private Reader doRequest(Map<String, String> params) {
 		try {
 			if (sessionId != null)
@@ -159,9 +172,6 @@ public class JSONConnector {
 
 			JSONObject json = new JSONObject(params);
 			logRequest(json);
-
-			// Set longer timeouts for lazy loading servers
-			TimeUnit timeoutUnit = Controller.getInstance().lazyServer() ? TimeUnit.MINUTES : TimeUnit.SECONDS;
 
 			// Build Request-Object:
 			Request.Builder reqBuilder = new Request.Builder();
@@ -177,14 +187,8 @@ public class JSONConnector {
 
 			Request request = reqBuilder.build();
 
-			// Build Client-Object:
-			OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder();
-			clientBuilder.proxy(getProxy());
-			clientBuilder.readTimeout(10, timeoutUnit);
-			OkHttpClient client = clientBuilder.build();
-
 			// Call Server:
-			Response response = client.newCall(request).execute();
+			Response response = this.client.newCall(request).execute();
 
 			// Check for HTTP Status codes:
 			int code = response.code();
