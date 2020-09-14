@@ -149,20 +149,44 @@ public class JSONConnector {
 
 	private final Object loginLock = new Object();
 	private int apiLevel = -1;
+	private String currentSettings = "";
 
 	public static final int PARAM_LIMIT_MAX_VALUE = 200;
 
 	private OkHttpClient client;
 
 	public JSONConnector() {
-		// Set longer timeouts for lazy loading servers
-		TimeUnit timeoutUnit = Controller.getInstance().lazyServer() ? TimeUnit.MINUTES : TimeUnit.SECONDS;
+		initHttpClient();
+	}
 
-		// Build Client-Object:
-		OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder();
-		clientBuilder.proxy(getProxy());
-		clientBuilder.readTimeout(10, timeoutUnit);
-		this.client = clientBuilder.build();
+	/**
+	 * TODO: Probably it would be better to listen for change events on preferences directly but this was the quick and easy way.
+	 *
+	 * The following preferences are checked for changes:
+	 * - useProxy
+	 * - proxyHost
+	 * - proxyPort
+	 * - lazyServer
+	 *
+	 * If any of these change we need to re-initialize the OkHttpClient, otherwise we can re-use the existing instance, shaving off some ms on every API request.
+	 */
+	private void initHttpClient() {
+		// Just build a string out of all settings involved here, then check against the old string to see if anything changed in between:
+		String newSettings = Controller.getInstance().useProxy() + Controller.getInstance().proxyHost() + Controller.getInstance().proxyPort() + Controller.getInstance().lazyServer();
+
+		if (!currentSettings.equals(newSettings)) {
+			// Set longer timeouts for lazy loading servers
+			TimeUnit timeoutUnit = Controller.getInstance().lazyServer() ? TimeUnit.MINUTES : TimeUnit.SECONDS;
+
+			// Build Client-Object:
+			OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder();
+			clientBuilder.proxy(getProxy());
+			clientBuilder.readTimeout(10, timeoutUnit);
+			this.client = clientBuilder.build();
+
+			// Store new settings
+			this.currentSettings = newSettings;
+		}
 	}
 
 	private Reader doRequest(Map<String, String> params) {
@@ -217,11 +241,10 @@ public class JSONConnector {
 	}
 
 	private Proxy getProxy() {
-		Controller controller = Controller.getInstance();
-		if (controller.useProxy()) {
-			String host = controller.proxyHost();
+		if (Controller.getInstance().useProxy()) {
+			String host = Controller.getInstance().proxyHost();
 			if (!Constants.EMPTY.equals(host)) {
-				int port = controller.proxyPort();
+				int port = Controller.getInstance().proxyPort();
 				return new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(host, port));
 			}
 		}
