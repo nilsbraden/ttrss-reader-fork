@@ -17,7 +17,10 @@
 <resources>
 
     <string-array name="updates">
-	    <item>Version 1.95.8
+	    <item>Version 1.96.0
+	         * Use OkHttp Library to reduce issues with SSL, optimize re-use of existing connection
+	         * Attempt fix of issue #425: Crash upon backing out to top of folder structure</item>
+        <item>Version 1.95.8
 	         * Implement dark mode following system-wide dark mode (or battery-saver on Android Pie or earlier)
 		     * Enable automatic dark theme by default
 		     * Use OkHttp library to allow using TLSv1.3 on Android Pie or earlier</item>
