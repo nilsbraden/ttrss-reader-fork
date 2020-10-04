@@ -17,7 +17,7 @@
 <resources>
 
     <string-array name="updates">
-	    <item>Version 1.96.0
+	    <item>Version 1.96.1
 	         * Use OkHttp Library to reduce issues with SSL, optimize re-use of existing connection
 	         * Attempt fix of issue #425: Crash upon backing out to top of folder structure</item>
         <item>Version 1.95.8
