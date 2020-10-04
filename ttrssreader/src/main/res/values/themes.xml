@@ -24,6 +24,11 @@
         <item name="htmlHeaderBackgound">@color/themeLightHtmlHeaderBackgound</item>
         <!-- Theme for preferences -->
         <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
+
+        <!-- Attempt at fixing https://github.com/nilsbraden/ttrss-reader-fork/issues/425 -->
+        <item name="actionMenuTextColor">@color/themeLightTextColor</item>
+        <item name="android:actionMenuTextColor">@color/themeLightTextColor</item>
+
     </style>
 
     <style name="Theme.MyApp.White" parent="Theme.MyApp">
