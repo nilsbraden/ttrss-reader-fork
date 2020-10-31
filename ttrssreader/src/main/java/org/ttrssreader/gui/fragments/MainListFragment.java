@@ -36,7 +36,7 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.gui.interfaces.IDataChangedListener;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
-import org.ttrssreader.gui.view.MyGestureDetector;
+import org.ttrssreader.gui.view.MyGestureListener;
 import org.ttrssreader.model.MainAdapter;
 import org.ttrssreader.utils.AsyncTask;
 
@@ -117,9 +117,10 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
 		if (activity != null) {
 			ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
 
-			gestureDetector = new GestureDetector(getActivity(), new MyGestureDetector(actionBar, Controller.getInstance().hideActionbar()), null);
-			gestureListener = (v, event) -> gestureDetector.onTouchEvent(event) || v.performClick();
-			getListView().setOnTouchListener(gestureListener);
+			MyGestureListener gestureListener = new MyGestureListener(actionBar, Controller.getInstance().hideActionbar(), getActivity());
+			gestureDetector = new GestureDetector(getActivity(), gestureListener, null);
+			this.gestureListener = (v, event) -> gestureDetector.onTouchEvent(event) || v.performClick();
+			getListView().setOnTouchListener(this.gestureListener);
 		}
 
 		// Read the selected list item after orientation changes and similar

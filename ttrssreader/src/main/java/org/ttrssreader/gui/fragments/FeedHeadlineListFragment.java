@@ -18,7 +18,6 @@
 package org.ttrssreader.gui.fragments;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -30,7 +29,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
@@ -43,7 +41,7 @@ import org.ttrssreader.gui.dialogs.ReadStateDialog;
 import org.ttrssreader.gui.dialogs.YesNoUpdaterDialog;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
 import org.ttrssreader.gui.interfaces.TextInputAlertCallback;
-import org.ttrssreader.gui.view.MyGestureDetector;
+import org.ttrssreader.gui.view.SwipeGestureListener;
 import org.ttrssreader.model.FeedHeadlineAdapter;
 import org.ttrssreader.model.ListContentProvider;
 import org.ttrssreader.model.pojos.Article;
@@ -125,17 +123,18 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
 
 	@Override
 	public void onActivityCreated(Bundle instance) {
-		adapter = new FeedHeadlineAdapter(getActivity(), feedId, selectArticlesForCategory);
+		AppCompatActivity activity = (AppCompatActivity) getActivity();
+		adapter = new FeedHeadlineAdapter(activity, feedId, selectArticlesForCategory);
 		LoaderManager.getInstance(this).restartLoader(TYPE_HEADLINE_ID, null, this);
 
 		super.onActivityCreated(instance);
 
 		// Detect touch gestures like swipe and scroll down:
-		AppCompatActivity activity = (AppCompatActivity) getActivity();
 		if (activity != null) {
 			ActionBar actionBar = activity.getSupportActionBar();
 
-			gestureDetector = new GestureDetector(getActivity(), new HeadlineGestureDetector(actionBar, Controller.getInstance().hideActionbar()));
+			gestureDetector = new GestureDetector(getActivity(),
+					new HeadlineListGestureListener(actionBar, Controller.getInstance().hideActionbar(), getActivity()));
 			gestureListener = new View.OnTouchListener() {
 				public boolean onTouch(View v, MotionEvent event) {
 					return gestureDetector.onTouchEvent(event) || v.performClick();
@@ -305,45 +304,44 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
 		return adapter.getIds();
 	}
 
-	private class HeadlineGestureDetector extends MyGestureDetector {
-		private HeadlineGestureDetector(ActionBar actionBar, boolean hideActionbar) {
-			super(actionBar, hideActionbar);
+	private class HeadlineListGestureListener extends SwipeGestureListener {
+		private HeadlineListGestureListener(ActionBar actionBar, boolean hideActionbar, Activity activity) {
+			super(actionBar, hideActionbar, activity);
 		}
 
 		@Override
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-			// Refresh metrics-data in Controller
-			FragmentActivity activity = getActivity();
-			if (activity != null) {
-				WindowManager wm = ((WindowManager) activity.getSystemService(Context.WINDOW_SERVICE));
-				if (wm != null)
-					Controller.refreshDisplayMetrics(wm.getDefaultDisplay());
-			}
 
 			try {
 				if (Math.abs(e1.getY() - e2.getY()) > Controller.relSwipeMaxOffPath)
 					return false;
-				if (e1.getX() - e2.getX() > Controller.relSwipeMinDistance && Math.abs(velocityX) > Controller.relSwipeThresholdVelocity) {
 
-					// right to left swipe
-					FeedHeadlineActivity fhActivity = (FeedHeadlineActivity) getActivity();
-					if (fhActivity != null)
-						fhActivity.openNextFeed(1);
-					return true;
-
-				} else if (e2.getX() - e1.getX() > Controller.relSwipeMinDistance && Math.abs(velocityX) > Controller.relSwipeThresholdVelocity) {
-
-					// left to right swipe
-					FeedHeadlineActivity fhActivity = (FeedHeadlineActivity) getActivity();
-					if (fhActivity != null)
-						fhActivity.openNextFeed(-1);
-					return true;
-
-				}
+				return super.onFling(e1, e2, velocityX, velocityY);
 			} catch (Exception e) {
 				// Empty!
 			}
 			return false;
+		}
+
+		@Override
+		public boolean onSwipe(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+			int pos1 = getListView().pointToPosition((int)e1.getX(), (int)e1.getY());
+			int pos2 = getListView().pointToPosition((int)e2.getX(), (int)e2.getY());
+			if (pos1 == pos2 && pos1 >= 0 && e2.getX() > e1.getX()){
+				Article article = (Article)adapter.getItem(pos1);
+				new Updater(getActivity(), new ArticleReadStateUpdater(article, article.isUnread ? 0 : 1)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+				// https://stackoverflow.com/questions/4817770/android-listview-with-onitemclicklistener-and-gesturedetector
+				MotionEvent cancelEvent = MotionEvent.obtain(e2);
+				cancelEvent.setAction(MotionEvent.ACTION_CANCEL);
+				getListView().onTouchEvent(cancelEvent);
+				return true;
+			}
+
+			int direction = e1.getX() > e2.getX() ? 1 : -1;
+			FeedHeadlineActivity fhActivity = (FeedHeadlineActivity) getActivity();
+			if (fhActivity != null)
+				fhActivity.openNextFeed(direction);
+			return true;
 		}
 	}
 
