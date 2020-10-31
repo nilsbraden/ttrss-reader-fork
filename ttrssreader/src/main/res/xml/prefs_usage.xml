@@ -59,6 +59,11 @@
             android:summary="@string/GoBackAfterMarkAllReadPreferenceSummary"
             android:title="@string/GoBackAfterMarkAllReadPreferenceTitle"/>
         <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="PreferMarkReadOverPublish"
+            android:summary="@string/DisplayMarkReadInsteadOfPublishSummary"
+            android:title="@string/DisplayMarkReadInsteadOfPublishTitle" />
+        <CheckBoxPreference
             android:defaultValue="true"
             android:key="HideActionbarPreference"
             android:summary="@string/HideActionbarSummary"

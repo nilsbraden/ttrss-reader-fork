@@ -618,6 +618,11 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			}
 		}
 
+		if (Controller.getInstance().preferMarkReadOverPublish()) {
+			read.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+			publish.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+		}
+
 		MenuItem star = menu.findItem(R.id.Article_Menu_MarkStar);
 		if (star != null) {
 			if (article.isStarred) {

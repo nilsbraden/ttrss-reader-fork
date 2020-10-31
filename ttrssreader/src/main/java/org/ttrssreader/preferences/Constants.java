@@ -103,6 +103,7 @@ public class Constants {
 	public static final String INVERT_SORT_ARTICLELIST = "InvertSortArticlelistPreference";
 	public static final String INVERT_SORT_FEEDSCATS = "InvertSortFeedscatsPreference";
 	public static final String ALIGN_FLUSH_LEFT = "DisplayAlignFlushLeftPreference";
+	public static final String PREFER_MARK_READ_OVER_PUBLISH = "PreferMarkReadOverPublish";
 	public static final String DATE_TIME_SYSTEM = "DisplayDateTimeFormatSystemPreference";
 	public static final String DATE_STRING = "DisplayDateFormatPreference";
 	public static final String TIME_STRING = "DisplayTimeFormatPreference";
