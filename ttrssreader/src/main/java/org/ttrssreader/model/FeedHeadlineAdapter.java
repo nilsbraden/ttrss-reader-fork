@@ -123,6 +123,10 @@ public class FeedHeadlineAdapter extends MainAdapter {
 		setFeedImage(holder.feedicon, f);
 
 		holder.title.setText(a.title);
+		float opacity = a.isUnread ? 1 : 0.7f;
+		for (View transparent: new View[]{holder.title, holder.updateDate, holder.dataSource}) {
+			transparent.setAlpha(opacity);
+		}
 		if (a.isUnread)
 			holder.title.setTypeface(Typeface.DEFAULT_BOLD);
 		else
