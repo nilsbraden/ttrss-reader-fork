@@ -17,25 +17,42 @@
 
 package org.ttrssreader.gui.view;
 
+import android.app.Activity;
+import android.content.Context;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 
+import android.view.WindowManager;
 import org.ttrssreader.controllers.Controller;
 
 import androidx.appcompat.app.ActionBar;
 
-public class MyGestureDetector extends GestureDetector.SimpleOnGestureListener {
+public class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
 
 	@SuppressWarnings("unused")
-	private static final String TAG = MyGestureDetector.class.getSimpleName();
+	private static final String TAG = MyGestureListener.class.getSimpleName();
 
 	private ActionBar actionBar;
 	private boolean hideActionbar;
 	private long lastShow = -1;
+	private Activity activity;
 
-	public MyGestureDetector(ActionBar actionBar, boolean hideActionbar) {
+	public MyGestureListener(ActionBar actionBar, boolean hideActionbar, Activity activity) {
 		this.actionBar = actionBar;
 		this.hideActionbar = hideActionbar;
+		this.activity = activity;
+	}
+
+	@Override
+	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+		// Refresh metrics-data in Controller
+		if (activity != null) {
+			WindowManager wm = ((WindowManager) activity.getSystemService(Context.WINDOW_SERVICE));
+			if (wm != null)
+				Controller.refreshDisplayMetrics(wm.getDefaultDisplay());
+		}
+
+		return super.onFling(e1, e2, velocityX, velocityY);
 	}
 
 	@Override
@@ -62,5 +79,4 @@ public class MyGestureDetector extends GestureDetector.SimpleOnGestureListener {
 
 		return false;
 	}
-
 }

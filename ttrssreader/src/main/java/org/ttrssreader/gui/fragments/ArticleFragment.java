@@ -45,7 +45,6 @@ import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
-import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -73,8 +72,8 @@ import org.ttrssreader.gui.dialogs.ArticleLabelDialog;
 import org.ttrssreader.gui.dialogs.ImageCaptionDialog;
 import org.ttrssreader.gui.interfaces.TextInputAlertCallback;
 import org.ttrssreader.gui.view.ArticleWebViewClient;
-import org.ttrssreader.gui.view.MyGestureDetector;
 import org.ttrssreader.gui.view.MyWebView;
+import org.ttrssreader.gui.view.SwipeGestureListener;
 import org.ttrssreader.imageCache.ImageCache;
 import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Feed;
@@ -100,7 +99,6 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -285,7 +283,8 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 				ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
 
 				// Detect touch gestures like swipe and scroll down:
-				gestureDetector = new GestureDetector(getActivity(), new ArticleGestureDetector(actionBar, Controller.getInstance().hideActionbar()));
+				gestureDetector = new GestureDetector(getActivity(),
+						new ArticleGestureListener(actionBar, Controller.getInstance().hideActionbar(), getActivity()));
 
 				gestureListener = (v, event) -> {
 					gestureDetector.onTouchEvent(event);
@@ -951,21 +950,13 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 		return html;
 	}
 
-	private class ArticleGestureDetector extends MyGestureDetector {
-		private ArticleGestureDetector(ActionBar actionBar, boolean hideActionbar) {
-			super(actionBar, hideActionbar);
+	private class ArticleGestureListener extends SwipeGestureListener {
+		private ArticleGestureListener(ActionBar actionBar, boolean hideActionbar, Activity activity) {
+			super(actionBar, hideActionbar, activity);
 		}
 
 		@Override
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-			// Refresh metrics-data in Controller
-			FragmentActivity activity = getActivity();
-			if (activity != null) {
-				WindowManager wm = ((WindowManager) activity.getSystemService(Context.WINDOW_SERVICE));
-				if (wm != null)
-					Controller.refreshDisplayMetrics(wm.getDefaultDisplay());
-			}
-
 			if (Math.abs(e1.getY() - e2.getY()) > Controller.relSwipeMaxOffPath)
 				return false;
 
@@ -975,26 +966,19 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			if (distX < 1.3 * distY)
 				return false;
 
-			if (e1.getX() - e2.getX() > Controller.relSwipeMinDistance && Math.abs(velocityX) > Controller.relSwipeThresholdVelocity) {
-
-				// right to left swipe
-				FeedHeadlineActivity fhActivity = (FeedHeadlineActivity) getActivity();
-				if (fhActivity != null)
-					fhActivity.openNextArticle(1);
-				return true;
-
-			} else if (e2.getX() - e1.getX() > Controller.relSwipeMinDistance && Math.abs(velocityX) > Controller.relSwipeThresholdVelocity) {
-
-				// left to right swipe
-				FeedHeadlineActivity fhActivity = (FeedHeadlineActivity) getActivity();
-				if (fhActivity != null)
-					fhActivity.openNextArticle(-1);
-				return true;
-
-			}
-			return false;
+			return super.onFling(e1, e2, velocityX, velocityY);
 		}
 
+		@Override
+		public boolean onSwipe(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+			int direction = e1.getX() > e1.getY() ? 1 : -1;
+
+			FeedHeadlineActivity fhActivity = (FeedHeadlineActivity) getActivity();
+			if (fhActivity != null)
+				fhActivity.openNextArticle(direction);
+
+			return true;
+		}
 	}
 
 	@Override
