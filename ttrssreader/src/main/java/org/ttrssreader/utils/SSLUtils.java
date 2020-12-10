@@ -46,14 +46,13 @@ import javax.net.ssl.X509TrustManager;
 public class SSLUtils {
 
 	private static final String TAG = SSLUtils.class.getSimpleName();
+	public volatile static SSLSocketFactory factory;
 
 	public static void initSslSocketFactory(KeyManager[] km, TrustManager[] tm) throws KeyManagementException, NoSuchAlgorithmException {
 
 		SSLContext ctx = SSLContext.getInstance("TLS");
 		ctx.init(km, tm, null);
-		SSLSocketFactory factory = ctx.getSocketFactory();
-
-		HttpsURLConnection.setDefaultSSLSocketFactory(factory);
+		factory = ctx.getSocketFactory();
 	}
 
 	public static void initPrivateKeystore(String password) throws GeneralSecurityException {
@@ -134,6 +133,6 @@ public class SSLUtils {
 		KeyManager km = new KeyChainKeyManager();
 		SSLContext sslContext = SSLContext.getInstance("TLS");
 		sslContext.init(new KeyManager[]{km}, null, null);
-		HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+		initSslSocketFactory(new KeyManager[]{km}, null);
 	}
 }

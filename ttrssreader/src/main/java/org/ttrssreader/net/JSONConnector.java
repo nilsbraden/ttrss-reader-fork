@@ -37,6 +37,8 @@ import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.pojos.Label;
 import org.ttrssreader.preferences.Constants;
+import org.ttrssreader.utils.KeyChainKeyManager;
+import org.ttrssreader.utils.SSLUtils;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
 
@@ -52,6 +54,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLPeerUnverifiedException;
 
 import okhttp3.Credentials;
@@ -180,6 +185,7 @@ public class JSONConnector {
 
 			// Build Client-Object:
 			OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder();
+			clientBuilder.sslSocketFactory(SSLUtils.factory);
 			clientBuilder.proxy(getProxy());
 			clientBuilder.readTimeout(10, timeoutUnit);
 			this.client = clientBuilder.build();
