@@ -498,7 +498,7 @@ public class JSONConnector {
 	}
 
 	/**
-	 * Tries to login to the ttrss-server with the base64-encoded password.
+	 * Tries to login to the ttrss-server with the password.
 	 *
 	 * @return true on success, false otherwise
 	 */
@@ -518,8 +518,7 @@ public class JSONConnector {
 
 			if (!isSingleUser()) {
 				params.put(PARAM_USER, Controller.getInstance().username());
-				String pass = Utils.encodeBase64ToString(Controller.getInstance().password());
-				params.put(PARAM_PW, pass);
+				params.put(PARAM_PW, Controller.getInstance().password());
 			}
 
 			try {
