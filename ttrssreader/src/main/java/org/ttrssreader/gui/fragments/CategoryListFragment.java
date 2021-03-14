@@ -150,7 +150,7 @@ public class CategoryListFragment extends MainListFragment {
 		switch (item.getItemId()) {
 			case R.id.Menu_MarkAllRead: {
 				IUpdatable updateable = new ReadStateUpdater(ReadStateUpdater.TYPE.ALL_CATEGORIES);
-				ReadStateDialog.getInstance(updateable, backAfterUpdate).show(activity.getSupportFragmentManager());
+				ReadStateDialog.getInstance(updateable, false).show(activity.getSupportFragmentManager());
 				return true;
 			}
 			case R.id.Menu_MarkFeedsRead:
