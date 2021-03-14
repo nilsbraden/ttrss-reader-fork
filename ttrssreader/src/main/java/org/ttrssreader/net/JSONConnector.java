@@ -1140,6 +1140,7 @@ public class JSONConnector {
 	 *
 	 * @param id         the feed-id/category-id.
 	 * @param isCategory indicates whether id refers to a feed or a category.
+	 * @param mode       indicates range of articles to mark as read - "all", "1day", "1week", "2week".
 	 * @return true if the operation succeeded.
 	 */
 	public boolean setRead(int id, boolean isCategory) {
@@ -1147,6 +1148,7 @@ public class JSONConnector {
 		params.put(PARAM_OP, VALUE_CATCHUP);
 		params.put(PARAM_FEED_ID, id + "");
 		params.put(PARAM_IS_CAT, (isCategory ? "1" : "0"));
+		params.put(PARAM_MODE, "all");
 		return doRequestNoAnswer(params);
 	}
 
