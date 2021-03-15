@@ -161,13 +161,13 @@ public class JSONConnector {
 
 	/**
 	 * TODO: Probably it would be better to listen for change events on preferences directly but this was the quick and easy way.
-	 *
+	 * <p>
 	 * The following preferences are checked for changes:
 	 * - useProxy
 	 * - proxyHost
 	 * - proxyPort
 	 * - lazyServer
-	 *
+	 * <p>
 	 * If any of these change we need to re-initialize the OkHttpClient, otherwise we can re-use the existing instance, shaving off some ms on every API request.
 	 */
 	private void initHttpClient() {
@@ -698,7 +698,11 @@ public class JSONConnector {
 						else
 							a.note = reader.nextString();
 						break;
+					case score:
+						a.score = reader.nextInt();
+						break;
 					default:
+						//Log.d(TAG, "Skipped field " + field);
 						reader.skipValue();
 						continue;
 				}

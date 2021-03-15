@@ -84,6 +84,7 @@ class FeedHeadlineCursorHelper extends MainCursorHelper {
 				long max = System.currentTimeMillis() - Controller.getInstance().getFreshArticleMaxAge();
 				query.append(" AND a.updateDate>").append(max);
 				query.append(" AND a.isUnread>0");
+				query.append(" AND (a.score is null or a.score>=0)");
 				break;
 
 			case Data.VCAT_ALL:

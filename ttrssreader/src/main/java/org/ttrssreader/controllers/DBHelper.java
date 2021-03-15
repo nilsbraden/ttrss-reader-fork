@@ -64,7 +64,7 @@ public class DBHelper {
 	private static final String TAG = DBHelper.class.getSimpleName();
 
 	private static final String DATABASE_NAME = "ttrss.db";
-	private static final int DATABASE_VERSION = 65;
+	private static final int DATABASE_VERSION = 66;
 
 	public static final String[] CATEGORIES_COLUMNS = new String[]{"_id", "title", "unread"};
 
@@ -549,7 +549,17 @@ public class DBHelper {
 			if (oldVersion < 65) {
 				String sql = "ALTER TABLE " + TABLE_FEEDS + " ADD COLUMN icon BLOB";
 
-				Log.i(TAG, String.format("Upgrading database from %s to 61.", oldVersion));
+				Log.i(TAG, String.format("Upgrading database from %s to 65.", oldVersion));
+				Log.i(TAG, String.format(" (Executing: %s", sql));
+
+				db.execSQL(sql);
+				didUpgrade = true;
+			}
+
+			if (oldVersion < 66) {
+				String sql = "ALTER TABLE " + TABLE_ARTICLES + " ADD COLUMN score INTEGER";
+
+				Log.i(TAG, String.format("Upgrading database from %s to 66.", oldVersion));
 				Log.i(TAG, String.format(" (Executing: %s", sql));
 
 				db.execSQL(sql);

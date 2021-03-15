@@ -39,6 +39,7 @@ public class Article implements Comparable<Article> {
 	public String author;
 	public String feedTitle;
 	public String note;
+	public int score;
 
 	@Override
 	public int compareTo(Article ai) {
@@ -62,7 +63,7 @@ public class Article implements Comparable<Article> {
 	}
 
 	public enum ArticleField {
-		id, guid, title, unread, updated, feed_id, content, link, comments, attachments, marked, published, labels, is_updated, tags, feed_title, comments_count, comments_link, always_display_attachments, author, score, lang, note
+		id, guid, title, unread, updated, feed_id, content, link, comments, attachments, marked, published, labels, is_updated, tags, feed_title, comments_count, comments_link, always_display_attachments, author, lang, note, score
 	}
 
 }
