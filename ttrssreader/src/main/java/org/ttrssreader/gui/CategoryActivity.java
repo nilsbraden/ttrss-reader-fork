@@ -199,6 +199,12 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		boolean ret = super.onPrepareOptionsMenu(menu);
 		menu.removeItem(R.id.Menu_MarkFeedRead);
+
+		if (!Controller.isTablet && selectedCategoryId != Integer.MIN_VALUE)
+			menu.removeItem(R.id.Menu_MarkAllRead);
+		if (selectedCategoryId == Integer.MIN_VALUE)
+			menu.removeItem(R.id.Menu_MarkFeedsRead);
+
 		return ret;
 	}
 

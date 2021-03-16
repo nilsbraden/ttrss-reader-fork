@@ -129,15 +129,6 @@ public class CategoryListFragment extends MainListFragment {
 	}
 
 	@Override
-	public void onPrepareOptionsMenu(Menu menu) {
-		if (!Controller.isTablet && selectedId != Integer.MIN_VALUE)
-			menu.removeItem(R.id.Menu_MarkAllRead);
-		if (selectedId == Integer.MIN_VALUE)
-			menu.removeItem(R.id.Menu_MarkFeedsRead);
-		super.onPrepareOptionsMenu(menu);
-	}
-
-	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (super.onOptionsItemSelected(item))
 			return true;
@@ -146,7 +137,8 @@ public class CategoryListFragment extends MainListFragment {
 		if (activity == null)
 			return false;
 
-		boolean backAfterUpdate = Controller.getInstance().goBackAfterMarkAllRead();
+		boolean backAfterUpdate = Controller.getInstance().goBackAfterMarkAllRead() && !Controller.isTablet;
+
 		switch (item.getItemId()) {
 			case R.id.Menu_MarkAllRead: {
 				IUpdatable updateable = new ReadStateUpdater(ReadStateUpdater.TYPE.ALL_CATEGORIES);
