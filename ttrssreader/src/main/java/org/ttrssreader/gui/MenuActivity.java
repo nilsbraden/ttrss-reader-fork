@@ -23,6 +23,7 @@ import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -61,6 +62,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 
+import static org.ttrssreader.controllers.Controller.isTablet;
 
 /**
  * This class provides common functionality for Activities.
@@ -135,16 +137,17 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 		maxSize = displaySize - (int) (displaySize * 0.05);
 
 		// use tablet layout?
-		Controller.isTablet = (Controller.getInstance().allowTabletLayout() && divider != null);
+		isTablet = (Controller.getInstance().allowTabletLayout() && divider != null);
+		Log.i(TAG, String.format("Tablet layout: %s, minSize: %s, maxSize: %s, displaySize: %s, isVertical: %s", isTablet, minSize, maxSize, displaySize, isVertical));
 
 		// Hide divider if necessary
-		if (!Controller.isTablet && divider != null) {
+		if (!isTablet && divider != null) {
 			divider.setVisibility(View.GONE);
 			getWindow().getDecorView().getRootView().invalidate();
 		}
 
 		// Set proper frame sizes
-		if (Controller.isTablet) {
+		if (isTablet) {
 			// Resize frames and do it only if stored size is within our bounds:
 			int mainFrameSize = Controller.getInstance().getMainFrameSize(this, isVertical, minSize, maxSize);
 			int subFrameSize = displaySize - mainFrameSize;
@@ -600,7 +603,7 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 	public boolean onTouchEvent(MotionEvent ev) {
 		if (ev == null)
 			return false;
-		if (!Controller.isTablet)
+		if (!isTablet)
 			return false;
 
 		// Only handle events when the list-divider is selected or we are already resizing:
