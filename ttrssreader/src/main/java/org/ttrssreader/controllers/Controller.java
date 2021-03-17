@@ -636,7 +636,7 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 		if (prefs.contains(key))
 			return prefs.getString(key, EMPTY);
 		else
-			return prefs.getString(KEYSTORE_PASSWORD, EMPTY);
+			return prefs.getString(CLIENT_CERTIFICATE, EMPTY);
 	}
 
 	public boolean urlNeedsAuthentication(URL url) {
