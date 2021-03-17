@@ -536,7 +536,7 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 		if (prefs.contains(key))
 			return prefs.getInt(key, Constants.PROXY_PORT_DEFAULT);
 		else
-			return prefs.getInt(PROXY_HOST, Constants.PROXY_PORT_DEFAULT);
+			return prefs.getInt(PROXY_PORT, Constants.PROXY_PORT_DEFAULT);
 	}
 
 	public boolean useHttpAuth() {
