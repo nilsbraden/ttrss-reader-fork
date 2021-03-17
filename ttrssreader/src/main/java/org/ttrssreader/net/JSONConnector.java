@@ -377,13 +377,12 @@ public class JSONConnector {
 	}
 
 	private JsonReader prepareReader(Map<String, String> params, boolean firstCall) throws IOException {
-		JsonReader reader = null;
 		Reader in = doRequest(params);
 		if (in == null)
 			return null;
 
 		// Check if content contains array or object, array indicates login-response or error, object is content
-		reader = new JsonReader(in);
+		JsonReader reader = new JsonReader(in);
 		reader.beginObject();
 
 		while (reader.hasNext()) {
@@ -596,7 +595,6 @@ public class JSONConnector {
 	 * @return amount of processed articles
 	 */
 	private int parseArticleArray(final Set<Article> articles, JsonReader reader, IArticleOmitter filter) {
-		long time = System.currentTimeMillis();
 		int count = 0;
 
 		try {
@@ -1144,7 +1142,6 @@ public class JSONConnector {
 	 *
 	 * @param id         the feed-id/category-id.
 	 * @param isCategory indicates whether id refers to a feed or a category.
-	 * @param mode       indicates range of articles to mark as read - "all", "1day", "1week", "2week".
 	 * @return true if the operation succeeded.
 	 */
 	public boolean setRead(int id, boolean isCategory) {
@@ -1152,7 +1149,7 @@ public class JSONConnector {
 		params.put(PARAM_OP, VALUE_CATCHUP);
 		params.put(PARAM_FEED_ID, id + "");
 		params.put(PARAM_IS_CAT, (isCategory ? "1" : "0"));
-		params.put(PARAM_MODE, "all");
+		params.put(PARAM_MODE, "all"); // indicates range of articles to mark as read - "all", "1day", "1week", "2week".
 		return doRequestNoAnswer(params);
 	}
 
@@ -1323,7 +1320,7 @@ public class JSONConnector {
 	 * @return a string with the last error-message.
 	 */
 	public String pullLastError() {
-		@SuppressWarnings("RedundantStringConstructorCall") String ret = new String(lastError);
+		String ret = lastError;
 		lastError = "";
 		hasLastError = false;
 		return ret;

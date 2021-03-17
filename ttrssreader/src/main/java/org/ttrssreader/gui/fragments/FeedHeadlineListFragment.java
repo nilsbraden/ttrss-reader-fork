@@ -234,29 +234,25 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
 		if (activity == null)
 			return false;
 
-		switch (item.getItemId()) {
-			case R.id.Menu_MarkFeedRead: {
-				boolean backAfterUpdate = Controller.getInstance().goBackAfterMarkAllRead();
-				if (selectArticlesForCategory) {
-					IUpdatable updateable = new ReadStateUpdater(categoryId);
-					ReadStateDialog.getInstance(updateable, backAfterUpdate).show(activity.getSupportFragmentManager());
-				} else if (feedId >= -4 && feedId < 0) { // Virtual Category
-					IUpdatable updateable = new ReadStateUpdater(feedId, 42);
-					ReadStateDialog.getInstance(updateable, backAfterUpdate).show(activity.getSupportFragmentManager());
-				} else {
-					new Updater(activity, new ReadStateUpdater(feedId, 42), backAfterUpdate).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-				}
-
-				return true;
+		int itemId = item.getItemId();
+		if (itemId == R.id.Menu_MarkFeedRead) {
+			boolean backAfterUpdate = Controller.getInstance().goBackAfterMarkAllRead();
+			if (selectArticlesForCategory) {
+				IUpdatable updateable = new ReadStateUpdater(categoryId);
+				ReadStateDialog.getInstance(updateable, backAfterUpdate).show(activity.getSupportFragmentManager());
+			} else if (feedId >= -4 && feedId < 0) { // Virtual Category
+				IUpdatable updateable = new ReadStateUpdater(feedId, 42);
+				ReadStateDialog.getInstance(updateable, backAfterUpdate).show(activity.getSupportFragmentManager());
+			} else {
+				new Updater(activity, new ReadStateUpdater(feedId, 42), backAfterUpdate).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 			}
-			case R.id.Menu_FeedUnsubscribe: {
-				YesNoUpdaterDialog dialog = YesNoUpdaterDialog.getInstance(new UnsubscribeUpdater(feedId), R.string.Dialog_unsubscribeTitle, R.string.Dialog_unsubscribeText);
-				dialog.show(activity.getSupportFragmentManager(), YesNoUpdaterDialog.DIALOG);
-				return true;
-			}
-			default:
-				return false;
+			return true;
+		} else if (itemId == R.id.Menu_FeedUnsubscribe) {
+			YesNoUpdaterDialog dialog = YesNoUpdaterDialog.getInstance(new UnsubscribeUpdater(feedId), R.string.Dialog_unsubscribeTitle, R.string.Dialog_unsubscribeText);
+			dialog.show(activity.getSupportFragmentManager(), YesNoUpdaterDialog.DIALOG);
+			return true;
 		}
+		return false;
 	}
 
 	/**

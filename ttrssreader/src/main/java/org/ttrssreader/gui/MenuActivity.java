@@ -69,7 +69,6 @@ import static org.ttrssreader.controllers.Controller.isTablet;
  */
 public abstract class MenuActivity extends MenuFlavorActivity implements IUpdateEndListener, ICacheEndListener, IItemSelectedListener, IDataChangedListener {
 
-	@SuppressWarnings("unused")
 	private static final String TAG = MenuActivity.class.getSimpleName();
 
 	private PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
@@ -379,55 +378,53 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 		if (super.onOptionsItemSelected(item))
 			return true;
 
-		switch (item.getItemId()) {
-			case android.R.id.home:
-				// Go to the CategoryActivity and clean the return-stack
-				Intent intent = new Intent(this, CategoryActivity.class);
-				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				startActivity(intent);
-				return true;
-			case R.id.Menu_DisplayOnlyUnread:
-				Controller.getInstance().setDisplayOnlyUnread(!Controller.getInstance().onlyUnread());
-				doRefresh();
-				return true;
-			case R.id.Menu_DisplayOnlyCachedImages:
-				Controller.getInstance().setDisplayCachedImages(!Controller.getInstance().onlyDisplayCachedImages());
-				doRefresh();
-				return true;
-			case R.id.Menu_InvertSort:
-				if (this instanceof FeedHeadlineActivity) {
-					Controller.getInstance().setInvertSortArticleList(!Controller.getInstance().invertSortArticlelist());
-				} else {
-					Controller.getInstance().setInvertSortFeedsCats(!Controller.getInstance().invertSortFeedscats());
-				}
-				doRefresh();
-				return true;
-			case R.id.Menu_WorkOffline:
-				Controller.getInstance().setWorkOffline(!Controller.getInstance().workOffline());
-				if (!Controller.getInstance().workOffline()) {
-					// Synchronize status of articles with server
-					new Updater(this, new StateSynchronisationUpdater()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-				}
-				doRefresh();
-				return true;
-			case R.id.Menu_ShowPreferences:
-				startActivityForResult(new Intent(this, PreferencesActivity.class), Constants.ACTIVITY_SHOW_PREFERENCES);
-				return true;
-			case R.id.Menu_About:
-				startActivity(new Intent(this, AboutActivity.class));
-				return true;
-			case R.id.Category_Menu_ImageCache:
-				if (isCacherRunning())
-					doStopImageCache();
-				else
-					doStartImageCache();
-				return true;
-			case R.id.Menu_FeedSubscribe:
-				startActivity(new Intent(this, SubscribeActivity.class));
-				return true;
-			default:
-				return false;
+		int itemId = item.getItemId();
+		if (itemId == android.R.id.home) {// Go to the CategoryActivity and clean the return-stack
+			Intent intent = new Intent(this, CategoryActivity.class);
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(intent);
+			return true;
+		} else if (itemId == R.id.Menu_DisplayOnlyUnread) {
+			Controller.getInstance().setDisplayOnlyUnread(!Controller.getInstance().onlyUnread());
+			doRefresh();
+			return true;
+		} else if (itemId == R.id.Menu_DisplayOnlyCachedImages) {
+			Controller.getInstance().setDisplayCachedImages(!Controller.getInstance().onlyDisplayCachedImages());
+			doRefresh();
+			return true;
+		} else if (itemId == R.id.Menu_InvertSort) {
+			if (this instanceof FeedHeadlineActivity) {
+				Controller.getInstance().setInvertSortArticleList(!Controller.getInstance().invertSortArticlelist());
+			} else {
+				Controller.getInstance().setInvertSortFeedsCats(!Controller.getInstance().invertSortFeedscats());
+			}
+			doRefresh();
+			return true;
+		} else if (itemId == R.id.Menu_WorkOffline) {
+			Controller.getInstance().setWorkOffline(!Controller.getInstance().workOffline());
+			if (!Controller.getInstance().workOffline()) {
+				// Synchronize status of articles with server
+				new Updater(this, new StateSynchronisationUpdater()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+			}
+			doRefresh();
+			return true;
+		} else if (itemId == R.id.Menu_ShowPreferences) {
+			startActivityForResult(new Intent(this, PreferencesActivity.class), Constants.ACTIVITY_SHOW_PREFERENCES);
+			return true;
+		} else if (itemId == R.id.Menu_About) {
+			startActivity(new Intent(this, AboutActivity.class));
+			return true;
+		} else if (itemId == R.id.Category_Menu_ImageCache) {
+			if (isCacherRunning())
+				doStopImageCache();
+			else
+				doStartImageCache();
+			return true;
+		} else if (itemId == R.id.Menu_FeedSubscribe) {
+			startActivity(new Intent(this, SubscribeActivity.class));
+			return true;
 		}
+		return false;
 	}
 
 	@Override

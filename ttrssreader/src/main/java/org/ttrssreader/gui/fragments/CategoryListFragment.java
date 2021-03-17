@@ -139,21 +139,19 @@ public class CategoryListFragment extends MainListFragment {
 
 		boolean backAfterUpdate = Controller.getInstance().goBackAfterMarkAllRead() && !Controller.isTablet;
 
-		switch (item.getItemId()) {
-			case R.id.Menu_MarkAllRead: {
-				IUpdatable updateable = new ReadStateUpdater(ReadStateUpdater.TYPE.ALL_CATEGORIES);
-				ReadStateDialog.getInstance(updateable, false).show(activity.getSupportFragmentManager());
-				return true;
+		int itemId = item.getItemId();
+		if (itemId == R.id.Menu_MarkAllRead) {
+			IUpdatable updateable = new ReadStateUpdater(ReadStateUpdater.TYPE.ALL_CATEGORIES);
+			ReadStateDialog.getInstance(updateable, false).show(activity.getSupportFragmentManager());
+			return true;
+		} else if (itemId == R.id.Menu_MarkFeedsRead) {
+			if (selectedId > Integer.MIN_VALUE) {
+				IUpdatable updateable = new ReadStateUpdater(selectedId);
+				ReadStateDialog.getInstance(updateable, backAfterUpdate).show(activity.getSupportFragmentManager());
 			}
-			case R.id.Menu_MarkFeedsRead:
-				if (selectedId > Integer.MIN_VALUE) {
-					IUpdatable updateable = new ReadStateUpdater(selectedId);
-					ReadStateDialog.getInstance(updateable, backAfterUpdate).show(activity.getSupportFragmentManager());
-				}
-				return true;
-			default:
-				return false;
+			return true;
 		}
+		return false;
 	}
 
 	@Override

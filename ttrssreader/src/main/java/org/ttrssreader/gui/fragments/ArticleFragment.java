@@ -634,41 +634,34 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 		if (article == null)
 			return false; // No article object -> no action!
 
-		switch (item.getItemId()) {
-			case R.id.Article_Menu_MarkRead: {
-				new Updater(getActivity(), new ArticleReadStateUpdater(article, article.isUnread ? 0 : 1)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-				return true;
+		int itemId = item.getItemId();
+		if (itemId == R.id.Article_Menu_MarkRead) {
+			new Updater(getActivity(), new ArticleReadStateUpdater(article, article.isUnread ? 0 : 1)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+			return true;
+		} else if (itemId == R.id.Article_Menu_MarkStar) {
+			new Updater(getActivity(), new StarredStateUpdater(article, article.isStarred ? 0 : 1)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+			return true;
+		} else if (itemId == R.id.Article_Menu_MarkPublish) {
+			new Updater(getActivity(), new PublishedStateUpdater(article, article.isPublished ? 0 : 1)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+			return true;
+		} else if (itemId == R.id.Article_Menu_MarkNote) {
+			new TextInputAlert(this, article).show(getActivity());
+			return true;
+		} else if (itemId == R.id.Article_Menu_AddArticleLabel) {
+			if (getActivity() != null) {
+				DialogFragment dialog = ArticleLabelDialog.newInstance(article.id);
+				dialog.show(getActivity().getSupportFragmentManager(), "Edit Labels");
 			}
-			case R.id.Article_Menu_MarkStar: {
-				new Updater(getActivity(), new StarredStateUpdater(article, article.isStarred ? 0 : 1)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-				return true;
-			}
-			case R.id.Article_Menu_MarkPublish: {
-				new Updater(getActivity(), new PublishedStateUpdater(article, article.isPublished ? 0 : 1)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-				return true;
-			}
-			case R.id.Article_Menu_MarkNote: {
-				new TextInputAlert(this, article).show(getActivity());
-				return true;
-			}
-			case R.id.Article_Menu_AddArticleLabel: {
-				if (getActivity() != null) {
-					DialogFragment dialog = ArticleLabelDialog.newInstance(article.id);
-					dialog.show(getActivity().getSupportFragmentManager(), "Edit Labels");
-				}
-				return true;
-			}
-			case R.id.Article_Menu_ShareLink: {
-				Intent i = new Intent(Intent.ACTION_SEND);
-				i.setType("text/plain");
-				i.putExtra(Intent.EXTRA_TEXT, article.url);
-				i.putExtra(Intent.EXTRA_SUBJECT, article.title);
-				startActivity(Intent.createChooser(i, getText(R.string.ArticleActivity_ShareTitle)));
-				return true;
-			}
-			default:
-				return false;
+			return true;
+		} else if (itemId == R.id.Article_Menu_ShareLink) {
+			Intent i = new Intent(Intent.ACTION_SEND);
+			i.setType("text/plain");
+			i.putExtra(Intent.EXTRA_TEXT, article.url);
+			i.putExtra(Intent.EXTRA_SUBJECT, article.title);
+			startActivity(Intent.createChooser(i, getText(R.string.ArticleActivity_ShareTitle)));
+			return true;
 		}
+		return false;
 	}
 
 	/**
