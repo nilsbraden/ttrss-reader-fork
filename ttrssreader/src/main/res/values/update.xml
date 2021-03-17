@@ -17,11 +17,15 @@
 <resources>
 
     <string-array name="updates">
-	    <item>Version 1.96.2
-	         * Fix #445: Close app with "Go back after mark all read" on main page
+	    <item>Version 1.96.3
+	         * Fix #437: White screen on app launch by adding a default background showing the app icon
+	         * Fix #429: Hide articles with negative score in fresh feed
+	         * Second attempt: Fix #445: Problem with \"Go back after mark all items as read\"
+	         * Added more logging to check for problems with tablet ui</item>
+        <item>Version 1.96.2
+	         * Fix #445: Close app with \"Go back after mark all read\" on main page
 	         * Fix #439: Login issues due to removed base64 encoding of credentials
-	         * Fix #441: Mark as read generates a warning on the server
-	    </item>
+	         * Fix #441: Mark as read generates a warning on the server</item>
         <item>Version 1.96.1
 	         * Use OkHttp Library to reduce issues with SSL, optimize re-use of existing connection
 	         * Attempt fix of issue #425: Crash upon backing out to top of folder structure</item>
