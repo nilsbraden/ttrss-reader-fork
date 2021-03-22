@@ -23,11 +23,10 @@ import org.ttrssreader.model.pojos.Article;
 
 public class StarredStateUpdater implements IUpdatable {
 
-	@SuppressWarnings("unused")
-	private static final String TAG = StarredStateUpdater.class.getSimpleName();
+	//	private static final String TAG = StarredStateUpdater.class.getSimpleName();
 
-	private Article article;
-	private int articleState;
+	private final Article article;
+	private final int articleState;
 
 	/**
 	 * Sets the articles' Starred-Status according to articleState

@@ -22,8 +22,7 @@ import androidx.preference.PreferenceFragmentCompat;
 @Keep
 public class SystemPreferencesFragment extends PreferenceFragmentCompat {
 
-	@SuppressWarnings("unused")
-	private static final String TAG = SystemPreferencesFragment.class.getSimpleName();
+	//	private static final String TAG = SystemPreferencesFragment.class.getSimpleName();
 	private static final int ACTIVITY_CHOOSE_ATTACHMENT_FOLDER = 1;
 
 	@Override
@@ -51,7 +50,7 @@ public class SystemPreferencesFragment extends PreferenceFragmentCompat {
 				}
 
 				// Fail-Safe Dialog for when there is no filebrowser installed:
-				FileBrowserHelper.FileBrowserFailOverCallback callbackDownloadPath = new FileBrowserHelper.FileBrowserFailOverCallback() {
+				final FileBrowserHelper.FileBrowserFailOverCallback callbackDownloadPath = new FileBrowserHelper.FileBrowserFailOverCallback() {
 					@Override
 					public void onPathEntered(String path) {
 						downloadPath.setSummary(path);

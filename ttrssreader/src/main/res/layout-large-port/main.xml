@@ -14,7 +14,8 @@
   copy of the GNU General Public License along with this program; If
   not, see http://www.gnu.org/licenses/.
   -->
-<RelativeLayout android:id="@+id/frame_all"
+<RelativeLayout xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/frame_all"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -34,7 +35,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/frame_main"
-        android:background="?colorBackground">
+        android:background="?colorBackground"
+        tools:ignore="InconsistentLayout">
 
         <ImageView
             android:layout_width="match_parent"

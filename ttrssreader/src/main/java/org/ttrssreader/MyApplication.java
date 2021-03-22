@@ -31,8 +31,7 @@ public class MyApplication extends Application {
 
 	private static MyApplication instance;
 
-	@SuppressWarnings("unused")
-	private static final String TAG = MyApplication.class.getSimpleName();
+	//	private static final String TAG = MyApplication.class.getSimpleName();
 
 	public void onCreate() {
 

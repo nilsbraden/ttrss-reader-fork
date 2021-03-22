@@ -224,7 +224,6 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 		EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
 	}
 
-	@SuppressWarnings("unused")
 	@AfterPermissionGranted(ArticleWebViewClient.RC_STORAGE)
 	private void restartDownload() {
 		if (webView.getWebViewClient() instanceof ArticleWebViewClient) {
@@ -736,7 +735,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 	 */
 	private static class MyTagNodeVisitor implements TagNodeVisitor {
 		private String alt = null;
-		private String extra;
+		private final String extra;
 
 		private MyTagNodeVisitor(String extra) {
 			this.extra = extra;
@@ -804,7 +803,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 		return i;
 	}
 
-	private OnClickListener onButtonPressedListener = new OnClickListener() {
+	private final OnClickListener onButtonPressedListener = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
 			if (v.equals(buttonNext)) {
@@ -819,7 +818,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 		}
 	};
 
-	private OnKeyListener keyListener = (v, keyCode, event) -> {
+	private final OnKeyListener keyListener = (v, keyCode, event) -> {
 		if (Controller.getInstance().useVolumeKeys()) {
 			if (keyCode == KeyEvent.KEYCODE_N) {
 				FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
@@ -845,7 +844,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 		/**
 		 * current article activity, all methods fail silently if this doesn't contain an activity anmore
 		 */
-		private WeakReference<Activity> activityRef;
+		private final WeakReference<Activity> activityRef;
 
 		/**
 		 * public constructor, which saves calling activity as member variable

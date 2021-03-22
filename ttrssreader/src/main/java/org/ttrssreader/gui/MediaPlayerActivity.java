@@ -29,8 +29,7 @@ import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 
 public class MediaPlayerActivity extends Activity {
 
-	@SuppressWarnings("unused")
-	private static final String TAG = MediaPlayerActivity.class.getSimpleName();
+	//	private static final String TAG = MediaPlayerActivity.class.getSimpleName();
 
 	private PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
 

@@ -49,8 +49,7 @@ import androidx.loader.content.Loader;
 
 public class FeedListFragment extends MainListFragment {
 
-	@SuppressWarnings("unused")
-	private static final String TAG = FeedListFragment.class.getSimpleName();
+	//	private static final String TAG = FeedListFragment.class.getSimpleName();
 
 	private static final TYPE THIS_TYPE = TYPE.FEED;
 	public static final String FRAGMENT = "FEED_FRAGMENT";
@@ -97,7 +96,7 @@ public class FeedListFragment extends MainListFragment {
 	}
 
 	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+	public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v, ContextMenu.ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
 		menu.add(MARK_GROUP, MARK_READ, Menu.NONE, R.string.Commons_MarkRead);
 		menu.add(MARK_GROUP, UNSUBSCRIBE, Menu.NONE, R.string.Subscribe_unsubscribe);

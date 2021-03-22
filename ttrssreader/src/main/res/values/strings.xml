@@ -73,7 +73,7 @@
     <string name="SubscribeActivity_contentIsHTML">URL content is HTML, no feeds available.</string>
     <string name="SubscribeActivity_multipleFeeds">URL content is HTML which contains multiple feeds. Here you should call extractfeedurls in rpc-backend to get all possible feeds.</string>
     <string name="SubscribeActivity_cannotDownload">Couldn\'t download the URL content.</string>
-    <string name="SubscribeActivity_errorCode">Server returned code %s and the following message: %s</string>
+    <string name="SubscribeActivity_errorCode">Server returned code %1$s and the following message: %2$s</string>
     <string name="Commons_DisplayOnlyUnread">Display unread</string>
     <string name="Commons_DisplayOnlyCachedImages">Only cached articles</string>
     <string name="Commons_InvertSort">Invert order</string>

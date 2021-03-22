@@ -387,7 +387,7 @@ public class Utils {
 	 * version. If the version of the installed app is lower then this the feature "Send mail with stacktrace on error"
 	 * will be disabled to make sure I only receive "new" Bugreports.
 	 */
-	private static AsyncTask<Void, Void, Void> updateVersionTask = new AsyncTask<Void, Void, Void>() {
+	private static final AsyncTask<Void, Void, Void> updateVersionTask = new AsyncTask<Void, Void, Void>() {
 		@Override
 		protected Void doInBackground(Void... params) {
 			// Check last appVersionCheckDate

@@ -105,7 +105,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
 	private static final Executor SERIAL_EXECUTOR = new SerialExecutor();
 	private static final int MESSAGE_POST_RESULT = 0x1;
 	private static final int MESSAGE_POST_PROGRESS = 0x2;
-	private static volatile Executor sDefaultExecutor = SERIAL_EXECUTOR;
+	private static final Executor sDefaultExecutor = SERIAL_EXECUTOR;
 	private static InternalHandler sHandler;
 	private final WorkerRunnable<Params, Result> mWorker;
 	private final FutureTask<Result> mFuture;
@@ -551,7 +551,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
 			super(looper);
 		}
 
-		@SuppressWarnings({"unchecked", "RawUseOfParameterizedType"})
+		@SuppressWarnings({"unchecked"})
 		@Override
 		public void handleMessage(Message msg) {
 			AsyncTaskResult<?> result = (AsyncTaskResult<?>) msg.obj;

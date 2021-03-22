@@ -43,7 +43,7 @@ public class IdUpdatedArticleOmitter implements IArticleOmitter {
 	/**
 	 * articles, that were skipped
 	 */
-	private Set<Integer> omittedArticles = new HashSet<>();
+	private final Set<Integer> omittedArticles = new HashSet<>();
 
 	public IdUpdatedArticleOmitter(final long sinceId) {
 		String selectSince = "_id >= " + sinceId;

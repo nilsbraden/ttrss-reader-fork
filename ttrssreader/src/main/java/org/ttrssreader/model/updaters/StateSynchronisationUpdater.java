@@ -21,8 +21,7 @@ import org.ttrssreader.controllers.Data;
 
 public class StateSynchronisationUpdater implements IUpdatable {
 
-	@SuppressWarnings("unused")
-	private static final String TAG = StateSynchronisationUpdater.class.getSimpleName();
+	//	private static final String TAG = StateSynchronisationUpdater.class.getSimpleName();
 
 	@Override
 	public void update() {

@@ -10,8 +10,7 @@ import androidx.preference.PreferenceFragmentCompat;
 @Keep
 public class UsagePreferencesFragment extends PreferenceFragmentCompat {
 
-	@SuppressWarnings("unused")
-	private static final String TAG = UsagePreferencesFragment.class.getSimpleName();
+	//	private static final String TAG = UsagePreferencesFragment.class.getSimpleName();
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {

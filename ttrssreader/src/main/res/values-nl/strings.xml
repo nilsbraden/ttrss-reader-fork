@@ -253,7 +253,7 @@
     <string name="DisplayLoadImagesPreferenceTitle">Laad media</string>
     <string name="SubscribeActivity_cannotDownload">Kon de inhoud van de URL niet downloaden</string>
     <string name="SubscribeActivity_contentIsHTML">URL inhoud is HTML: geen feed beschikbaar</string>
-    <string name="SubscribeActivity_errorCode">Server gaf code %s en het volgende bericht: %s</string>
+    <string name="SubscribeActivity_errorCode">Server gaf code %1$s en het volgende bericht: %2$s</string>
     <string name="SubscribeActivity_invalidUrl">URL is niet geldig</string>
     <string name="SubscribeActivity_multipleFeeds">URL inhoud is HTML met meerdere feeds. Gelieve alle feeds te extraheren.</string>
     <string name="SubscribeActivity_offline">Offline, kan geen verbinding maken met de server.</string>

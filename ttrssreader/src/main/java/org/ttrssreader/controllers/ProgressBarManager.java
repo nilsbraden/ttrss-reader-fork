@@ -23,8 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ProgressBarManager {
 
-	@SuppressWarnings("unused")
-	private static final String TAG = ProgressBarManager.class.getSimpleName();
+	//	private static final String TAG = ProgressBarManager.class.getSimpleName();
 
 	private final AtomicInteger progressIndeterminateCount = new AtomicInteger();
 

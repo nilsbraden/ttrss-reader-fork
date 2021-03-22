@@ -30,7 +30,6 @@ import androidx.annotation.NonNull;
 
 public class ListContentProvider extends ContentProvider {
 
-	@SuppressWarnings("unused")
 	private static final String TAG = ListContentProvider.class.getSimpleName();
 	private static final String AUTHORITY = "org.ttrssreader";
 

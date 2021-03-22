@@ -42,7 +42,7 @@ public class ImageCache {
 
 	protected boolean isDiskCacheEnabled;
 	protected String diskCacheDir;
-	protected Set<String> cache;
+	protected final Set<String> cache;
 
 	public ImageCache(int initialCapacity, String cacheDir) {
 		this.cache = new HashSet<>(initialCapacity);

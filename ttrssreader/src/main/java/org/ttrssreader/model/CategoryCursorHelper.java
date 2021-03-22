@@ -30,8 +30,7 @@ import java.util.List;
 
 class CategoryCursorHelper extends MainCursorHelper {
 
-	@SuppressWarnings("unused")
-	private static final String TAG = CategoryCursorHelper.class.getSimpleName();
+	//	private static final String TAG = CategoryCursorHelper.class.getSimpleName();
 
 	@Override
 	public Cursor createCursor(SQLiteDatabase db, boolean overrideDisplayUnread, boolean buildSafeQuery) {

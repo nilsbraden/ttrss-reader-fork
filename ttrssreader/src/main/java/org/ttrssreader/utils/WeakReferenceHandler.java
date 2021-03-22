@@ -18,9 +18,12 @@
 package org.ttrssreader.utils;
 
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 
 import java.lang.ref.WeakReference;
+
+import androidx.annotation.NonNull;
 
 /**
  * Source: http://stackoverflow.com/a/13493726 (User: Timmmm)<br>
@@ -49,14 +52,16 @@ import java.lang.ref.WeakReference;
  * MsgHandler handler = new MsgHandler(this);
  */
 public abstract class WeakReferenceHandler<T> extends Handler {
-	private WeakReference<T> mReference;
+	private final WeakReference<T> mReference;
 
-	public WeakReferenceHandler(T reference) {
+	public WeakReferenceHandler(Looper looper, T reference) {
+		super(looper);
 		mReference = new WeakReference<>(reference);
 	}
 
+
 	@Override
-	public void handleMessage(Message msg) {
+	public void handleMessage(@NonNull Message msg) {
 		if (mReference.get() == null)
 			return;
 		handleMessage(mReference.get());

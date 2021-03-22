@@ -26,11 +26,10 @@ import androidx.appcompat.app.ActionBar;
 
 public class MyGestureDetector extends GestureDetector.SimpleOnGestureListener {
 
-	@SuppressWarnings("unused")
-	private static final String TAG = MyGestureDetector.class.getSimpleName();
+	//	private static final String TAG = MyGestureDetector.class.getSimpleName();
 
-	private ActionBar actionBar;
-	private boolean hideActionbar;
+	private final ActionBar actionBar;
+	private final boolean hideActionbar;
 	private long lastShow = -1;
 
 	public MyGestureDetector(ActionBar actionBar, boolean hideActionbar) {

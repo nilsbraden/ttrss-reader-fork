@@ -27,8 +27,7 @@ import org.ttrssreader.utils.Utils;
 
 class FeedCursorHelper extends MainCursorHelper {
 
-	@SuppressWarnings("unused")
-	private static final String TAG = FeedCursorHelper.class.getSimpleName();
+	//	private static final String TAG = FeedCursorHelper.class.getSimpleName();
 	public static final String[] FEED_COLUMNS = new String[]{"_id", "title", "unread", "icon"};
 
 	FeedCursorHelper(int categoryId) {

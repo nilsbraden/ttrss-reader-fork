@@ -64,13 +64,13 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 	private static final int ON_CACHE_INTERRUPTED = -2;
 	private static final int ON_CACHE_START = -3;
 
-	private ICacheEndListener parent;
-	ConnectivityManager cm;
+	private final ICacheEndListener parent;
+	final ConnectivityManager cm;
 
 	private volatile boolean shouldBeStopped = false;
 
-	private boolean onlyArticles;
-	private int networkType;
+	private final boolean onlyArticles;
+	private final int networkType;
 
 	private long cacheSizeMax;
 	private ImageCache imageCache;
@@ -80,8 +80,8 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 
 	private final Map<Integer, DownloadImageTask> map = new HashMap<>();
 	// Cache values and insert them later:
-	Map<Integer, List<String>> articleFiles = new HashMap<>();
-	Map<String, Long> remoteFiles = new HashMap<>();
+	final Map<Integer, List<String>> articleFiles = new HashMap<>();
+	final Map<String, Long> remoteFiles = new HashMap<>();
 
 	ImageCacher(ICacheEndListener parent, final Context context, boolean onlyArticles, int networkType) {
 		this.parent = parent;
@@ -346,8 +346,8 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 		private final long minFileSize = Controller.getInstance().cacheImageMinSize() * Utils.KB;
 		private final long maxFileSize = Controller.getInstance().cacheImageMaxSize() * Utils.KB;
 
-		private int articleId;
-		private List<String> fileUrls;
+		private final int articleId;
+		private final List<String> fileUrls;
 
 		// Thread-Local cache:
 		private final List<String> finishedFileUrls = new ArrayList<>();

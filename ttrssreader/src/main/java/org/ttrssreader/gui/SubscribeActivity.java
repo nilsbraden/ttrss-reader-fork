@@ -49,7 +49,6 @@ import androidx.annotation.NonNull;
 
 public class SubscribeActivity extends MenuActivity {
 
-	@SuppressWarnings("unused")
 	private static final String TAG = SubscribeActivity.class.getSimpleName();
 
 	private PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);

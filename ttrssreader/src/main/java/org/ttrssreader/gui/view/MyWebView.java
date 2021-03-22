@@ -23,20 +23,19 @@ import android.webkit.WebView;
 
 public class MyWebView extends WebView {
 
-	@SuppressWarnings("unused")
-	private static final String TAG = MyWebView.class.getSimpleName();
+	//	private static final String TAG = MyWebView.class.getSimpleName();
 
 	public MyWebView(Context context) {
 		super(context);
 	}
 
-	private OnEdgeReachedListener mOnTopReachedListener = null;
-	private OnEdgeReachedListener mOnBottomReachedListener = null;
+	private final OnEdgeReachedListener mOnTopReachedListener = null;
+	private final OnEdgeReachedListener mOnBottomReachedListener = null;
 
 	@SuppressWarnings("FieldCanBeLocal")
-	private int mMinTopDistance = 0;
+	private final int mMinTopDistance = 0;
 	@SuppressWarnings("FieldCanBeLocal")
-	private int mMinBottomDistance = 0;
+	private final int mMinBottomDistance = 0;
 
 	/**
 	 * Implement this interface if you want to be notified when the WebView has scrolled to the top or bottom.

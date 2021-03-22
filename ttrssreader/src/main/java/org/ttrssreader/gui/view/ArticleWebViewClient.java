@@ -62,8 +62,8 @@ public class ArticleWebViewClient extends WebViewClient {
 
 	public static final int RC_STORAGE = 13;
 
-	private ArticleFragment parentFragment;
-	private Context context;
+	private final ArticleFragment parentFragment;
+	private final Context context;
 	private String urlDownload;
 
 	public ArticleWebViewClient(ArticleFragment parentFragment) {
@@ -170,7 +170,6 @@ public class ArticleWebViewClient extends WebViewClient {
 		}
 	}
 
-	@SuppressWarnings("unused")
 	@AfterPermissionGranted(RC_STORAGE)
 	public void downloadStoredUrl() {
 		if (context == null || urlDownload == null)
@@ -188,7 +187,7 @@ public class ArticleWebViewClient extends WebViewClient {
 	private static class AsyncMediaDownloader extends AsyncTask<URL, Void, Void> {
 		private final String TAG = AsyncMediaDownloader.class.getSimpleName();
 		private final static int BUFFER = (int) Utils.KB;
-		private WeakReference<Context> contextRef;
+		private final WeakReference<Context> contextRef;
 
 		AsyncMediaDownloader(Context context) {
 			this.contextRef = new WeakReference<>(context);

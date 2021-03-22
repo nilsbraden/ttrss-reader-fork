@@ -29,8 +29,6 @@ public class KeyChainKeyManager extends X509ExtendedKeyManager {
 
 	/**
 	 * Retrieves the certificate chain for the alias.  This takes time, so do not call from main thread.
-	 *
-	 * @throws KeyChainException if the alias is not authorized ({@see KeyChain.choosePrivateKeyAlias}).
 	 */
 	@Override
 	public X509Certificate[] getCertificateChain(String alias) {
@@ -43,8 +41,6 @@ public class KeyChainKeyManager extends X509ExtendedKeyManager {
 
 	/**
 	 * Retrieves the private key for the alias.  This takes time, so do not call from main thread.
-	 *
-	 * @throws KeyChainException if the alias is not authorized ({@see KeyChain.choosePrivateKeyAlias}).
 	 */
 	@Override
 	public PrivateKey getPrivateKey(String alias) {

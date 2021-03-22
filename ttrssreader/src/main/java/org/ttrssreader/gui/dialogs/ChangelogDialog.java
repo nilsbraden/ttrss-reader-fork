@@ -19,7 +19,6 @@ package org.ttrssreader.gui.dialogs;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -30,12 +29,15 @@ import org.stringtemplate.v4.ST;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 
+import androidx.annotation.NonNull;
+
 public class ChangelogDialog extends MyDialogFragment {
 
 	public static ChangelogDialog getInstance() {
 		return new ChangelogDialog();
 	}
 
+	@NonNull
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 
@@ -46,12 +48,9 @@ public class ChangelogDialog extends MyDialogFragment {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setView(view);
 		builder.setPositiveButton(android.R.string.ok, null);
-		builder.setNeutralButton(getString(R.string.CategoryActivity_Donate), new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(final DialogInterface d, final int which) {
-				startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getResources().getString(R.string.DonateUrl))));
-				d.dismiss();
-			}
+		builder.setNeutralButton(getString(R.string.CategoryActivity_Donate), (d, which) -> {
+			startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getResources().getString(R.string.DonateUrl))));
+			d.dismiss();
 		});
 
 		final String[] changes = getResources().getStringArray(R.array.updates);

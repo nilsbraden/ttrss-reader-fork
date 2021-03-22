@@ -93,7 +93,6 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 
 	private volatile JSONConnector ttrssConnector;
 	private static final Object lockConnector = new Object();
-	private String sessionId = null;
 
 	private volatile ImageCache imageCache = null;
 	private boolean imageCacheLoaded = false;
@@ -136,7 +135,6 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	private String timeString = null;
 	private String dateTimeString = null;
 	private Integer theme = null;
-	private Integer themeCurrent = null;
 
 	private String saveAttachment = null;
 	private String saveAttachmentUri = null;

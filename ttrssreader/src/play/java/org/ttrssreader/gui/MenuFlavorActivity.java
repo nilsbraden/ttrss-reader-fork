@@ -17,7 +17,6 @@
 
 package org.ttrssreader.gui;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -88,12 +87,9 @@ public abstract class MenuFlavorActivity extends AppCompatActivity implements Pr
 
 			if (api.isUserResolvableError(errorCode)) {
 				// Recoverable error. Show a dialog prompting the user to install/update/enable Google Play services.
-				api.showErrorDialogFragment(this, errorCode, ERROR_DIALOG_REQUEST_CODE, new DialogInterface.OnCancelListener() {
-					@Override
-					public void onCancel(DialogInterface dialog) {
-						// The user chose not to take the recovery action
-						onProviderInstallerNotAvailable();
-					}
+				api.showErrorDialogFragment(this, errorCode, ERROR_DIALOG_REQUEST_CODE, dialog -> {
+					// The user chose not to take the recovery action
+					onProviderInstallerNotAvailable();
 				});
 			} else {
 				// Google Play services is not available.

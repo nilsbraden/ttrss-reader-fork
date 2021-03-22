@@ -19,7 +19,6 @@ package org.ttrssreader.gui;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.EditText;
@@ -30,11 +29,10 @@ import org.ttrssreader.model.pojos.Article;
 
 public class TextInputAlert {
 
-	@SuppressWarnings("unused")
-	private static final String TAG = TextInputAlert.class.getSimpleName();
+	//	private static final String TAG = TextInputAlert.class.getSimpleName();
 
-	private Article article;
-	private TextInputAlertCallback callback;
+	private final Article article;
+	private final TextInputAlertCallback callback;
 
 	public TextInputAlert(TextInputAlertCallback callback, Article article) {
 		this.callback = callback;
@@ -53,18 +51,12 @@ public class TextInputAlert {
 		input.setText(article.note);
 		alert.setView(input);
 
-		alert.setPositiveButton(context.getString(R.string.Utils_OkayAction), new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int whichButton) {
-				String value = input.getText().toString();
-				callback.onAddNoteResult(article, value);
-			}
+		alert.setPositiveButton(context.getString(R.string.Utils_OkayAction), (dialog, whichButton) -> {
+			String value = input.getText().toString();
+			callback.onAddNoteResult(article, value);
 		});
 
-		alert.setNegativeButton(context.getString(R.string.Utils_CancelAction), new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int whichButton) {
-				dialog.dismiss();
-			}
-		});
+		alert.setNegativeButton(context.getString(R.string.Utils_CancelAction), (dialog, whichButton) -> dialog.dismiss());
 
 		alert.show();
 	}

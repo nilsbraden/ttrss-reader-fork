@@ -29,15 +29,12 @@ import java.security.GeneralSecurityException;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
-import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
@@ -96,11 +93,11 @@ public class SSLUtils {
 		Log.i(TAG, "Enabling SSLUtils to trust all CERTIFICATES.");
 		X509TrustManager easyTrustManager = new X509TrustManager() {
 			@Override
-			public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+			public void checkClientTrusted(X509Certificate[] chain, String authType) {
 			}
 
 			@Override
-			public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+			public void checkServerTrusted(X509Certificate[] chain, String authType) {
 			}
 
 			@Override
@@ -117,13 +114,9 @@ public class SSLUtils {
 	public static void trustAllHost() {
 		Log.i(TAG, "Enabling SSLUtils to trust all HOSTS.");
 		try {
-			HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
-				@SuppressLint("BadHostnameVerifier")
-				@Override
-				public boolean verify(String hostname, SSLSession session) {
-					// This thing is supposed to return true since it specifically ignores all errors!
-					return true;
-				}
+			HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> {
+				// This thing is supposed to return true since it specifically ignores all errors!
+				return true;
 			});
 		} catch (Exception e) {
 			// Empty, HostnameVerifier cannot be null.

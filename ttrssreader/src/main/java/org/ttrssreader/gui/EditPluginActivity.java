@@ -15,7 +15,6 @@
 
 package org.ttrssreader.gui;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.widget.CheckBox;
 
@@ -31,8 +30,7 @@ import androidx.annotation.Nullable;
 
 public final class EditPluginActivity extends AbstractPluginActivity {
 
-	@SuppressWarnings("unused")
-	private static final String TAG = EditPluginActivity.class.getSimpleName();
+	//	private static final String TAG = EditPluginActivity.class.getSimpleName();
 
 	protected PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
 
@@ -46,7 +44,7 @@ public final class EditPluginActivity extends AbstractPluginActivity {
 	}
 
 	/* package */
-	static String generateBlurb(final Context context, final boolean images, final boolean notification) {
+	static String generateBlurb(final boolean images, final boolean notification) {
 		String imageText = (images ? "Caching images" : "Not caching images");
 		String notificationText = (notification ? "Showing notification" : "Not showing notification");
 		return imageText + ", " + notificationText;
@@ -91,6 +89,6 @@ public final class EditPluginActivity extends AbstractPluginActivity {
 	public String getResultBlurb(@NonNull Bundle bundle) {
 		final boolean images = ((CheckBox) findViewById(R.id.cb_images)).isChecked();
 		final boolean notification = ((CheckBox) findViewById(R.id.cb_notification)).isChecked();
-		return generateBlurb(getApplicationContext(), images, notification);
+		return generateBlurb(images, notification);
 	}
 }

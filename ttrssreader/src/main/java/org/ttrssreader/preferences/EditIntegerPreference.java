@@ -25,7 +25,6 @@ import androidx.preference.EditTextPreference;
 @SuppressWarnings("UnusedDeclaration")
 public class EditIntegerPreference extends EditTextPreference {
 
-	@SuppressWarnings("unused")
 	private static final String TAG = EditIntegerPreference.class.getSimpleName();
 
 	public EditIntegerPreference(Context context) {

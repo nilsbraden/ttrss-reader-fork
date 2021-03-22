@@ -28,7 +28,7 @@ import androidx.annotation.NonNull;
 
 public class YesNoDialog extends MyDialogFragment implements DialogInterface.OnClickListener {
 
-	public static final String DIALOG = "yesnodialog";
+	//	public static final String DIALOG = "yesnodialog";
 
 	private YesNoResultListener listener;
 	private int titleRes;

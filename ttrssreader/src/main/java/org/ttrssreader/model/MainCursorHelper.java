@@ -24,8 +24,7 @@ import org.ttrssreader.controllers.Controller;
 
 abstract class MainCursorHelper {
 
-	@SuppressWarnings("unused")
-	private static final String TAG = MainCursorHelper.class.getSimpleName();
+	//	private static final String TAG = MainCursorHelper.class.getSimpleName();
 
 	protected int categoryId = Integer.MIN_VALUE;
 	protected int feedId = Integer.MIN_VALUE;

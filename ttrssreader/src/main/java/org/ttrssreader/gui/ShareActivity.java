@@ -36,8 +36,7 @@ import androidx.annotation.NonNull;
 
 public class ShareActivity extends MenuActivity {
 
-	@SuppressWarnings("unused")
-	private static final String TAG = ShareActivity.class.getSimpleName();
+	//	private static final String TAG = ShareActivity.class.getSimpleName();
 	protected PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
 
 	private static final String PARAM_TITLE = "title";

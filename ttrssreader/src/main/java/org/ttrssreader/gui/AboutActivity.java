@@ -36,8 +36,7 @@ import static org.ttrssreader.R.id.AboutActivity_ThanksText;
 
 public class AboutActivity extends Activity {
 
-	@SuppressWarnings("unused")
-	private static final String TAG = AboutActivity.class.getSimpleName();
+	//	private static final String TAG = AboutActivity.class.getSimpleName();
 
 	private PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
 

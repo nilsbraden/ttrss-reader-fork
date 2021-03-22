@@ -36,11 +36,10 @@ import java.util.Date;
 
 public class FeedHeadlineAdapter extends MainAdapter {
 
-	@SuppressWarnings("unused")
-	private static final String TAG = FeedHeadlineAdapter.class.getSimpleName();
+	//	private static final String TAG = FeedHeadlineAdapter.class.getSimpleName();
 
-	private int feedId;
-	private boolean selectArticlesForCategory;
+	private final int feedId;
+	private final boolean selectArticlesForCategory;
 
 	public FeedHeadlineAdapter(Context context, int feedId, boolean selectArticlesForCategory) {
 		super(context);
@@ -63,7 +62,6 @@ public class FeedHeadlineAdapter extends MainAdapter {
 		return ret;
 	}
 
-	@SuppressWarnings("deprecation")
 	private static void setImage(ImageView icon, Article a) {
 		if (a.isUnread) {
 			icon.setBackgroundResource(R.drawable.articleunread48);

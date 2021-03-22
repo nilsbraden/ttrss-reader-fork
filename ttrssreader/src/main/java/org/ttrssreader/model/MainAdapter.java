@@ -28,8 +28,7 @@ import java.util.List;
 
 public abstract class MainAdapter extends SimpleCursorAdapter {
 
-	@SuppressWarnings("unused")
-	private static final String TAG = MainAdapter.class.getSimpleName();
+	//	private static final String TAG = MainAdapter.class.getSimpleName();
 
 	private static final int layout = R.layout.main;
 

@@ -459,7 +459,7 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 	}
 
 	private class ImageCacheUpdater implements IUpdatable {
-		int networkState;
+		final int networkState;
 
 		public ImageCacheUpdater(int networkState) {
 			this.networkState = networkState;
@@ -566,7 +566,7 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 	 */
 	abstract class ActivityUpdater extends AsyncTask<Void, Integer, Void> {
 		protected int taskCount = 0;
-		protected boolean forceUpdate;
+		protected final boolean forceUpdate;
 
 		ActivityUpdater(boolean forceUpdate) {
 			this.forceUpdate = forceUpdate;

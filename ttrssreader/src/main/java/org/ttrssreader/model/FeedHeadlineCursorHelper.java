@@ -30,8 +30,7 @@ import java.util.Date;
 
 class FeedHeadlineCursorHelper extends MainCursorHelper {
 
-	@SuppressWarnings("unused")
-	private static final String TAG = FeedHeadlineCursorHelper.class.getSimpleName();
+	//	private static final String TAG = FeedHeadlineCursorHelper.class.getSimpleName();
 	public static final String[] FEEDHEADLINE_COLUMNS = new String[]{"_id", "feedId", "title", "unread", "updateDate", "isStarred", "isPublished", "note", "feedTitle"};
 
 	FeedHeadlineCursorHelper(int feedId, int categoryId, boolean selectArticlesForCategory) {

@@ -12,8 +12,7 @@ import androidx.preference.PreferenceFragmentCompat;
 @Keep
 public class SSLPreferencesFragment extends PreferenceFragmentCompat {
 
-	@SuppressWarnings("unused")
-	private static final String TAG = SSLPreferencesFragment.class.getSimpleName();
+	//	private static final String TAG = SSLPreferencesFragment.class.getSimpleName();
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {

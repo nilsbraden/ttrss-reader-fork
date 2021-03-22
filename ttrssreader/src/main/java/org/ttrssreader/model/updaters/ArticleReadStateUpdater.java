@@ -28,11 +28,10 @@ import java.util.Set;
 
 public class ArticleReadStateUpdater implements IUpdatable {
 
-	@SuppressWarnings("unused")
-	private static final String TAG = ArticleReadStateUpdater.class.getSimpleName();
+	//	private static final String TAG = ArticleReadStateUpdater.class.getSimpleName();
 
-	private int state;
-	private Collection<Article> articles;
+	private final int state;
+	private final Collection<Article> articles;
 
 	/* articleState: 0 = mark as read, 1 = mark as unread */
 	public ArticleReadStateUpdater(Article article, int articleState) {

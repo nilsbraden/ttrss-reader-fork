@@ -20,7 +20,6 @@ package org.ttrssreader.gui;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -31,8 +30,7 @@ import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 
 public class ErrorActivity extends Activity {
 
-	@SuppressWarnings("unused")
-	private static final String TAG = ErrorActivity.class.getSimpleName();
+	//	private static final String TAG = ErrorActivity.class.getSimpleName();
 
 	private PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
 
@@ -62,26 +60,16 @@ public class ErrorActivity extends Activity {
 		errorText.setText(message);
 
 		Button prefBtn = (Button) this.findViewById(R.id.Preferences_Btn);
-		prefBtn.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View view) {
-				finish();
-				openPreferences();
-			}
+		prefBtn.setOnClickListener(view -> {
+			finish();
+			openPreferences();
 		});
 
 		Button exitBtn = (Button) this.findViewById(R.id.ErrorActivity_ExitBtn);
-		exitBtn.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View view) {
-				exitButtonPressed();
-			}
-		});
+		exitBtn.setOnClickListener(view -> exitButtonPressed());
 
 		Button closeBtn = (Button) this.findViewById(R.id.ErrorActivity_CloseBtn);
-		closeBtn.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View view) {
-				closeButtonPressed();
-			}
-		});
+		closeBtn.setOnClickListener(view -> closeButtonPressed());
 	}
 
 	@Override

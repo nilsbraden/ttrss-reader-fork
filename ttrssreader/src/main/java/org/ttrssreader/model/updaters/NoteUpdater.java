@@ -23,11 +23,10 @@ import org.ttrssreader.model.pojos.Article;
 
 public class NoteUpdater implements IUpdatable {
 
-	@SuppressWarnings("unused")
-	private static final String TAG = NoteUpdater.class.getSimpleName();
+	//	private static final String TAG = NoteUpdater.class.getSimpleName();
 
-	private Article article;
-	private String note;
+	private final Article article;
+	private final String note;
 
 	/**
 	 * Adds the given note to the article.

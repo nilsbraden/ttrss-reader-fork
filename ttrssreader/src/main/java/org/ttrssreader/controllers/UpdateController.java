@@ -18,6 +18,7 @@
 package org.ttrssreader.controllers;
 
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 
 import org.ttrssreader.gui.interfaces.IDataChangedListener;
@@ -25,13 +26,14 @@ import org.ttrssreader.gui.interfaces.IDataChangedListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+
 public class UpdateController {
 
-	@SuppressWarnings("unused")
-	private static final String TAG = UpdateController.class.getSimpleName();
+	//	private static final String TAG = UpdateController.class.getSimpleName();
 
-	private static List<IDataChangedListener> listeners = new ArrayList<>();
-	private static Handler handler = new UpdateControllerHandler();
+	private static final List<IDataChangedListener> listeners = new ArrayList<>();
+	private static final Handler handler = new UpdateControllerHandler(Looper.getMainLooper());
 
 	// Singleton (see http://stackoverflow.com/a/11165926)
 	private UpdateController() {
@@ -46,8 +48,12 @@ public class UpdateController {
 	}
 
 	private static class UpdateControllerHandler extends Handler {
+		public UpdateControllerHandler(Looper looper) {
+			super(looper);
+		}
+
 		@Override
-		public void handleMessage(Message msg) {
+		public void handleMessage(@NonNull Message msg) {
 			for (IDataChangedListener listener : UpdateController.listeners) {
 				listener.dataChanged();
 			}

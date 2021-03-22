@@ -12,8 +12,7 @@ import androidx.preference.PreferenceFragmentCompat;
 @Keep
 public class ConnectionPreferencesFragment extends PreferenceFragmentCompat {
 
-	@SuppressWarnings("unused")
-	private static final String TAG = ConnectionPreferencesFragment.class.getSimpleName();
+	//	private static final String TAG = ConnectionPreferencesFragment.class.getSimpleName();
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {

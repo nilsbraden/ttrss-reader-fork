@@ -32,8 +32,7 @@ import org.ttrssreader.model.pojos.Category;
 
 public class CategoryAdapter extends MainAdapter {
 
-	@SuppressWarnings("unused")
-	private static final String TAG = CategoryAdapter.class.getSimpleName();
+	//	private static final String TAG = CategoryAdapter.class.getSimpleName();
 
 	public CategoryAdapter(Context context) {
 		super(context);

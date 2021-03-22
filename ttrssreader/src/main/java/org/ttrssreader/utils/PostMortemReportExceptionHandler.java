@@ -69,8 +69,8 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
 
 	private static final String MSG_BODY = "Please help by sending this email. " + "No personal information is being sent (you can check by reading the rest of the email).";
 
-	private Thread.UncaughtExceptionHandler mDefaultUEH;
-	private Activity mAct;
+	private final Thread.UncaughtExceptionHandler mDefaultUEH;
+	private final Activity mAct;
 
 	public PostMortemReportExceptionHandler(Activity aAct) {
 		mDefaultUEH = Thread.getDefaultUncaughtExceptionHandler();

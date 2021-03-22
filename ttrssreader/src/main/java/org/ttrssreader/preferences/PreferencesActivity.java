@@ -39,14 +39,13 @@ import androidx.preference.PreferenceManager;
 
 public class PreferencesActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
 
-	@SuppressWarnings("unused")
-	private static final String TAG = PreferencesActivity.class.getSimpleName();
+	//	private static final String TAG = PreferencesActivity.class.getSimpleName();
 
 	public static final String KEY_SSID = "SSID";
 	public static final int ACTIVITY_RELOAD = 45;
 
 	private static AsyncTask<Void, Void, Void> init;
-	private static String TITLE_TAG = "settingsActivityTitle";
+	//	private static final String TITLE_TAG = "settingsActivityTitle";
 
 	private PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
 

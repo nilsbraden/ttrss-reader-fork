@@ -78,21 +78,20 @@ public class FileBrowserHelper {
 	 *                    (only used if there is a filebrowser installed)
 	 * @param callback    : the callbackDownloadPath (only used when no filebrowser is installed.
 	 *                    if a filebrowser is installed => override the onActivtyResult Method
-	 * @return true: if a filebrowser has been found (the result will be in the onActivityResult
-	 * false: a fallback textinput has been shown. The Result will be sent with the callbackDownloadPath method
+	 *                    false: a fallback textinput has been shown. The Result will be sent with the callbackDownloadPath method
 	 */
-	public boolean showFileBrowserActivity(Fragment fragment, File startPath, int requestcode, FileBrowserFailOverCallback callback) {
+	public void showFileBrowserActivity(Fragment fragment, File startPath, int requestcode, FileBrowserFailOverCallback callback) {
 		boolean success = false;
 
 		Intent intent;
-		if (Build.VERSION.SDK_INT >= 100000) { //Build.VERSION_CODES.N) { // TODO Use proper VERSION_CODE
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
 			intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
 			intent.addFlags(Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
 			intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
 			intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 
 			// Reset startPath to avoid people trying to change Uri:
-			startPath = Environment.getExternalStorageDirectory();
+			startPath = Environment.getStorageDirectory();
 		} else {
 			intent = new Intent(Intent.ACTION_PICK);
 			intent.setData(Uri.parse("folder://" + startPath.getPath()));
@@ -108,10 +107,7 @@ public class FileBrowserHelper {
 		if (!success) {
 			// No Filebrowser is installed => show a fallback textdialog
 			showPathTextInput(fragment.getActivity(), startPath, callback);
-			success = false;
 		}
-
-		return success;
 	}
 
 	private void showPathTextInput(final Activity c, final File startPath, final FileBrowserFailOverCallback callback) {

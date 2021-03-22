@@ -43,8 +43,7 @@ import androidx.preference.PreferenceManager;
 @Keep
 public class PreferencesFragment extends PreferenceFragmentCompat implements YesNoResultListener {
 
-	@SuppressWarnings("unused")
-	private static final String TAG = PreferencesFragment.class.getSimpleName();
+	//	private static final String TAG = PreferencesFragment.class.getSimpleName();
 
 	private static final String KEY_RESET_PREFERENCES = "ResetPreferences";
 	private static final String KEY_RESET_DATABASE = "ResetDatabase";

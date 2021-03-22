@@ -34,12 +34,12 @@ public class IdUnreadArticleOmitter implements IArticleOmitter {
 	/**
 	 * map of article IDs to it's updated date
 	 */
-	private Date lastUpdated;
+	private final Date lastUpdated;
 
 	/**
 	 * articles, that were skipped
 	 */
-	private Set<Integer> omittedArticles = new HashSet<>();
+	private final Set<Integer> omittedArticles = new HashSet<>();
 
 	/**
 	 * construct the object according to selection parameters

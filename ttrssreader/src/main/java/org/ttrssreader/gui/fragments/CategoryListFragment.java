@@ -48,8 +48,7 @@ import androidx.loader.content.Loader;
 
 public class CategoryListFragment extends MainListFragment {
 
-	@SuppressWarnings("unused")
-	private static final String TAG = CategoryListFragment.class.getSimpleName();
+	//	private static final String TAG = CategoryListFragment.class.getSimpleName();
 
 	private static final TYPE THIS_TYPE = TYPE.CATEGORY;
 	public static final String FRAGMENT = "CATEGORY_FRAGMENT";
@@ -85,7 +84,7 @@ public class CategoryListFragment extends MainListFragment {
 	}
 
 	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+	public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v, ContextMenu.ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
 		menu.add(MARK_GROUP, MARK_READ, Menu.NONE, R.string.Commons_MarkRead);
 		if (Controller.getInstance().invertBrowsing())
@@ -129,7 +128,7 @@ public class CategoryListFragment extends MainListFragment {
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		if (super.onOptionsItemSelected(item))
 			return true;
 

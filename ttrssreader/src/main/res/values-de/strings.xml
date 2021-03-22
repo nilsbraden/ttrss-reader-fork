@@ -56,7 +56,7 @@ not, see http://www.gnu.org/licenses/.
     <string name="SubscribeActivity_contentIsHTML">Seite enthält HTML, keine Feeds verfügbar.</string>
     <string name="SubscribeActivity_multipleFeeds">Seite enthält HTML mit mehreren Feeds. Hier muss extractfeedurls im RPC-Backend aufgerufen werden, um alle möglichen Feeds zu extrahieren.</string>
     <string name="SubscribeActivity_cannotDownload">Konnte die Seite nicht laden.</string>
-    <string name="SubscribeActivity_errorCode">Server hat den Fehlercode %s und die folgende Nachricht zurückgegeben: %s</string>
+    <string name="SubscribeActivity_errorCode">Server hat den Fehlercode %1$s und die folgende Nachricht zurückgegeben: %2$s</string>
     <string name="Commons_DisplayOnlyUnread">Ungelesene anzeigen</string>
     <string name="Commons_DisplayOnlyCachedImages">Nur Artikel aus Cache</string>
     <string name="Commons_InvertSort">Sortierung umkehren</string>

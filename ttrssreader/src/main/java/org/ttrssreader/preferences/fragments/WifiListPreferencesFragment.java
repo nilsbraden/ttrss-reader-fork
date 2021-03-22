@@ -49,14 +49,13 @@ import pub.devrel.easypermissions.EasyPermissions;
 @Keep
 public class WifiListPreferencesFragment extends PreferenceFragmentCompat implements StringResultListener, EasyPermissions.PermissionCallbacks {
 
-	@SuppressWarnings("unused")
 	private static final String TAG = WifiListPreferencesFragment.class.getSimpleName();
 
 	private static final String KEY_ADD_MANUAL = "WifibasedAddManual";
 	private static final int RC_LOCATION = 12;
 
 	private boolean dontAskAgain = false;
-	private Map<String, Boolean> mNewlyConfiguredWifiNetworks = new HashMap<>();
+	private final Map<String, Boolean> mNewlyConfiguredWifiNetworks = new HashMap<>();
 	private Map<String, Boolean> mConfiguredWifiNetworks = null;
 
 	@Override

@@ -49,8 +49,7 @@ import androidx.loader.content.Loader;
 
 public abstract class MainListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
-	@SuppressWarnings("unused")
-	private static final String TAG = MainListFragment.class.getSimpleName();
+	//	private static final String TAG = MainListFragment.class.getSimpleName();
 
 	protected static final int TYPE_CAT_ID = 1;
 	protected static final int TYPE_FEED_ID = 2;

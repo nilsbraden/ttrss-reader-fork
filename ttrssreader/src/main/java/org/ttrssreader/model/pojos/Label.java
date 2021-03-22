@@ -18,6 +18,8 @@
 package org.ttrssreader.model.pojos;
 
 
+import androidx.annotation.NonNull;
+
 public class Label implements Comparable<Label> {
 
 	public Integer id;
@@ -47,6 +49,7 @@ public class Label implements Comparable<Label> {
 		return id + "".hashCode();
 	}
 
+	@NonNull
 	@Override
 	public String toString() {
 		return caption + ";" + foregroundColor + ";" + backgroundColor;

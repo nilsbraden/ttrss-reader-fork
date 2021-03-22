@@ -19,12 +19,13 @@ package org.ttrssreader.gui.dialogs;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
 import org.ttrssreader.R;
 import org.ttrssreader.preferences.PreferencesActivity;
+
+import androidx.annotation.NonNull;
 
 public class WelcomeDialog extends MyDialogFragment {
 
@@ -32,6 +33,7 @@ public class WelcomeDialog extends MyDialogFragment {
 		return new WelcomeDialog();
 	}
 
+	@NonNull
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -39,13 +41,10 @@ public class WelcomeDialog extends MyDialogFragment {
 
 		builder.setTitle(getResources().getString(R.string.Welcome_Title));
 		builder.setMessage(getResources().getString(R.string.Welcome_Message));
-		builder.setNeutralButton(getText(R.string.Preferences_Btn), new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(final DialogInterface d, final int which) {
-				Intent i = new Intent(getActivity(), PreferencesActivity.class);
-				startActivity(i);
-				d.dismiss();
-			}
+		builder.setNeutralButton(getText(R.string.Preferences_Btn), (d, which) -> {
+			Intent i = new Intent(getActivity(), PreferencesActivity.class);
+			startActivity(i);
+			d.dismiss();
 		});
 
 		return builder.create();

@@ -23,11 +23,10 @@ import org.ttrssreader.model.pojos.Article;
 
 public class PublishedStateUpdater implements IUpdatable {
 
-	@SuppressWarnings("unused")
-	private static final String TAG = PublishedStateUpdater.class.getSimpleName();
+	//	private static final String TAG = PublishedStateUpdater.class.getSimpleName();
 
-	private Article article;
-	private int articleState;
+	private final Article article;
+	private final int articleState;
 
 	/**
 	 * Sets the articles' Published-Status according to articleState

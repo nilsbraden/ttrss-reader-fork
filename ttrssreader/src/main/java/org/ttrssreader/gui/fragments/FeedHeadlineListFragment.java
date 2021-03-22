@@ -72,8 +72,7 @@ import androidx.loader.content.Loader;
 
 public class FeedHeadlineListFragment extends MainListFragment implements TextInputAlertCallback {
 
-	@SuppressWarnings("unused")
-	private static final String TAG = FeedHeadlineListFragment.class.getSimpleName();
+	//	private static final String TAG = FeedHeadlineListFragment.class.getSimpleName();
 
 	private static final TYPE THIS_TYPE = TYPE.FEEDHEADLINE;
 	public static final String FRAGMENT = "FEEDHEADLINE_FRAGMENT";
@@ -136,11 +135,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
 			ActionBar actionBar = activity.getSupportActionBar();
 
 			gestureDetector = new GestureDetector(getActivity(), new HeadlineGestureDetector(actionBar, Controller.getInstance().hideActionbar()));
-			gestureListener = new View.OnTouchListener() {
-				public boolean onTouch(View v, MotionEvent event) {
-					return gestureDetector.onTouchEvent(event) || v.performClick();
-				}
-			};
+			gestureListener = (v, event) -> gestureDetector.onTouchEvent(event) || v.performClick();
 
 			if (getView() != null)
 				getView().setOnTouchListener(gestureListener);
@@ -156,7 +151,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
 	}
 
 	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+	public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v, ContextMenu.ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
 
 		// Get selected Article
@@ -227,7 +222,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		if (super.onOptionsItemSelected(item))
 			return true;
 		FragmentActivity activity = getActivity();

@@ -24,6 +24,8 @@ import android.os.Bundle;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 
+import androidx.annotation.NonNull;
+
 public class IgnorableErrorDialog extends ErrorDialog {
 
 	private String message;
@@ -34,6 +36,7 @@ public class IgnorableErrorDialog extends ErrorDialog {
 		return dialog;
 	}
 
+	@NonNull
 	@Override
 	public Dialog onCreateDialog(final Bundle savedInstanceState) {
 		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());

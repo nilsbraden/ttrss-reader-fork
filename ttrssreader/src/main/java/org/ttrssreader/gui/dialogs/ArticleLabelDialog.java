@@ -39,6 +39,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+
 public class ArticleLabelDialog extends MyDialogFragment {
 
 	private static final String PARAM_ARTICLE_ID = "article_id";
@@ -98,6 +100,7 @@ public class ArticleLabelDialog extends MyDialogFragment {
 		}
 	}
 
+	@NonNull
 	@SuppressLint("InflateParams")
 	@Override
 	public Dialog onCreateDialog(Bundle args) {

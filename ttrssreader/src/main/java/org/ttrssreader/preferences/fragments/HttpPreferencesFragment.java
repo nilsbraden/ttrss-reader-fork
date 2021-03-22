@@ -12,8 +12,7 @@ import androidx.preference.PreferenceFragmentCompat;
 @Keep
 public class HttpPreferencesFragment extends PreferenceFragmentCompat {
 
-	@SuppressWarnings("unused")
-	private static final String TAG = HttpPreferencesFragment.class.getSimpleName();
+	//	private static final String TAG = HttpPreferencesFragment.class.getSimpleName();
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {

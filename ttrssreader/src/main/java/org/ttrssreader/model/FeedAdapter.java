@@ -30,8 +30,7 @@ import org.ttrssreader.model.pojos.Feed;
 
 public class FeedAdapter extends MainAdapter {
 
-	@SuppressWarnings("unused")
-	private static final String TAG = FeedAdapter.class.getSimpleName();
+	//	private static final String TAG = FeedAdapter.class.getSimpleName();
 
 	public FeedAdapter(Context context) {
 		super(context);

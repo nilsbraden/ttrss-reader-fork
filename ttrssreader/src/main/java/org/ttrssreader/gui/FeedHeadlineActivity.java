@@ -43,7 +43,6 @@ import androidx.fragment.app.FragmentTransaction;
 
 public class FeedHeadlineActivity extends MenuActivity {
 
-	@SuppressWarnings("unused")
 	private static final String TAG = FeedHeadlineActivity.class.getSimpleName();
 
 	public static final int FEED_NO_ID = 37846914;
