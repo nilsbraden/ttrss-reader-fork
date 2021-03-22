@@ -380,10 +380,10 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 		FragmentManager fm = getSupportFragmentManager();
 		if (fm.getBackStackEntryCount() > 0 && fm.isStateSaved()) {
 			fm.popBackStack();
-			CategoryListFragment fragment = getCategoryListFragment();
-			if (fragment != null) {
-				fragment.doRefresh();
-			}
+			doRefresh();
+		} else if (fm.getBackStackEntryCount() > 0) {
+			doRefresh();
+			super.onBackPressed();
 		} else {
 			super.onBackPressed();
 		}
