@@ -130,6 +130,7 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	private Boolean invertSortArticlelist = null;
 	private Boolean invertSortFeedscats = null;
 	private Boolean alignFlushLeft = null;
+	private Boolean preferMarkReadOverPublish = null;
 	private Boolean dateTimeSystem = null;
 	private String dateString = null;
 	private String timeString = null;
@@ -987,6 +988,17 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	public void setAlignFlushLeft(boolean alignFlushLeft) {
 		put(ALIGN_FLUSH_LEFT, alignFlushLeft);
 		this.alignFlushLeft = alignFlushLeft;
+	}
+
+	public boolean preferMarkReadOverPublish(){
+		if (preferMarkReadOverPublish == null)
+			preferMarkReadOverPublish = prefs.getBoolean(PREFER_MARK_READ_OVER_PUBLISH, false);
+		return preferMarkReadOverPublish;
+	}
+
+	public void setPreferMarkReadOverPublish(boolean preferMarkReadOverPublish){
+		put(PREFER_MARK_READ_OVER_PUBLISH, preferMarkReadOverPublish);
+		this.preferMarkReadOverPublish = preferMarkReadOverPublish;
 	}
 
 	public boolean dateTimeSystem() {

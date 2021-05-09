@@ -149,6 +149,8 @@
     <string name="UsageOfflineTitle">Work offline</string>
     <string name="UsageOnlineTitle">Work online</string>
     <string name="DisplayPreferenceCategoryTitle">Display</string>
+    <string name="DisplayMarkReadInsteadOfPublishTitle">Prefer \"Mark Unread\" over \"Publish\"</string>
+    <string name="DisplayMarkReadInsteadOfPublishSummary">Always show \"Mark Unread\" instead of \"Publish\" button</string>
     <string name="DisplayVirtualPreferenceTitle">Show virtual feeds</string>
     <string name="DisplayVirtualPreferenceSummary">Uncheck to hide TTRSS virtual feeds.</string>
     <string name="DisplayLoadImagesPreferenceTitle">Load media</string>
