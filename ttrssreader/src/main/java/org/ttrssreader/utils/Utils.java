@@ -84,7 +84,7 @@ public class Utils {
 	/**
 	 * The maximum number of articles to store.
 	 */
-	public static final int ARTICLE_LIMIT = 5000;
+	public static final int ARTICLE_LIMIT = 50000;
 
 	/**
 	 * Vibrate-Time for vibration when end of list is reached
