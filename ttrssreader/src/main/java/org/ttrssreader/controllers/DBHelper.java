@@ -118,7 +118,8 @@ public class DBHelper {
 					+ " cachedImages INTEGER DEFAULT 0,"
 					+ " articleLabels TEXT,"
 					+ " author TEXT,"
-					+ " note TEXT)";
+					+ " note TEXT,"
+					+ " score INTEGER DEFAULT 0)";
 
 	private static final String CREATE_TABLE_ARTICLES2LABELS =
 			"CREATE TABLE "
@@ -156,9 +157,9 @@ public class DBHelper {
 			"INSERT OR REPLACE INTO "
 					+ TABLE_ARTICLES
 					+ " (_id, feedId, title, isUnread, articleUrl, articleCommentUrl, updateDate, content,"
-					+ " attachments, isStarred, isPublished, cachedImages, articleLabels, author, note)"
+					+ " attachments, isStarred, isPublished, cachedImages, articleLabels, author, note, score)"
 					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, coalesce((SELECT cachedImages FROM " + TABLE_ARTICLES
-					+ " WHERE _id=?), NULL), ?, ?, ?)";
+					+ " WHERE _id=?), NULL), ?, ?, ?, ?)";
 	// This should insert new values or replace existing values but should always keep an already inserted value for
 	// "cachedImages". When inserting it is set to the default value which is 0 (not "NULL").
 
@@ -857,6 +858,7 @@ public class DBHelper {
 			insertArticle.bindString(13, Utils.separateItems(a.labels, "---"));
 			insertArticle.bindString(14, a.author);
 			insertArticle.bindString(15, a.note);
+			insertArticle.bindLong(16, a.score);
 
 			if (!isDBAvailable())
 				return;
