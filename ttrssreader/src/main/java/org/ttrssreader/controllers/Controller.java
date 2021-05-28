@@ -219,72 +219,63 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 			return;
 
 		synchronized (lockInitialize) {
-
 			if (initialized)
 				return;
 
-			initialized = true;
+			wifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
-			/* Attempt to initialize some stuff in a background-thread to reduce loading time. Start a login-request
-			separately because this takes some time. Also initialize SSL-Stuff since the login needs this. */
-			new AsyncTask<Void, Void, Void>() {
-				protected Void doInBackground(Void... params) {
-					wifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-
-					if (Controller.getInstance().useKeystore()) {
-						try {
-							Log.i(TAG, "initialize SSL: Trust certificates from keystore");
-							SSLUtils.initPrivateKeystore(Controller.getInstance().getKeystorePassword());
-						} catch (GeneralSecurityException e) {
-							String msg = context.getString(R.string.Error_SSL_Keystore);
-							Log.e(TAG, msg, e);
-							Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
-						}
-					} else if (Controller.getInstance().trustAllSsl()) {
-						try {
-							Log.i(TAG, "initialize SSL: Trust all certificates");
-							SSLUtils.trustAllCert();
-						} catch (GeneralSecurityException e) {
-							String msg = context.getString(R.string.Error_SSL_TrustAllHosts);
-							Log.e(TAG, msg, e);
-							Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
-						}
-					} else if (useClientCertificate()) {
-						try {
-							Log.i(TAG, "initialize SSL: Trust only client certificates");
-							SSLUtils.trustClientCert();
-						} catch (GeneralSecurityException e) {
-							String msg = context.getString(R.string.Error_SSL_TrustClientCerts);
-							Log.e(TAG, msg, e);
-							Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
-						}
-					} else {
-						try {
-							Log.i(TAG, "initialize SSL: Normal certificate-checks");
-							SSLUtils.initSslSocketFactory(null, null);
-						} catch (GeneralSecurityException e) {
-							String msg = context.getString(R.string.Error_SSL_SocketFactory);
-							Log.e(TAG, msg, e);
-							Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
-						}
-					}
-
-					if (Controller.getInstance().trustAllHosts()) {
-						Log.i(TAG, "initialize SSL: Ignore if Certificate matches host");
-						SSLUtils.trustAllHost();
-					}
-
-					// Only need this once we are displaying the feed-list or an article...
-					WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-					if (wm != null) {
-						refreshDisplayMetrics(wm.getDefaultDisplay());
-					}
-
-					enableHttpResponseCache(context.getCacheDir());
-
-					return null;
+			if (Controller.getInstance().useKeystore()) {
+				try {
+					Log.i(TAG, "initialize SSL: Trust certificates from keystore");
+					SSLUtils.initPrivateKeystore(Controller.getInstance().getKeystorePassword());
+				} catch (GeneralSecurityException e) {
+					String msg = context.getString(R.string.Error_SSL_Keystore);
+					Log.e(TAG, msg, e);
+					Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
 				}
-			}.execute();
+			} else if (Controller.getInstance().trustAllSsl()) {
+				try {
+					Log.i(TAG, "initialize SSL: Trust all certificates");
+					SSLUtils.trustAllCert();
+				} catch (GeneralSecurityException e) {
+					String msg = context.getString(R.string.Error_SSL_TrustAllHosts);
+					Log.e(TAG, msg, e);
+					Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+				}
+			} else if (useClientCertificate()) {
+				try {
+					Log.i(TAG, "initialize SSL: Trust only client certificates");
+					SSLUtils.trustClientCert();
+				} catch (GeneralSecurityException e) {
+					String msg = context.getString(R.string.Error_SSL_TrustClientCerts);
+					Log.e(TAG, msg, e);
+					Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+				}
+			} else {
+				try {
+					Log.i(TAG, "initialize SSL: Normal certificate-checks");
+					SSLUtils.initSslSocketFactory(null, null);
+				} catch (GeneralSecurityException e) {
+					String msg = context.getString(R.string.Error_SSL_SocketFactory);
+					Log.e(TAG, msg, e);
+					Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+				}
+			}
+
+			if (Controller.getInstance().trustAllHosts()) {
+				Log.i(TAG, "initialize SSL: Ignore if Certificate matches host");
+				SSLUtils.trustAllHost();
+			}
+
+			// Only need this once we are displaying the feed-list or an article...
+			WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+			if (wm != null) {
+				refreshDisplayMetrics(wm.getDefaultDisplay());
+			}
+
+			enableHttpResponseCache(context.getCacheDir());
+
+			initialized = true;
 		}
 	}
 
