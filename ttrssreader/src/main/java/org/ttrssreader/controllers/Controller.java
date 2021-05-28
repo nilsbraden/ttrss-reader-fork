@@ -176,6 +176,13 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	public static int displayHeight;
 	public static int displayWidth;
 
+	// Server-Config
+	public static String serverConfigIconsDir = "";
+	public static String serverConfigIconsUrl = "";
+	public static boolean serverConfigDaemonIsRunning;
+	public static String[] serverConfigCustomSortTypes = new String[]{};
+	public static int serverConfigNumFeeds;
+
 	public static boolean isTablet = false;
 	private boolean scheduledRestart = false;
 	public static int sFragmentAnimationDirection = 0;
@@ -502,6 +509,19 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 			url = prefs.getString(key, URL_DEFAULT_FEEDICONS);
 		else
 			url = prefs.getString(URL_FEEDICONS, URL_DEFAULT_FEEDICONS);
+
+		if (serverConfigIconsUrl.length() > 0 && !serverConfigIconsUrl.equals(url)) {
+			Log.w(TAG, "Server reported a different feed-icons url. Server: " + serverConfigIconsUrl + " Client: " + url + "... Using server-provided value!");
+
+			// Store new value:
+			if (prefs.contains(key))
+				put(key, serverConfigIconsUrl);
+			else
+				put(URL_FEEDICONS, serverConfigIconsUrl);
+
+			return serverConfigIconsUrl;
+		}
+
 		return url;
 	}
 
@@ -990,13 +1010,13 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 		this.alignFlushLeft = alignFlushLeft;
 	}
 
-	public boolean preferMarkReadOverPublish(){
+	public boolean preferMarkReadOverPublish() {
 		if (preferMarkReadOverPublish == null)
 			preferMarkReadOverPublish = prefs.getBoolean(PREFER_MARK_READ_OVER_PUBLISH, false);
 		return preferMarkReadOverPublish;
 	}
 
-	public void setPreferMarkReadOverPublish(boolean preferMarkReadOverPublish){
+	public void setPreferMarkReadOverPublish(boolean preferMarkReadOverPublish) {
 		put(PREFER_MARK_READ_OVER_PUBLISH, preferMarkReadOverPublish);
 		this.preferMarkReadOverPublish = preferMarkReadOverPublish;
 	}

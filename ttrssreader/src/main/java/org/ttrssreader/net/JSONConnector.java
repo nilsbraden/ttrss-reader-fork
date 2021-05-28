@@ -316,7 +316,11 @@ public class JSONConnector {
 				JsonObject object = new JsonObject();
 				json.beginObject();
 				while (json.hasNext()) {
-					object.addProperty(json.nextName(), json.nextString());
+					String currentName = json.nextName();
+					if (currentName.equals("config"))
+						readConfig(json);
+					else
+						object.addProperty(currentName, json.nextString());
 				}
 				json.endObject();
 
@@ -372,6 +376,40 @@ public class JSONConnector {
 			ret = ret.substring(0, ret.length() - 1);
 
 		return ret;
+	}
+
+	private void readConfig(JsonReader json) throws IOException {
+		while (json.hasNext()) {
+			if (json.peek() == JsonToken.BEGIN_OBJECT)
+				json.beginObject();
+
+			switch (json.nextName()) {
+				case "icons_dir":
+					Controller.serverConfigIconsDir = json.nextString();
+					break;
+				case "icons_url":
+					Controller.serverConfigIconsUrl = json.nextString();
+					break;
+				case "daemon_is_running":
+					Controller.serverConfigDaemonIsRunning = json.nextBoolean();
+					break;
+				case "custom_sort_types":
+					//Controller.serverConfigCustomSortTypes = json.next...
+					//Too lazy, don't need this anyway...
+					json.skipValue();
+					break;
+				case "num_feeds":
+					Controller.serverConfigNumFeeds = json.nextInt();
+					break;
+				default:
+					json.skipValue();
+			}
+
+			if (json.peek() == JsonToken.END_OBJECT) {
+				json.endObject();
+				break; // End of config object
+			}
+		}
 	}
 
 	private JsonReader prepareReader(Map<String, String> params) throws IOException {
