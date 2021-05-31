@@ -17,12 +17,16 @@
 <resources>
 
     <string-array name="updates">
-	    <item>Version 1.96.4
+	    <item>Version 1.96.5
+	         * Fix #451: Crash because of changes in server, unexpected config object in login response
+		     * Fix #450: Crash on initializing OkHttpClient, also removed async behavior on controller init
+		     * Fix #448: Fix init of DB for new column \"score\"</item>
+        <item>Version 1.96.4
 		     * Fixed: Display correct headline after going back from category to main
 		     * Fixed: Properly configured SSL settings for OkHttp
 		     * Make read articles more transparent so that unread ones stand out more
 		     * Added a preference to show Mark Read/Unread button instead of Publish</item>
-	    <item>Version 1.96.3
+        <item>Version 1.96.3
 	         * Fix #437: White screen on app launch by adding a default background showing the app icon
 	         * Fix #429: Hide articles with negative score in fresh feed
 	         * Second attempt: Fix #445: Problem with \"Go back after mark all items as read\"
