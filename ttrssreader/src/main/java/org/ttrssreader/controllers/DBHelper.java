@@ -64,7 +64,7 @@ public class DBHelper {
 	private static final String TAG = DBHelper.class.getSimpleName();
 
 	private static final String DATABASE_NAME = "ttrss.db";
-	private static final int DATABASE_VERSION = 66;
+	private static final int DATABASE_VERSION = 67;
 
 	public static final String[] CATEGORIES_COLUMNS = new String[]{"_id", "title", "unread"};
 
@@ -397,6 +397,7 @@ public class DBHelper {
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_ARTICLES);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_ARTICLES2LABELS);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_MARK);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_NOTES);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_REMOTEFILES);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_REMOTEFILE2ARTICLE);
 		}
@@ -565,6 +566,37 @@ public class DBHelper {
 
 				db.execSQL(sql);
 				didUpgrade = true;
+			}
+
+			if (oldVersion < 67) {
+
+				boolean exists = false;
+				Cursor res = null;
+				try {
+					// Check if column "score" exists...
+					res = db.rawQuery("PRAGMA table_info(" + TABLE_ARTICLES + ")", null);
+					res.moveToFirst();
+					do {
+						String currentColumn = res.getString(1);
+						if (currentColumn.equals("score")) {
+							exists = true;
+						}
+					} while (res.moveToNext());
+				} finally {
+					if (res != null && !res.isClosed())
+						res.close();
+				}
+				if (!exists) {
+					// Run upgrade from 66 again:
+					String sql = "ALTER TABLE " + TABLE_ARTICLES + " ADD COLUMN score INTEGER";
+
+					Log.i(TAG, String.format("Upgrading database from %s to 67.", oldVersion));
+					Log.i(TAG, String.format(" (Executing: %s", sql));
+
+					db.execSQL(sql);
+					didUpgrade = true;
+				}
+
 			}
 
 			if (!didUpgrade) {
