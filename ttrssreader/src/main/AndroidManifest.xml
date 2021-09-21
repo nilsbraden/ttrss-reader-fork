@@ -58,7 +58,7 @@
             android:name=".gui.CategoryActivity"
             android:label="@string/ApplicationName"
             android:theme="@style/AppTheme.BrandedLaunch"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
