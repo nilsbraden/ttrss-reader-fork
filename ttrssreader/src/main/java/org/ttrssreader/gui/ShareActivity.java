@@ -92,7 +92,9 @@ public class ShareActivity extends MenuActivity {
 
 	@Override
 	protected int getLayoutResource() {
-		return R.layout.sharetopublished;
+		return useTabletLayout()
+			? R.layout.sharetopublished_tablet
+			: R.layout.sharetopublished;
 	}
 
 	@Override

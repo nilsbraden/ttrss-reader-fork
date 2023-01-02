@@ -97,7 +97,9 @@ public class FeedHeadlineActivity extends MenuActivity {
 
 	@Override
 	protected int getLayoutResource() {
-		return R.layout.main;
+		return useTabletLayout()
+			? R.layout.main_tablet
+			: R.layout.main;
 	}
 
 	@Override

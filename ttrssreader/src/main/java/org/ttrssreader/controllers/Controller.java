@@ -175,6 +175,8 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	public static int relSwipeThresholdVelocity;
 	public static int displayHeight;
 	public static int displayWidth;
+	public static float displayVirtualHeight;
+	public static float displayVirtualWidth;
 
 	// Server-Config
 	public static String serverConfigIconsDir = "";
@@ -375,6 +377,8 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 		relSwipeThresholdVelocity = (int) (SWIPE_THRESHOLD_VELOCITY * dm.densityDpi / 160.0f);
 		displayHeight = dm.heightPixels;
 		displayWidth = dm.widthPixels;
+		displayVirtualHeight = displayHeight / dm.density;
+		displayVirtualWidth = displayWidth / dm.density;
 	}
 
 	// ******* CONNECTION-Options ****************************
