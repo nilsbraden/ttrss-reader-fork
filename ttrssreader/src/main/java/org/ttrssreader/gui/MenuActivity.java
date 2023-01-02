@@ -103,12 +103,23 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 		activity = this;
 
 		Controller.getInstance().setHeadless(false);
+		refreshDisplayMetrics();
 		setContentView(getLayoutResource());
 		initToolbar();
 		initTabletLayout();
 	}
 
 	protected abstract int getLayoutResource();
+
+	protected boolean useTabletLayout() {
+		if (!Controller.getInstance().allowTabletLayout())
+			return false;
+
+		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
+			return Controller.displayVirtualHeight >= 800;
+		else
+			return Controller.displayVirtualWidth >= 1280;
+	}
 
 	protected void initTabletLayout() {
 		frameMain = findViewById(R.id.frame_main);
@@ -117,11 +128,6 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 
 		if (frameMain == null || frameSub == null || divider == null)
 			return; // Do nothing, the views do not exist...
-
-		// Initialize values for layout changes:
-		WindowManager wm = ((WindowManager) getSystemService(Context.WINDOW_SERVICE));
-		if (wm != null)
-			Controller.refreshDisplayMetrics(wm.getDefaultDisplay());
 
 		isVertical = (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT);
 		displaySize = Controller.displayWidth;
@@ -178,6 +184,13 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 			divider.setVisibility(View.VISIBLE);
 			getWindow().getDecorView().getRootView().invalidate();
 		}
+	}
+
+	private void refreshDisplayMetrics() {
+		// Initialize values for layout changes:
+		WindowManager wm = ((WindowManager) getSystemService(Context.WINDOW_SERVICE));
+		if (wm != null)
+			Controller.refreshDisplayMetrics(wm.getDefaultDisplay());
 	}
 
 	private void handleResize() {
@@ -535,6 +548,7 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 	}
 
 	private void refreshAndUpdate() {
+		refreshDisplayMetrics();
 		initTabletLayout();
 		if (!Utils.checkIsConfigInvalid()) {
 			doUpdate(false);

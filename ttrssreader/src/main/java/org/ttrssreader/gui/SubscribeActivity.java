@@ -136,7 +136,9 @@ public class SubscribeActivity extends MenuActivity {
 
 	@Override
 	protected int getLayoutResource() {
-		return R.layout.feedsubscribe;
+		return useTabletLayout()
+			? R.layout.feedsubscribe_tablet
+			: R.layout.feedsubscribe;
 	}
 
 	public void onWindowFocusChanged(boolean hasFocus) {

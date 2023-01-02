@@ -126,7 +126,9 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 
 	@Override
 	protected int getLayoutResource() {
-		return R.layout.main;
+		return useTabletLayout()
+			? R.layout.main_tablet
+			: R.layout.main;
 	}
 
 	@Override
