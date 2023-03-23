@@ -86,12 +86,15 @@ abstract class MainCursorHelper {
 		if (!cursor.moveToFirst())
 			return false; // Check empty
 
-		do {
-			if (cursor.getInt(cursor.getColumnIndex("unread")) > 0)
-				return cursor.moveToFirst(); // One unread article found, move to first entry
-		} while (cursor.moveToNext());
+		int index = cursor.getColumnIndex("unread");
+		if (index >= 0) {
+			do {
+				if (cursor.getInt(index) > 0)
+					return cursor.moveToFirst(); // One unread article found, move to first entry
+			} while (cursor.moveToNext());
 
-		cursor.moveToFirst();
+			cursor.moveToFirst();
+		}
 		return false;
 	}
 

@@ -57,7 +57,6 @@ import java.net.Proxy;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -255,7 +254,7 @@ public class Utils {
 		} else {
 			ret = getNetworkTypeApiCurrent(cm);
 		}
-		Log.d(TAG, "GetNetworkType: Type = " + ret + " (0 = none, 1 = mobile, 2 = metered, 3 = wifi)");
+		//		Log.d(TAG, "GetNetworkType: Type = " + ret + " (0 = none, 1 = mobile, 2 = metered, 3 = wifi)");
 		return ret;
 	}
 
@@ -425,7 +424,12 @@ public class Utils {
 
 	public static Notification buildNotification(Context context, int icon, CharSequence ticker, CharSequence title, CharSequence text, boolean autoCancel, Intent intent, String NOTIFICATION_CHANNEL_ID_INFO) {
 		Notification notification = null;
-		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+		PendingIntent pendingIntent = null;
+		if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.M) {
+			pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+		} else {
+			pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+		}
 
 		try {
 			Notification.Builder builder;
@@ -556,20 +560,18 @@ public class Utils {
 
 			// download the file
 			try (ResponseBody body = response.body()) {
-				if (body != null) {
-					InputStream input = body.byteStream();
+				InputStream input = body.byteStream();
 
-					byte[] data = new byte[1024];
-					int count;
-					while ((count = input.read(data)) != -1) {
-						// writing data to file
-						output.write(data, 0, count);
-					}
-
-					// closing streams
-					output.close();
-					input.close();
+				byte[] data = new byte[1024];
+				int count;
+				while ((count = input.read(data)) != -1) {
+					// writing data to file
+					output.write(data, 0, count);
 				}
+
+				// closing streams
+				output.close();
+				input.close();
 			}
 
 		} catch (Exception e) {
@@ -592,10 +594,7 @@ public class Utils {
 	 */
 	@SuppressWarnings("CharsetObjectCanBeUsed")
 	public static String encodeBase64ToString(String input) {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT)
-			return Base64.encodeToString(input.getBytes(Charset.forName("UTF-8")), Base64.NO_WRAP);
-		else
-			return Base64.encodeToString(input.getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);
+		return Base64.encodeToString(input.getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);
 	}
 
 }

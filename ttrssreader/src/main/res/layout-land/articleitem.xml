@@ -23,7 +23,6 @@
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toLeftOf="@+id/article_button_view"
         android:layout_toStartOf="@+id/article_button_view"
         android:orientation="vertical">
 
@@ -38,7 +37,6 @@
         android:layout_width="45dip"
         android:layout_height="match_parent"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
         android:background="@android:drawable/bottom_bar"
         android:orientation="vertical"
         android:visibility="gone">

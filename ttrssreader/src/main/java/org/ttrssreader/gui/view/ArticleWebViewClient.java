@@ -18,7 +18,6 @@
 package org.ttrssreader.gui.view;
 
 import android.Manifest;
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -207,19 +206,9 @@ public class ArticleWebViewClient extends WebViewClient {
 				return null;
 			}
 
-			if (Build.VERSION.SDK_INT >= 100000) { //Build.VERSION_CODES.N) {// TODO Use proper VERSION_CODE
-				downloadApi24(urls[0]);
-			} else {
-				download(urls[0]);
-			}
+			download(urls[0]);
 
 			return null;
-		}
-
-		@TargetApi(Build.VERSION_CODES.N)
-		private void downloadApi24(URL url) {
-			Log.w(TAG, "Downloading with downloadApi24() is not implemented: " + url);
-			// Use Controller.getInstance().saveAttachmentUri(); to get Uri instead of file path
 		}
 
 		private void download(URL url) {
@@ -271,8 +260,9 @@ public class ArticleWebViewClient extends WebViewClient {
 				intent.setAction(android.content.Intent.ACTION_VIEW);
 
 				// Only expose uri if allowed:
-				if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N)
+				if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N) {
 					intent.setDataAndType(Uri.fromFile(file), FileUtils.getMimeType(file.getName()));
+				}
 
 				Log.i(TAG, "Finished. Path: " + file.getAbsolutePath() + " Time: " + time + "s Bytes: " + size);
 				Utils.showFinishedNotification(file.getAbsolutePath(), time, false, contextRef.get(), intent, Data.NOTIFICATION_CHANNEL_ID_MEDIADOWNLOAD);

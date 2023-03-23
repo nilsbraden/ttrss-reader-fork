@@ -17,12 +17,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 30
+    namespace 'org.ttrssreader'
+    compileSdkVersion 33
 
     defaultConfig {
         applicationId 'org.ttrssreader'
-        minSdkVersion 16
-        targetSdkVersion 30
+        minSdkVersion 19
+        targetSdkVersion 33
+        multiDexEnabled true
     }
 
     buildTypes {
@@ -42,8 +44,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 
     flavorDimensions "version"
@@ -65,36 +67,43 @@ android {
 }
 
 dependencies {
-    implementation group: 'com.twofortyfouram', name: 'android-plugin-client-sdk-for-locale', version: '[4.0.3, 5.0['
-    implementation 'com.google.code.gson:gson:2.8.8'
-    implementation 'org.antlr:ST4:4.3'
+    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'org.antlr:ST4:4.3.4'
+    implementation 'com.android.support:multidex:1.0.3'
 
-    //Don't bump to 2.24 because of error in Utils.isEmptyString, based on wrong Flags for java.util.regex.Pattern
-    // -> java.lang.IllegalArgumentException: Unsupported flags: 256
-    implementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.5'
+    // Tasker Locale API: https://github.com/twofortyfouram/android-toast-setting-plugin-for-locale/blob/master/gradle.properties
+    // implementation 'com.twofortyfouram:android-plugin-host-sdk-for-locale:9.0.0'
+    implementation 'com.twofortyfouram:android-annotation:9.0.0'
+    implementation 'com.twofortyfouram:android-assertion:9.0.0'
+    implementation 'com.twofortyfouram:android-plugin-api-for-locale:9.0.0'
+    implementation 'com.twofortyfouram:android-plugin-client-sdk-for-locale:9.0.0'
+    implementation 'com.twofortyfouram:android-spackle:9.0.0'
+
+    // Used to get ALT-Text of images from html
+    implementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.26'
 
     // Use AndroidX Preference implementation
-    implementation 'androidx.preference:preference:1.1.1'
+    implementation 'androidx.preference:preference:1.2.0'
 
     // Remove any potentially harmful script-tags from incoming content
-    implementation 'org.jsoup:jsoup:1.14.2'
+    implementation 'org.jsoup:jsoup:1.15.4'
 
     // "Updating Your Security Provider to Protect Against SSL Exploits"
     // https://developer.android.com/training/articles/security-gms-provider.html
     // Only used in productFlavour "play"
-    playImplementation 'com.google.android.gms:play-services-base:17.6.0'
+    implementation 'com.google.android.gms:play-services-base:18.2.0'
 
     // https://firebaseopensource.com/projects/googlesamples/easypermissions/
     implementation 'pub.devrel:easypermissions:3.0.0'
 
     // https://github.com/material-components/material-components-android/releases
-    implementation 'com.google.android.material:material:1.4.0'
+    implementation 'com.google.android.material:material:1.8.0'
 
     // OkHttp https://square.github.io/okhttp/
-    implementation("com.squareup.okhttp3:okhttp") {
-        version {
-            strictly '3.12.12'
-        }
-    }
+    implementation 'com.squareup.okhttp3:okhttp:3.12.12'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.12.12'
+
+    // Strange duplicate dependency error:
+    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.5.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.0'
 }

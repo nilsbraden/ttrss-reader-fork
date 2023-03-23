@@ -16,6 +16,7 @@ import org.ttrssreader.preferences.FileBrowserHelper;
 import java.io.File;
 
 import androidx.annotation.Keep;
+import androidx.annotation.NonNull;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
@@ -44,7 +45,7 @@ public class SystemPreferencesFragment extends PreferenceFragmentCompat {
 			downloadPath.setSummary(Controller.getInstance().saveAttachmentPath());
 			downloadPath.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 				@Override
-				public boolean onPreferenceClick(Preference preference) {
+				public boolean onPreferenceClick(@NonNull Preference preference) {
 					FileBrowserHelper.getInstance().showFileBrowserActivity(fragment, new File(Controller.getInstance().saveAttachmentPath()), ACTIVITY_CHOOSE_ATTACHMENT_FOLDER, callbackDownloadPath);
 					return true;
 				}

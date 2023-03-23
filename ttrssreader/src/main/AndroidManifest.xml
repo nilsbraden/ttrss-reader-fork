@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="org.ttrssreader"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="internalOnly"
     android:versionCode="1966"
@@ -8,9 +7,6 @@
 
     <!-- Check connectivity -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
-    <!-- Define special preferences for a Wifi-Network -->
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <!-- Download -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -22,7 +18,9 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <!-- Only used to acquire WIFI SSID (which also can be used to get location information) -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <!-- Necessary to be able to call the background update from Tasker/Locale plugin -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
@@ -56,7 +54,6 @@
 
         <activity
             android:name=".gui.CategoryActivity"
-            android:label="@string/ApplicationName"
             android:theme="@style/AppTheme.BrandedLaunch"
             android:exported="true">
             <intent-filter>
@@ -105,11 +102,8 @@
             android:name=".gui.EditPluginActivity"
             android:exported="true"
             android:icon="@drawable/icon"
-            android:label="@string/ApplicationName"
-            android:uiOptions="splitActionBarWhenNarrow"
-            android:windowSoftInputMode="adjustResize"
-            tools:ignore="ExportedActivity"
-            android:theme="@style/AppTheme.BrandedLaunch">
+            android:label="@string/EditPluginActivity_Label"
+            tools:ignore="ExportedActivity">
             <intent-filter>
                 <action android:name="com.twofortyfouram.locale.intent.action.EDIT_SETTING" />
             </intent-filter>
@@ -143,6 +137,7 @@
         <receiver
             android:name=".imageCache.PluginReceiver"
             android:exported="true"
+            android:process=":background"
             tools:ignore="ExportedReceiver">
             <intent-filter>
                 <action android:name="com.twofortyfouram.locale.intent.action.FIRE_SETTING" />

@@ -303,7 +303,7 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
 		Throwable theCause = aException.getCause();
 		if (theCause != null) {
 			theErrReport.append("--- Cause ---------------------------\n");
-			theErrReport.append(theCause.toString() + "\n\n");
+			theErrReport.append(theCause + "\n\n");
 			theStackTrace = theCause.getStackTrace();
 			for (StackTraceElement se : theStackTrace) {
 				theErrReport.append("  " + se.toString() + "\n");

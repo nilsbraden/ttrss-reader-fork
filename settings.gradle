@@ -1,1 +1,26 @@
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            // Tasker Locale API: https://github.com/twofortyfouram/android-toast-setting-plugin-for-locale/blob/master/gradle.properties
+            // For the Locale Plug-in SDK artifacts (GitHub Package Registry does not allow anonymous access)
+            url localePluginMavenUrl
+            credentials {
+                username localePluginMavenUser
+                password localePluginMavenPassword
+            }
+        }
+    }
+}
+
+rootProject.name = "TTRSS-Reader"
 include ':ttrssreader'

@@ -55,7 +55,6 @@
                 android:id="@+id/ErrorActivity_ErrorMessage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="6dp"
                 android:layout_marginStart="6dp"
                 android:layout_marginTop="6dp"
                 android:textSize="12.5sp" />
@@ -86,14 +85,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.5"
-                android:text="@string/ErrorActivity_CloseBtn" />
+                android:text="@string/ErrorActivity_CloseBtn"
+                style="?android:attr/buttonBarButtonStyle" />
 
             <Button
                 android:id="@+id/ErrorActivity_ExitBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.5"
-                android:text="@string/ErrorActivity_ExitBtn" />
+                android:text="@string/ErrorActivity_ExitBtn"
+                style="?android:attr/buttonBarButtonStyle" />
         </LinearLayout>
     </LinearLayout>
 

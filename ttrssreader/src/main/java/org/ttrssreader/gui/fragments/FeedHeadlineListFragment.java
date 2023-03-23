@@ -302,7 +302,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
 		}
 
 		@Override
-		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+		public boolean onFling(@NonNull MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
 			// Refresh metrics-data in Controller
 			FragmentActivity activity = getActivity();
 			if (activity != null) {

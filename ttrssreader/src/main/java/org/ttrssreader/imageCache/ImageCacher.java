@@ -117,7 +117,7 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 	}
 
 	// This method is allowed to be called from any thread
-	private synchronized void requestStop() {
+	private void requestStop() {
 		// Wait for the handler to be fully initialized:
 		long wait = Utils.SECOND * 2;
 		if (!handlerInitialized) {

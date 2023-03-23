@@ -59,7 +59,7 @@ import org.htmlcleaner.HtmlNode;
 import org.htmlcleaner.TagNode;
 import org.htmlcleaner.TagNodeVisitor;
 import org.jsoup.Jsoup;
-import org.jsoup.safety.Whitelist;
+import org.jsoup.safety.Safelist;
 import org.stringtemplate.v4.ST;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
@@ -101,7 +101,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
 public class ArticleFragment extends Fragment implements TextInputAlertCallback {
@@ -222,14 +221,6 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 
 		// Forward results to EasyPermissions
 		EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
-	}
-
-	@AfterPermissionGranted(ArticleWebViewClient.RC_STORAGE)
-	private void restartDownload() {
-		if (webView.getWebViewClient() instanceof ArticleWebViewClient) {
-			ArticleWebViewClient client = (ArticleWebViewClient) webView.getWebViewClient();
-			client.downloadStoredUrl();
-		}
 	}
 
 	@SuppressLint("ClickableViewAccessibility")
@@ -386,7 +377,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			} else {
 				webView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
 			}
-			if (!Controller.getInstance().loadMedia() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
+			if (!Controller.getInstance().loadMedia())
 				webView.getSettings().setMediaPlaybackRequiresUserGesture(false);
 
 			// No need to reload everything
@@ -415,11 +406,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			}
 
 			// Remove all html tags and content that doesn't meet this set of allowed stuff
-			final String contentClean;
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
-				contentClean = article.content;
-			else
-				contentClean = Jsoup.clean(article.content, Whitelist.relaxed());
+			final String contentClean = Jsoup.clean(article.content, Safelist.relaxed());
 
 			// Load html from Controller and insert content// Article-Prefetch-Stuff from Raw-Ressources and System
 			ST htmlTmpl = new ST(getString(R.string.HTML_TEMPLATE), '$', '$');
@@ -618,8 +605,12 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 		}
 
 		if (Controller.getInstance().preferMarkReadOverPublish()) {
-			read.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-			publish.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+			if (read != null) {
+				read.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+			}
+			if (publish != null) {
+				publish.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+			}
 		}
 
 		MenuItem star = menu.findItem(R.id.Article_Menu_MarkStar);
@@ -954,7 +945,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 		}
 
 		@Override
-		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+		public boolean onFling(@NonNull MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
 			// Refresh metrics-data in Controller
 			FragmentActivity activity = getActivity();
 			if (activity != null) {

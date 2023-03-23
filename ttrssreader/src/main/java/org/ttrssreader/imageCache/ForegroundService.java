@@ -133,6 +133,17 @@ public class ForegroundService extends Service implements ICacheEndListener {
 					CharSequence text = getText(R.string.Cache_service_text);
 					Notification notification = Utils.buildNotification(this, icon, ticker, title, text, true, new Intent(), Data.NOTIFICATION_CHANNEL_ID_TASKER);
 					startForeground(R.string.Cache_service_started, notification);
+				} else {
+					// Show dummy notification with a text exlaining this can be hidden...
+					// According to google this should be done with an Intent Service. Half a year later it doesn't work
+					// and the next thing is a JobIntentService which does not work reliably and is deprecated. Right now
+					// they expect us to use a WorkManager which I'm too lazy to implement, maybe the next iteration...
+					CharSequence dummytitle = getText(R.string.Cache_service_title_dummy);
+					int icon = R.drawable.notification_icon;
+					CharSequence ticker = getText(R.string.Cache_service_started);
+					CharSequence text = getText(R.string.Cache_service_text);
+					Notification notification = Utils.buildNotification(this, icon, ticker, dummytitle, text, true, new Intent(), Data.NOTIFICATION_CHANNEL_ID_TASKER);
+					startForeground(R.string.Cache_service_started, notification);
 				}
 
 			}

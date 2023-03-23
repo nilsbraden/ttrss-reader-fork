@@ -34,11 +34,9 @@
         android:id="@+id/share_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/share_content"
         android:layout_alignStart="@+id/share_content"
         android:layout_marginTop="10dip"
         android:layout_toEndOf="@+id/labelTitle"
-        android:layout_toRightOf="@+id/labelTitle"
         android:inputType="text"
         android:hint="@string/Share_title"
         android:singleLine="true" />
@@ -54,12 +52,10 @@
         android:id="@+id/share_url"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/share_content"
         android:layout_alignStart="@+id/share_content"
         android:layout_below="@+id/share_title"
         android:layout_marginTop="10dip"
         android:layout_toEndOf="@+id/labelURL"
-        android:layout_toRightOf="@+id/labelURL"
         android:hint="@string/Share_url"
         android:inputType="textUri"
         android:singleLine="true" />
@@ -78,7 +74,6 @@
         android:layout_below="@+id/share_url"
         android:layout_marginTop="10dip"
         android:layout_toEndOf="@+id/labelContent"
-        android:layout_toRightOf="@+id/labelContent"
         android:hint="@string/Share_content"
         android:inputType="textMultiLine"
         android:maxLines="3">
@@ -91,9 +86,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignEnd="@+id/share_content"
-        android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_alignRight="@+id/share_content"
         android:layout_below="@+id/share_content"
         android:layout_margin="20dp"
         android:text="@string/Share_ok_button" />

@@ -29,8 +29,8 @@ public class MyWebView extends WebView {
 		super(context);
 	}
 
-	private final OnEdgeReachedListener mOnTopReachedListener = null;
-	private final OnEdgeReachedListener mOnBottomReachedListener = null;
+	//	private final OnEdgeReachedListener mOnTopReachedListener = null;
+	//	private final OnEdgeReachedListener mOnBottomReachedListener = null;
 
 	@SuppressWarnings("FieldCanBeLocal")
 	private final int mMinTopDistance = 0;
@@ -51,51 +51,51 @@ public class MyWebView extends WebView {
 
 	@Override
 	protected void onScrollChanged(int left, int top, int oldLeft, int oldTop) {
-		if (mOnTopReachedListener != null)
-			handleTopReached(top);
-
-		if (mOnBottomReachedListener != null)
-			handleBottomReached(top);
+		//		if (mOnTopReachedListener != null)
+		//			handleTopReached(top);
+		//
+		//		if (mOnBottomReachedListener != null)
+		//			handleBottomReached(top);
 
 		super.onScrollChanged(left, top, oldLeft, oldTop);
 	}
 
-	private void handleTopReached(int top) {
-		boolean reached;
-		if (top <= mMinTopDistance)
-			reached = true;
-		else if (top > (mMinTopDistance * 1.5))
-			reached = false;
-		else
-			return;
-
-		if (!reached && !topReached)
-			return;
-		if (reached && topReached)
-			return;
-
-		topReached = reached;
-
-		mOnTopReachedListener.onTopReached(this, reached);
-	}
-
-	private void handleBottomReached(int top) {
-		boolean reached;
-		if ((getContentHeight() - (top + getHeight())) <= mMinBottomDistance)
-			reached = true;
-		else if ((getContentHeight() - (top + getHeight())) > (mMinBottomDistance * 1.5))
-			reached = false;
-		else
-			return;
-
-		if (!reached && !bottomReached)
-			return;
-		if (reached && bottomReached)
-			return;
-
-		bottomReached = reached;
-
-		mOnBottomReachedListener.onBottomReached(this, reached);
-	}
+	//	private void handleTopReached(int top) {
+	//		boolean reached;
+	//		if (top <= mMinTopDistance)
+	//			reached = true;
+	//		else if (top > (mMinTopDistance * 1.5))
+	//			reached = false;
+	//		else
+	//			return;
+	//
+	//		if (!reached && !topReached)
+	//			return;
+	//		if (reached && topReached)
+	//			return;
+	//
+	//		topReached = reached;
+	//
+	//		mOnTopReachedListener.onTopReached(this, reached);
+	//	}
+	//
+	//	private void handleBottomReached(int top) {
+	//		boolean reached;
+	//		if ((getContentHeight() - (top + getHeight())) <= mMinBottomDistance)
+	//			reached = true;
+	//		else if ((getContentHeight() - (top + getHeight())) > (mMinBottomDistance * 1.5))
+	//			reached = false;
+	//		else
+	//			return;
+	//
+	//		if (!reached && !bottomReached)
+	//			return;
+	//		if (reached && bottomReached)
+	//			return;
+	//
+	//		bottomReached = reached;
+	//
+	//		mOnBottomReachedListener.onBottomReached(this, reached);
+	//	}
 
 }

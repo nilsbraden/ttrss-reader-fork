@@ -57,7 +57,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignEnd="@+id/subscribe_url"
-                android:layout_alignRight="@+id/subscribe_url"
                 android:layout_below="@+id/subscribe_url"
                 android:text="@string/Subscribe_Paste" />
 
@@ -80,9 +79,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignEnd="@+id/subscribe_categories"
-                android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
-                android:layout_alignRight="@+id/subscribe_categories"
                 android:layout_below="@+id/subscribe_categories"
                 android:layout_margin="20dp"
                 android:text="@string/Subscribe_ok_button"

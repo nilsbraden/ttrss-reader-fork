@@ -181,8 +181,9 @@ public class JSONConnector {
 
 			// Build Client-Object:
 			OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder();
-			if (SSLUtils.factory != null)
+			if (SSLUtils.factory != null) {
 				clientBuilder.sslSocketFactory(SSLUtils.factory);
+			}
 			clientBuilder.proxy(getProxy());
 			clientBuilder.readTimeout(10, timeoutUnit);
 			this.client = clientBuilder.build();
@@ -227,8 +228,7 @@ public class JSONConnector {
 
 			// Read Response as stream:
 			ResponseBody body = response.body();
-			if (body != null)
-				return body.charStream();
+			return body != null ? body.charStream() : null;
 
 		} catch (JsonSyntaxException e) {
 			hasLastError = true;
@@ -845,15 +845,10 @@ public class JSONConnector {
 								reader.skipValue();
 								break;
 						}
-					} catch (IllegalArgumentException e) {
+					} catch (IllegalArgumentException | IllegalStateException | IOException e) {
 						e.printStackTrace();
 						reader.skipValue();
-					} catch (IllegalStateException e) {
-						e.printStackTrace();
-						reader.skipValue();
-					} catch (IOException e) {
-						e.printStackTrace();
-						reader.skipValue(); // Not sure when this actually heppens, maybe we should also break; out here...
+						// Not sure when this actually happens, maybe we should also break; out here...
 					}
 				}
 				reader.endObject();

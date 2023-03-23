@@ -20,19 +20,19 @@ import android.widget.CheckBox;
 
 import com.twofortyfouram.locale.sdk.client.ui.activity.AbstractPluginActivity;
 
+import org.json.JSONObject;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.imageCache.bundle.PluginBundleManager;
+import org.ttrssreader.imageCache.PluginJsonValues;
 import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 public final class EditPluginActivity extends AbstractPluginActivity {
 
 	//	private static final String TAG = EditPluginActivity.class.getSimpleName();
 
-	protected PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
+	final PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
 
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
@@ -53,20 +53,14 @@ public final class EditPluginActivity extends AbstractPluginActivity {
 	@Override
 	protected void onDestroy() {
 		mDamageReport.restoreOriginalHandler();
-		mDamageReport = null;
 		super.onDestroy();
 	}
 
 	@Override
-	public boolean isBundleValid(@NonNull Bundle bundle) {
-		return PluginBundleManager.isBundleValid(bundle);
-	}
-
-	@Override
-	public void onPostCreateWithPreviousResult(@NonNull Bundle previousBundle, @NonNull String s) {
-		if (PluginBundleManager.isBundleValid(previousBundle)) {
-			final boolean isSaveImages = PluginBundleManager.isSaveImages(previousBundle);
-			final boolean isShowNotification = PluginBundleManager.isShowNotification(previousBundle);
+	public void onPostCreateWithPreviousResult(@NonNull final JSONObject previousJson, @NonNull final String previousBlurb) {
+		if (PluginJsonValues.isJsonValid(previousJson)) {
+			final boolean isSaveImages = PluginJsonValues.getExtraImages(previousJson);
+			final boolean isShowNotification = PluginJsonValues.getExtraNotification(previousJson);
 
 			CheckBox images = findViewById(R.id.cb_images);
 			CheckBox notification = findViewById(R.id.cb_notification);
@@ -76,17 +70,21 @@ public final class EditPluginActivity extends AbstractPluginActivity {
 		}
 	}
 
-	@Nullable
 	@Override
-	public Bundle getResultBundle() {
+	public boolean isJsonValid(@NonNull final JSONObject json) {
+		return PluginJsonValues.isJsonValid(json);
+	}
+
+	@Override
+	public JSONObject getResultJson() {
 		final boolean images = ((CheckBox) findViewById(R.id.cb_images)).isChecked();
 		final boolean notification = ((CheckBox) findViewById(R.id.cb_notification)).isChecked();
-		return PluginBundleManager.generateBundle(getApplicationContext(), images, notification);
+		return PluginJsonValues.generateJson(getApplicationContext(), images, notification);
 	}
 
 	@NonNull
 	@Override
-	public String getResultBlurb(@NonNull Bundle bundle) {
+	public String getResultBlurb(@NonNull final JSONObject json) {
 		final boolean images = ((CheckBox) findViewById(R.id.cb_images)).isChecked();
 		final boolean notification = ((CheckBox) findViewById(R.id.cb_notification)).isChecked();
 		return generateBlurb(images, notification);

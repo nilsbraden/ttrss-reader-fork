@@ -17,6 +17,7 @@
 <resources>
 
     <string name="ApplicationName" translatable="false">TTRSS-Reader</string>
+    <string name="EditPluginActivity_Label" translatable="false">TTRSS-Reader Plugin Settings</string>
     <string name="IntentPublish">Publish content</string>
     <string name="IntentSubscribe">Subscribe to feed</string>
     <string name="ApplicationDescription">Tiny Tiny RSS Reader is an application for reading your feeds from your Tiny Tiny RSS instance.</string>
@@ -305,6 +306,8 @@
     <string name="Utils_CancelAction">Cancel</string>
     <string name="Cache_service_started">Download started…</string>
     <string name="Cache_service_text">Download is running…</string>
+    <string name="Cache_service_title_dummy">just a placeholder</string>
+    <string name="Cache_service_dummy">This notification can be hidden in the settings…</string>
     <string name="Cache_service_imagecache" translatable="false">ImageCache</string>
     <string name="Cache_service_articlecache" translatable="false">ArticleCache</string>
     <string name="Share_title">Title</string>

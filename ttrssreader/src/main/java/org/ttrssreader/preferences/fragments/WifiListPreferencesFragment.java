@@ -21,6 +21,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -38,6 +39,7 @@ import java.util.Map;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
@@ -122,14 +124,16 @@ public class WifiListPreferencesFragment extends PreferenceFragmentCompat implem
 		if (mWifiManager == null)
 			return;
 
-		List<ScanResult> results = mWifiManager.getScanResults();
 		Map<String, Boolean> networks = new HashMap<>();
-		for (ScanResult result : results) {
-			String ssid = cleanupSsid(result.SSID);
-			if (mConfiguredWifiNetworks != null && mConfiguredWifiNetworks.containsKey(ssid))
-				continue;
+		if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+			List<ScanResult> results = mWifiManager.getScanResults();
+			for (ScanResult result : results) {
+				String ssid = cleanupSsid(result.SSID);
+				if (mConfiguredWifiNetworks != null && mConfiguredWifiNetworks.containsKey(ssid))
+					continue;
 
-			networks.put(ssid, false);
+				networks.put(ssid, false);
+			}
 		}
 
 		// Reset displayed list:

@@ -28,6 +28,7 @@ import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 import org.ttrssreader.utils.Utils;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
@@ -112,7 +113,7 @@ public class PreferencesActivity extends AppCompatActivity implements Preference
 		}
 
 		if (!Utils.checkIsConfigInvalid()) {
-			init = new AsyncTask<Void, Void, Void>() {
+			init = new AsyncTask<>() {
 				@Override
 				protected Void doInBackground(Void... params) {
 					Controller.getInstance().initialize(getApplicationContext());
@@ -135,20 +136,24 @@ public class PreferencesActivity extends AppCompatActivity implements Preference
 	}
 
 	@Override
-	public boolean onPreferenceStartFragment(PreferenceFragmentCompat caller, Preference pref) {
+	public boolean onPreferenceStartFragment(@NonNull PreferenceFragmentCompat caller, @NonNull Preference pref) {
 		// Instantiate the new Fragment
 		Bundle args = pref.getExtras();
 		FragmentManager fm = getSupportFragmentManager();
-		Fragment fragment = fm.getFragmentFactory().instantiate(getClassLoader(), pref.getFragment());
-		fragment.setArguments(args);
-		fragment.setTargetFragment(caller, 0);
+		String prefFragment = pref.getFragment();
+		if (prefFragment != null) {
+			Fragment fragment = fm.getFragmentFactory().instantiate(getClassLoader(), prefFragment);
+			fragment.setArguments(args);
+			fragment.setTargetFragment(caller, 0);
 
-		// Replace the existing Fragment with the new Fragment
-		FragmentTransaction ft = fm.beginTransaction();
-		ft.replace(R.id.settings, fragment);
-		ft.addToBackStack(null);
-		ft.commit();
-		return true;
+			// Replace the existing Fragment with the new Fragment
+			FragmentTransaction ft = fm.beginTransaction();
+			ft.replace(R.id.settings, fragment);
+			ft.addToBackStack(null);
+			ft.commit();
+			return true;
+		}
+		return false;
 	}
 
 }

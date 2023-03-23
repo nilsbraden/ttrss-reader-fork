@@ -307,14 +307,14 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
+	public boolean onCreateOptionsMenu(@NonNull Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		getMenuInflater().inflate(R.menu.generic, menu);
 		return true;
 	}
 
 	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
+	public boolean onPrepareOptionsMenu(@NonNull Menu menu) {
 		super.onPrepareOptionsMenu(menu);
 
 		MenuItem offline = menu.findItem(R.id.Menu_WorkOffline);

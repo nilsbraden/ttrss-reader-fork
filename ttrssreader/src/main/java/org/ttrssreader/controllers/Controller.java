@@ -60,7 +60,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
@@ -656,7 +655,7 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 		try {
 			return url.getHost().equalsIgnoreCase(this.url().getHost());
 		} catch (MalformedURLException e) {
-			Log.e(TAG, "Malformed URL: " + e.toString());
+			Log.e(TAG, "Malformed URL: " + e);
 		}
 
 		return false;
@@ -668,11 +667,7 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 
 		if (this.urlNeedsAuthentication(url)) {
 			String auth = this.httpUsername() + ":" + this.httpPassword();
-			String encoded;
-			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT)
-				encoded = Base64.encodeToString(auth.getBytes(Charset.forName("UTF-8")), Base64.NO_WRAP);
-			else
-				encoded = Base64.encodeToString(auth.getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);
+			String encoded = Base64.encodeToString(auth.getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);
 			c.setRequestProperty("Authorization", "Basic " + encoded);
 		}
 
@@ -1134,13 +1129,8 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	// SYSTEM
 
 	public void setSaveAttachmentGeneric(String saveAttachment) {
-		if (Build.VERSION.SDK_INT >= 100000) { //Build.VERSION_CODES.N) {// TODO Use proper VERSION_CODE
-			setSaveAttachmentUri(saveAttachment);
-			setSaveAttachmentPath(Constants.EMPTY);
-		} else {
-			setSaveAttachmentUri(Constants.EMPTY);
-			setSaveAttachmentPath(saveAttachment);
-		}
+		setSaveAttachmentUri(Constants.EMPTY);
+		setSaveAttachmentPath(saveAttachment);
 	}
 
 	public String saveAttachmentPath() {

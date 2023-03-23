@@ -18,7 +18,6 @@
 package org.ttrssreader.gui;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.widget.Button;
@@ -144,10 +143,7 @@ public class ShareActivity extends MenuActivity {
 		}
 
 		private void finishCompat() {
-			if (Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN)
-				finishAffinity();
-			else
-				finish();
+			finishAffinity();
 		}
 
 	}

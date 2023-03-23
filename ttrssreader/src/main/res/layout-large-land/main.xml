@@ -36,7 +36,6 @@
         android:layout_height="match_parent"
         android:layout_below="@id/progressBarLayout"
         android:layout_toEndOf="@+id/frame_main"
-        android:layout_toRightOf="@+id/frame_main"
         android:background="?colorBackground"
         tools:ignore="InconsistentLayout">
 
@@ -53,8 +52,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/progressBarLayout"
-        android:layout_toEndOf="@+id/list_divider"
-        android:layout_toRightOf="@+id/list_divider" />
+        android:layout_toEndOf="@+id/list_divider" />
 
     <FrameLayout
         android:id="@+id/frame_invisible"
