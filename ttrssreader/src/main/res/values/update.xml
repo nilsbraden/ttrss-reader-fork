@@ -17,7 +17,9 @@
 <resources>
 
     <string-array name="updates">
-	    <item>Version 1.96.6
+	    <item>Version 1.97.0
+	         * Just updated libraries and API levels to keep this app available through Google Play Store</item>
+        <item>Version 1.96.6
 	         * Fix #452: Added column \"score\" to DB initialization</item>
         <item>Version 1.96.5
 	         * Fix #451: Crash because of changes in server, unexpected config object in login response
