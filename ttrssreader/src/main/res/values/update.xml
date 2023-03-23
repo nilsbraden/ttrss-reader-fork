@@ -17,209 +17,210 @@
 <resources>
 
     <string-array name="updates">
-	    <item>Version 1.97.0
-	         * Just updated libraries and API levels to keep this app available through Google Play Store</item>
+	    <item>Version 1.97.1
+             * Just updated libraries and API levels to keep this app available through Google Play Store
+             * Bump version_code. I\'m so tired of updating releases via Google…</item>
         <item>Version 1.96.6
-	         * Fix #452: Added column \"score\" to DB initialization</item>
+             * Fix #452: Added column \"score\" to DB initialization</item>
         <item>Version 1.96.5
-	         * Fix #451: Crash because of changes in server, unexpected config object in login response
-		     * Fix #450: Crash on initializing OkHttpClient, also removed async behavior on controller init
-		     * Fix #448: Fix init of DB for new column \"score\"</item>
+             * Fix #451: Crash because of changes in server, unexpected config object in login response
+             * Fix #450: Crash on initializing OkHttpClient, also removed async behavior on controller init
+             * Fix #448: Fix init of DB for new column \"score\"</item>
         <item>Version 1.96.4
-		     * Fixed: Display correct headline after going back from category to main
-		     * Fixed: Properly configured SSL settings for OkHttp
-		     * Make read articles more transparent so that unread ones stand out more
-		     * Added a preference to show Mark Read/Unread button instead of Publish</item>
+             * Fixed: Display correct headline after going back from category to main
+             * Fixed: Properly configured SSL settings for OkHttp
+             * Make read articles more transparent so that unread ones stand out more
+             * Added a preference to show Mark Read/Unread button instead of Publish</item>
         <item>Version 1.96.3
-	         * Fix #437: White screen on app launch by adding a default background showing the app icon
-	         * Fix #429: Hide articles with negative score in fresh feed
-	         * Second attempt: Fix #445: Problem with \"Go back after mark all items as read\"
-	         * Added more logging to check for problems with tablet ui</item>
+             * Fix #437: White screen on app launch by adding a default background showing the app icon
+             * Fix #429: Hide articles with negative score in fresh feed
+             * Second attempt: Fix #445: Problem with \"Go back after mark all items as read\"
+             * Added more logging to check for problems with tablet ui</item>
         <item>Version 1.96.2
-	         * Fix #445: Close app with \"Go back after mark all read\" on main page
-	         * Fix #439: Login issues due to removed base64 encoding of credentials
-	         * Fix #441: Mark as read generates a warning on the server</item>
+             * Fix #445: Close app with \"Go back after mark all read\" on main page
+             * Fix #439: Login issues due to removed base64 encoding of credentials
+             * Fix #441: Mark as read generates a warning on the server</item>
         <item>Version 1.96.1
-	         * Use OkHttp Library to reduce issues with SSL, optimize re-use of existing connection
-	         * Attempt fix of issue #425: Crash upon backing out to top of folder structure</item>
+             * Use OkHttp Library to reduce issues with SSL, optimize re-use of existing connection
+             * Attempt fix of issue #425: Crash upon backing out to top of folder structure</item>
         <item>Version 1.95.8
-	         * Implement dark mode following system-wide dark mode (or battery-saver on Android Pie or earlier)
-		     * Enable automatic dark theme by default
-		     * Use OkHttp library to allow using TLSv1.3 on Android Pie or earlier</item>
+             * Implement dark mode following system-wide dark mode (or battery-saver on Android Pie or earlier)
+             * Enable automatic dark theme by default
+             * Use OkHttp library to allow using TLSv1.3 on Android Pie or earlier</item>
         <item>Version 1.95.1
-		     * Bugfixes (connectivity problems with new API, empty result lists, subscribing to new feed, FC on back pressed, …)</item>
+             * Bugfixes (connectivity problems with new API, empty result lists, subscribing to new feed, FC on back pressed, …)</item>
         <item>Version 1.95.0
-		     * Completely rebuilt Wifibased-Preferences for Android 10
-		     * Fixed a lot of missing translations
-		     * Request Permsissions when they are needed (Storage, Location)
-		     * Fixed compatibility with older Android versions
-		     * Fixed FC when starting ImageCache after asking about mobile/metered network
-		     * Use new API to get current network state</item>
+             * Completely rebuilt Wifibased-Preferences for Android 10
+             * Fixed a lot of missing translations
+             * Request Permsissions when they are needed (Storage, Location)
+             * Fixed compatibility with older Android versions
+             * Fixed FC when starting ImageCache after asking about mobile/metered network
+             * Use new API to get current network state</item>
         <item>Version 1.94.9
-		     * Support more devices without touchscreen (Android TV)
-		     * Fix #406: Access to clipboard changed with Android 10
-		     * Fixed some translation issues, unified strings accross translations
-		     * Fixed #415: Caching and refresh of http-auth username/password works now
-		     * Fixed masking of other password fields (HTTP-Auth, SSL keystore)
+             * Support more devices without touchscreen (Android TV)
+             * Fix #406: Access to clipboard changed with Android 10
+             * Fixed some translation issues, unified strings accross translations
+             * Fixed #415: Caching and refresh of http-auth username/password works now
+             * Fixed masking of other password fields (HTTP-Auth, SSL keystore)
 	    </item>
         <item>Version 1.94.8
-		     * Fixed several potential error sources
-		     * Added better handling of unparseable JSON data in server replies
-		     * Fix username/password fields, no line breaks anymore and masked the password again
-		     * Fixed Locale/Tasker plugin
+             * Fixed several potential error sources
+             * Added better handling of unparseable JSON data in server replies
+             * Fix username/password fields, no line breaks anymore and masked the password again
+             * Fixed Locale/Tasker plugin
 	    </item>
         <item>Version 1.94.7
-		     * Fixed #411: \"Tasker plugin not working when launched from Automate\" (please re-configure plugin in your tasks to make it work!)
-		     * Fixed #403: \"Font too small, article unreadable\" by enforcing reasonable boundaries for textZoom values
-		     * Fixed several problems with old Android API
+             * Fixed #411: \"Tasker plugin not working when launched from Automate\" (please re-configure plugin in your tasks to make it work!)
+             * Fixed #403: \"Font too small, article unreadable\" by enforcing reasonable boundaries for textZoom values
+             * Fixed several problems with old Android API
 	    </item>
         <item>Version 1.94.6
-			 * __B__Note for Wifi-based preferences:___B___ If you\'re using Wifi-based preferences you will currently need to manually allow location access via Android Settings for this app since this is necessary to access the current Wifi-SSID.
-			 * Fixed Issue #348: NullPointerException
-			 * Fixed Issue #382: feed icons not working with HTTP basic auth
-			 * Add option to disable loading/display of feed icons
-			 * Fixed progressbar appearing when opening feeds
-			 * Fixed Issue #387: Fix gradle wrapper
-			 * Removed lots of unnecessary compatibility libraries and external resources
-			 * Update internal stuff (use libraries for AndroidX, fix lots of lint warnings, remove deprecated API usage, fix minor security issues, removed unused parts)
-			 * Completely re-wrote the preferences implementation, please expect this to still have issues
-			 * Fixed reset of preferences, moved items to main preferences screen
-			 * Fixed crash while parsing of ALT-Tags from HTML
-			 * Fixed issues with dark theme (black and white currently don\'t work but should be replaced by Day\/Night mode anyway)
-			 * Fixed more crashes from beta tests
-			 * Keep R8/ProGuard from removing all the Fragments I added for the preferences
-			 * Fixed Issue #394: Dark themes also work again
-			 * Fixed: Now properly ignoring errors when updating Play Services and the user wants to ignore them
+             * __B__Note for Wifi-based preferences:___B___ If you\'re using Wifi-based preferences you will currently need to manually allow location access via Android Settings for this app since this is necessary to access the current Wifi-SSID.
+             * Fixed Issue #348: NullPointerException
+             * Fixed Issue #382: feed icons not working with HTTP basic auth
+             * Add option to disable loading/display of feed icons
+             * Fixed progressbar appearing when opening feeds
+             * Fixed Issue #387: Fix gradle wrapper
+             * Removed lots of unnecessary compatibility libraries and external resources
+             * Update internal stuff (use libraries for AndroidX, fix lots of lint warnings, remove deprecated API usage, fix minor security issues, removed unused parts)
+             * Completely re-wrote the preferences implementation, please expect this to still have issues
+             * Fixed reset of preferences, moved items to main preferences screen
+             * Fixed crash while parsing of ALT-Tags from HTML
+             * Fixed issues with dark theme (black and white currently don\'t work but should be replaced by Day\/Night mode anyway)
+             * Fixed more crashes from beta tests
+             * Keep R8/ProGuard from removing all the Fragments I added for the preferences
+             * Fixed Issue #394: Dark themes also work again
+             * Fixed: Now properly ignoring errors when updating Play Services and the user wants to ignore them
 		</item>
         <item>Version 1.93.3
-			 * __B__Note for users on Android Oreo (8.x):___B___ I reverted some changes (new library versions mainly) and forcibly disabled the animations preference to make sure moving between articles works again. This currently is the only solution I have for #374.
-			 * Fix issue #371: feedname not shown and empty in overview
-			 * Fix issue #376: Trust anchor for certification path not found
-			 * Fix issue #372: Add option for disable feed icons downloading
-			 * Fixed some preferences not saved
+             * __B__Note for users on Android Oreo (8.x):___B___ I reverted some changes (new library versions mainly) and forcibly disabled the animations preference to make sure moving between articles works again. This currently is the only solution I have for #374.
+             * Fix issue #371: feedname not shown and empty in overview
+             * Fix issue #376: Trust anchor for certification path not found
+             * Fix issue #372: Add option for disable feed icons downloading
+             * Fixed some preferences not saved
 		</item>
         <item>Version 1.93.2
-			 * Debug-build to test client-certificates
+             * Debug-build to test client-certificates
 		</item>
         <item>Version 1.93.1
-			 * Fixed missing feed when going back
+             * Fixed missing feed when going back
 		</item>
         <item>Version 1.93.0
-			 * Add support for User-added-CAs from Android 7 (thx to maikbrueggemann)
+             * Add support for User-added-CAs from Android 7 (thx to maikbrueggemann)
              * Add SOCKS5 proxy support (thx to Jon Rosenberger)
              * Add support for ssl client certificates (thx to Jon Rosenberger)
              * Support GZip for response compression (thx to Jon Rosenberger)
              * Download feed icons and display them in feed list (thx to MoriTanosuke)
 		</item>
         <item>Version 1.92.0
-			 * Removed obsolete hardening code for SSL certificates
-			 * Fixed implementation of Media Downloader
-			 * Updated french translation (thanks to guillaume-uH57J9)
-			 * Chinese translation (thanks to Kevin Mao)
+             * Removed obsolete hardening code for SSL certificates
+             * Fixed implementation of Media Downloader
+             * Updated french translation (thanks to guillaume-uH57J9)
+             * Chinese translation (thanks to Kevin Mao)
 		</item>
         <item>Version 1.91.1
-			 * Better display of unread count with badges
-			 * Improvements to toolbar back arrow behavior and unread notes
-			 * Dutch translation (and some changes to English strings)
-			 * Hide uncategorized feeds if hiding read categories and no uncategorized feeds with unread articles
-			 * Add support for single user tt-rss instances
-			 * Bugifx: Fix invisible menu items and image caption dialog (Issue #324)
-			 * Bugfix: Fixed crash described in issue #331
-			 * Bugfix: Fixed NoClassDefFoundError because of old API
+             * Better display of unread count with badges
+             * Improvements to toolbar back arrow behavior and unread notes
+             * Dutch translation (and some changes to English strings)
+             * Hide uncategorized feeds if hiding read categories and no uncategorized feeds with unread articles
+             * Add support for single user tt-rss instances
+             * Bugifx: Fix invisible menu items and image caption dialog (Issue #324)
+             * Bugfix: Fixed crash described in issue #331
+             * Bugfix: Fixed NoClassDefFoundError because of old API
 		</item>
         <item>Version 1.90
-			 * Bugifx-release: Fix FC while parsing new output from server api (added field for GUID)
+             * Bugifx-release: Fix FC while parsing new output from server api (added field for GUID)
 		</item>
         <item>Version 1.89
-			 * Fixed errors when ImageCache couldn\'t be accessed
-			 * Fixed some problems with external storage access
-			 * Sort list of wifi networks by SSID in Preferences-per-Wifi dialog
-			 * Fixed crash when accessing NetworkInfo
-			 * Improved reuse of existing views
+             * Fixed errors when ImageCache couldn\'t be accessed
+             * Fixed some problems with external storage access
+             * Sort list of wifi networks by SSID in Preferences-per-Wifi dialog
+             * Fixed crash when accessing NetworkInfo
+             * Improved reuse of existing views
 		</item>
         <item>Version 1.88
-			 * Update french translation
-			 * Notes: Show notes within articles
-			 * Notes: Added notes are also internally set on the article, not just on the server
-			 * Notes: Disconnected notes and publishing since the two are not connected
-			 * Notes: Re-modeled temporary storage of notes and marked articles for later synchronization
-			 * Reset font when marked as read
-			 * Fixed problem with text-align mode
-			 * Fixed DB-reset method
-			 * Properly handle metered networks (eg. wifi with traffic restriction)
-			 * Stop ImageCache when connectivity changes (wifi to mobile)
-			 * Allow cancel of ImageCache via menu</item>
+             * Update french translation
+             * Notes: Show notes within articles
+             * Notes: Added notes are also internally set on the article, not just on the server
+             * Notes: Disconnected notes and publishing since the two are not connected
+             * Notes: Re-modeled temporary storage of notes and marked articles for later synchronization
+             * Reset font when marked as read
+             * Fixed problem with text-align mode
+             * Fixed DB-reset method
+             * Properly handle metered networks (eg. wifi with traffic restriction)
+             * Stop ImageCache when connectivity changes (wifi to mobile)
+             * Allow cancel of ImageCache via menu</item>
         <item>Version 1.87
-			 * Fixed NPE when subscribing to a new feed and selecting a category
-			 * Removed remaining references to the preference \"Use old connector\"
-			 * Modified some DB operations
-			 * Modify handling of all urls with a prefix/scheme of just \"//\"
-			 * Added product flavor for Play Services-free builds
-			 * Allow ftp downloads and handle urls in image/video tags
-			 * Fixed some FCs
-			 * Fix Issue #308: How to stream a media file
-			 * Fixed Issue #305: Problem when serves doesn\'t use credentials
-			 * Adjusted text-colors and article background for better readablity</item>
+             * Fixed NPE when subscribing to a new feed and selecting a category
+             * Removed remaining references to the preference \"Use old connector\"
+             * Modified some DB operations
+             * Modify handling of all urls with a prefix/scheme of just \"//\"
+             * Added product flavor for Play Services-free builds
+             * Allow ftp downloads and handle urls in image/video tags
+             * Fixed some FCs
+             * Fix Issue #308: How to stream a media file
+             * Fixed Issue #305: Problem when serves doesn\'t use credentials
+             * Adjusted text-colors and article background for better readablity</item>
         <item>Version 1.86.1
-			 * Fixed FC</item>
+             * Fixed FC</item>
         <item>Version 1.86
-			 * Display server-side-cached-images behind http auth
-			 * Slightly adjusted order of menu items
-			 * Fixed Issue #293: blank screen when trying to publish articles in firefox
-			 * Make the initial webview transparent to show theme colour
-			 * Handle exceptions from invalid preference values
-			 * Avoid sending duplicate error reports
-			 * Removed deprecated connector based on old apache libraries
-			 * Moved reset-operations (Preferences->Menu) into background threads)</item>
+             * Display server-side-cached-images behind http auth
+             * Slightly adjusted order of menu items
+             * Fixed Issue #293: blank screen when trying to publish articles in firefox
+             * Make the initial webview transparent to show theme colour
+             * Handle exceptions from invalid preference values
+             * Avoid sending duplicate error reports
+             * Removed deprecated connector based on old apache libraries
+             * Moved reset-operations (Preferences->Menu) into background threads)</item>
         <item>Version 1.85.2
-			 * Fixed several FCs</item>
+             * Fixed several FCs</item>
         <item>Version 1.85.1
-			 * Fixed Issue #287: SSL broken with self-signed certificates, added SSL-Preference to disable update of security provide via Google Play services.</item>
+             * Fixed Issue #287: SSL broken with self-signed certificates, added SSL-Preference to disable update of security provide via Google Play services.</item>
         <item>Version 1.85
-			 * Fix FC when asynchronously adding remote files
-			 * Fixed FC when articleFragment was not attached to Activity anymore
-			 * Fixed FC \"IllegalStateException: Content view not yet created\"
-			 * Improved DB-Adapters to avoid FC when accessing closed cursors
-			 * Fixed FC when ImageCache runs extremely long
-			 * Fixed FC \"IllegalStateException: Can not perform this action after onSaveInstanceState\"
-			 * Added some more translated strings and more precise error messages
-			 * Integrated updating of security provider with Google Play services
-			 * Fixed Issue #284: invisible background of dialogs</item>
+             * Fix FC when asynchronously adding remote files
+             * Fixed FC when articleFragment was not attached to Activity anymore
+             * Fixed FC \"IllegalStateException: Content view not yet created\"
+             * Improved DB-Adapters to avoid FC when accessing closed cursors
+             * Fixed FC when ImageCache runs extremely long
+             * Fixed FC \"IllegalStateException: Can not perform this action after onSaveInstanceState\"
+             * Added some more translated strings and more precise error messages
+             * Integrated updating of security provider with Google Play services
+             * Fixed Issue #284: invisible background of dialogs</item>
         <item>Version 1.84
-			 * Fixed a lot of bugs introduced by release v1.83
-			 * Implemented new dialog for the changelog
-			 * Slightly adjusted colors</item>
+             * Fixed a lot of bugs introduced by release v1.83
+             * Implemented new dialog for the changelog
+             * Slightly adjusted colors</item>
         <item>Version 1.83
-			 * Modified theme, reduced complexity, introduced first Material theme stuff (slightly changed the layout and the spacing of items, changed some colors and so on)
-			 * Allow resetting the ImageCache from the preferences menu
-			 * Reduce impact on the UI when running the ImageCache, fixed bugs interfering with the ImageCache
-			 * Fix HTML entities appearing in image captions
-			 * Implemented new Toolbar as replacement for ActionBar which was removed with Lollipop for some reason
-			 * Added content filtering for API levels below 17 to avoid vulnerability for scripting attacks
-			 * If anyone else here is annoyed by the low-res icons of the app and is good with image processing: This app could do with a new icon set and I can\'t do it. :)\n</item>
+             * Modified theme, reduced complexity, introduced first Material theme stuff (slightly changed the layout and the spacing of items, changed some colors and so on)
+             * Allow resetting the ImageCache from the preferences menu
+             * Reduce impact on the UI when running the ImageCache, fixed bugs interfering with the ImageCache
+             * Fix HTML entities appearing in image captions
+             * Implemented new Toolbar as replacement for ActionBar which was removed with Lollipop for some reason
+             * Added content filtering for API levels below 17 to avoid vulnerability for scripting attacks
+             * If anyone else here is annoyed by the low-res icons of the app and is good with image processing: This app could do with a new icon set and I can\'t do it. :)\n</item>
         <item>Version 1.82
-			 * Read ALT-Text from tags of type IMAGE_ANCHOR too (Read TITLE-Tag first, if empty read ALT-Tag)
-			 * Slight layout changes, buttons now appear a bit more Lollipop-Styled
-			 * Fixed synchronisation issues with virtual categories when rotating device
-			 * Slightly changed the visible items in the actionbar
-			 * Fixed internal problem with imageCache leading to FCs
-			 * Fixed Issue #268: disable media loading
-			 * Fixed issue #269: Server-local cached images cannot be downloaded when HTTP Authentication is in use
-			 * Ask for confirmation before marking virtual categories and feed-collections as read.
-			 * Fixed Issue #270: Option to disable "All Read", "Feed Read", "Feeds Read" buttons
-			 * Added YesNoDialog to marking a feed as read if the current feed is a union of all feeds of a category.
-			 * Fixed Issue #272: ttrss-reader calls home without asking for permission. If the user disables chrasreports, the minSupportedVersion.txt is not updated anymore. I also included a hint in the preference regarding this issue.
-			 * Fixes Issue #248: Copy feed text. Added copy content method by long press within an article.
-			 * Tweaked swiping mechanism: Only accept movement as a swipe if the horizontal distance was greater then the vertical distance
-			 * Added animations for slide left/right
-			 * Reduced database operations while beeing offline</item>
+             * Read ALT-Text from tags of type IMAGE_ANCHOR too (Read TITLE-Tag first, if empty read ALT-Tag)
+             * Slight layout changes, buttons now appear a bit more Lollipop-Styled
+             * Fixed synchronisation issues with virtual categories when rotating device
+             * Slightly changed the visible items in the actionbar
+             * Fixed internal problem with imageCache leading to FCs
+             * Fixed Issue #268: disable media loading
+             * Fixed issue #269: Server-local cached images cannot be downloaded when HTTP Authentication is in use
+             * Ask for confirmation before marking virtual categories and feed-collections as read.
+             * Fixed Issue #270: Option to disable "All Read", "Feed Read", "Feeds Read" buttons
+             * Added YesNoDialog to marking a feed as read if the current feed is a union of all feeds of a category.
+             * Fixed Issue #272: ttrss-reader calls home without asking for permission. If the user disables chrasreports, the minSupportedVersion.txt is not updated anymore. I also included a hint in the preference regarding this issue.
+             * Fixes Issue #248: Copy feed text. Added copy content method by long press within an article.
+             * Tweaked swiping mechanism: Only accept movement as a swipe if the horizontal distance was greater then the vertical distance
+             * Added animations for slide left/right
+             * Reduced database operations while beeing offline</item>
         <item>Version 1.81
-			 * Attempt to build with PRNGFixes again (fixes Issue #264)
-			 * Fixed  Issue #253: \"Adding a new feed will put it in a random category\"
-			 * Fixed some FCs (Issue #266)</item>
+             * Attempt to build with PRNGFixes again (fixes Issue #264)
+             * Fixed  Issue #253: \"Adding a new feed will put it in a random category\"
+             * Fixed some FCs (Issue #266)</item>
         <item>Version 1.80
-			 * Revert to default implementation of SecureRandom because the suggested bugfix from Google seems to crash on some devices. Due to this the SSL implementation \"may not receive cryptographically strong values\". I\'m investigating solutions for this. Thank you for your patience. :)
-			 * Another thing I would like to mention: Thank you all for reporting bugs through the play store and/or by mail. I don\'t answer most of the time and have been made aware that this might be considered unthankful by some. Please know that your support is appreciated!\n</item>
+             * Revert to default implementation of SecureRandom because the suggested bugfix from Google seems to crash on some devices. Due to this the SSL implementation \"may not receive cryptographically strong values\". I\'m investigating solutions for this. Thank you for your patience. :)
+             * Another thing I would like to mention: Thank you all for reporting bugs through the play store and/or by mail. I don\'t answer most of the time and have been made aware that this might be considered unthankful by some. Please know that your support is appreciated!\n</item>
 
         <!-- Old Entries: -->
         <!--
