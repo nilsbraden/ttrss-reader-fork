@@ -91,7 +91,7 @@ dependencies {
     // "Updating Your Security Provider to Protect Against SSL Exploits"
     // https://developer.android.com/training/articles/security-gms-provider.html
     // Only used in productFlavour "play"
-    implementation 'com.google.android.gms:play-services-base:18.2.0'
+    playImplementation 'com.google.android.gms:play-services-base:18.2.0'
 
     // https://firebaseopensource.com/projects/googlesamples/easypermissions/
     implementation 'pub.devrel:easypermissions:3.0.0'
