@@ -18,12 +18,12 @@ apply plugin: 'com.android.application'
 
 android {
     namespace 'org.ttrssreader'
-    compileSdkVersion 33
+    compileSdk 34
 
     defaultConfig {
         applicationId 'org.ttrssreader'
         minSdkVersion 19
-        targetSdkVersion 33
+        targetSdkVersion 34
         multiDexEnabled true
     }
 
@@ -36,7 +36,9 @@ android {
     }
 
     packagingOptions {
-        exclude 'META-INF/LICENSE.txt'
+        resources {
+            excludes += ['META-INF/LICENSE.txt']
+        }
     }
 
     if (file('../signingconfig.gradle').exists()) {
@@ -80,13 +82,13 @@ dependencies {
     implementation 'com.twofortyfouram:android-spackle:9.0.0'
 
     // Used to get ALT-Text of images from html
-    implementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.26'
+    implementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.29'
 
     // Use AndroidX Preference implementation
-    implementation 'androidx.preference:preference:1.2.0'
+    implementation 'androidx.preference:preference:1.2.1'
 
     // Remove any potentially harmful script-tags from incoming content
-    implementation 'org.jsoup:jsoup:1.15.4'
+    implementation 'org.jsoup:jsoup:1.16.1'
 
     // "Updating Your Security Provider to Protect Against SSL Exploits"
     // https://developer.android.com/training/articles/security-gms-provider.html
@@ -97,13 +99,16 @@ dependencies {
     implementation 'pub.devrel:easypermissions:3.0.0'
 
     // https://github.com/material-components/material-components-android/releases
-    implementation 'com.google.android.material:material:1.8.0'
+    implementation 'com.google.android.material:material:1.9.0'
 
     // OkHttp https://square.github.io/okhttp/
     implementation 'com.squareup.okhttp3:okhttp:3.12.12'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.12.12'
 
     // Strange duplicate dependency error:
-    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.5.0'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.6.2'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2'
+
+    // Fix duplicate class errors
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.9.10"))
 }
