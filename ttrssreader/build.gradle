@@ -59,13 +59,10 @@ android {
             dimension "version"
         }
     }
-
-    lintOptions {
-        // checkReleaseBuilds false
-        // Or, if you prefer, you can continue to check for errors in release builds,
-        // but continue the build even when errors are found:
+    lint {
         abortOnError false
     }
+
 }
 
 dependencies {
@@ -93,21 +90,21 @@ dependencies {
     // "Updating Your Security Provider to Protect Against SSL Exploits"
     // https://developer.android.com/training/articles/security-gms-provider.html
     // Only used in productFlavour "play"
-    playImplementation 'com.google.android.gms:play-services-base:18.2.0'
+    playImplementation 'com.google.android.gms:play-services-base:18.3.0'
 
     // https://firebaseopensource.com/projects/googlesamples/easypermissions/
     implementation 'pub.devrel:easypermissions:3.0.0'
 
     // https://github.com/material-components/material-components-android/releases
-    implementation 'com.google.android.material:material:1.9.0'
+    implementation 'com.google.android.material:material:1.11.0'
 
     // OkHttp https://square.github.io/okhttp/
     implementation 'com.squareup.okhttp3:okhttp:3.12.12'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.12.12'
 
     // Strange duplicate dependency error:
-    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.6.2'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.7.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0'
 
     // Fix duplicate class errors
     implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.9.10"))

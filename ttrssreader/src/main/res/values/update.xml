@@ -17,6 +17,8 @@
 <resources>
 
     <string-array name="updates">
+	    <item>Version 1.97.2
+             * Updated libraries and API levels</item>
 	    <item>Version 1.97.1
              * Just updated libraries and API levels to keep this app available through Google Play Store
              * Bump version_code. I\'m so tired of updating releases via Google…</item>
