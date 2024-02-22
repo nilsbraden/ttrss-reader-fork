@@ -17,6 +17,9 @@
 <resources>
 
     <string-array name="updates">
+	    <item>Version 1.97.3
+             * Added new permissions to support android 14
+             * Attempt to implement usage of Worker and WorkManager</item>
 	    <item>Version 1.97.2
              * Updated libraries and API levels</item>
 	    <item>Version 1.97.1

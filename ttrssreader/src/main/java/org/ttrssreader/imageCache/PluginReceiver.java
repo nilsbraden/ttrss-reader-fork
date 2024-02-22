@@ -17,6 +17,7 @@ package org.ttrssreader.imageCache;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.util.Log;
 
 import com.twofortyfouram.locale.sdk.client.receiver.AbstractPluginSettingReceiver;
@@ -25,6 +26,9 @@ import org.json.JSONObject;
 import org.ttrssreader.controllers.Controller;
 
 import androidx.annotation.NonNull;
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 
 /**
  * This is the "fire" BroadcastReceiver for a Locale Plug-in setting.
@@ -52,15 +56,22 @@ public final class PluginReceiver extends AbstractPluginSettingReceiver {
 		final boolean images = PluginJsonValues.getExtraImages(json);
 		final boolean notification = PluginJsonValues.getExtraNotification(json);
 
-		Intent serviceIntent;
-		if (images) {
-			serviceIntent = new Intent(ForegroundService.ACTION_LOAD_IMAGES);
+		Intent intent = new Intent(images ? ForegroundService.ACTION_LOAD_IMAGES : ForegroundService.ACTION_LOAD_ARTICLES);
+		intent.setClass(context, ForegroundService.class);
+		intent.putExtra(ForegroundService.PARAM_SHOW_NOTIFICATION, notification);
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+			Data data = new Data.Builder()
+					.putString(ForegroundService.PARAM_ACTION, images ? ForegroundService.ACTION_LOAD_IMAGES : ForegroundService.ACTION_LOAD_ARTICLES)
+					.putBoolean(ForegroundService.PARAM_SHOW_NOTIFICATION, notification)
+					.build();
+			OneTimeWorkRequest request = new OneTimeWorkRequest.Builder ( ForegroundWorker.class ).setInputData(data).addTag ( ForegroundWorker.TAG ).build ();
+			WorkManager.getInstance ( context ).enqueue ( request );
+		} else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			context.startForegroundService ( intent );
 		} else {
-			serviceIntent = new Intent(ForegroundService.ACTION_LOAD_ARTICLES);
+			context.startService ( intent );
 		}
-		serviceIntent.setClass(context, ForegroundService.class);
-		serviceIntent.putExtra(ForegroundService.PARAM_SHOW_NOTIFICATION, notification);
-		context.startForegroundService(serviceIntent);
 	}
 
 }

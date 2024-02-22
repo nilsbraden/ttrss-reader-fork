@@ -25,6 +25,9 @@
     <!-- Necessary to be able to call the background update from Tasker/Locale plugin -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
+    <!-- Needed since sdk 34 (Android 14) for Foreground services -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" android:minSdkVersion="34" />
+
     <!-- Add features to extend range of Play Store supported devices to Android TV -->
     <uses-feature android:name="android.hardware.faketouch" />
     <uses-feature
@@ -125,6 +128,19 @@
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
+        </provider>
+
+        <!-- Otherwise, remove only the WorkManagerInitializer node.-->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <!-- If you are using androidx.startup to initialize other components -->
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
         </provider>
 
         <!--

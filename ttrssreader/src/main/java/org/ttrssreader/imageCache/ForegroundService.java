@@ -22,6 +22,8 @@ package org.ttrssreader.imageCache;
 import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
+import android.content.pm.ServiceInfo;
+import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -36,6 +38,7 @@ public class ForegroundService extends Service implements ICacheEndListener {
 
 	private static final String TAG = ForegroundService.class.getSimpleName();
 
+	public static final String PARAM_ACTION = "action";
 	public static final String PARAM_SHOW_NOTIFICATION = "show_notification";
 	public static final String PARAM_NETWORK = "network";
 
@@ -79,7 +82,7 @@ public class ForegroundService extends Service implements ICacheEndListener {
 	public void onCacheEnd() {
 		WakeLocker.release();
 		if (instance != null) {
-			stopForeground(true);
+			stopForeground(STOP_FOREGROUND_REMOVE);
 			imageCacher = null;
 			instance = null;
 		}
@@ -111,19 +114,13 @@ public class ForegroundService extends Service implements ICacheEndListener {
 			if (imageCacher == null && intent != null && intent.getAction() != null) {
 
 				int networkType = intent.getIntExtra(PARAM_NETWORK, Utils.NETWORK_NONE);
+				boolean onlyArticles = ACTION_LOAD_ARTICLES.equals(intent.getAction());
 
-				CharSequence title = "";
-				if (ACTION_LOAD_IMAGES.equals(intent.getAction())) {
-					title = getText(R.string.Cache_service_imagecache);
-					imageCacher = new ImageCacher(this, this, false, networkType);
-					imageCacher.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-					Log.i(TAG, "Caching images started");
-				} else if (ACTION_LOAD_ARTICLES.equals(intent.getAction())) {
-					title = getText(R.string.Cache_service_articlecache);
-					imageCacher = new ImageCacher(this, this, true, networkType);
-					imageCacher.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-					Log.i(TAG, "Caching (articles only) started");
-				}
+				CharSequence title = onlyArticles ? getText(R.string.Cache_service_articlecache) : getText(R.string.Cache_service_imagecache);
+
+				Log.i(TAG, String.format("Caching (%s) started", onlyArticles ? "articles" : "images"));
+				imageCacher = new ImageCacher(instance, this, onlyArticles, networkType);
+				imageCacher.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
 				WakeLocker.acquire(this);
 
@@ -132,7 +129,7 @@ public class ForegroundService extends Service implements ICacheEndListener {
 					CharSequence ticker = getText(R.string.Cache_service_started);
 					CharSequence text = getText(R.string.Cache_service_text);
 					Notification notification = Utils.buildNotification(this, icon, ticker, title, text, true, new Intent(), Data.NOTIFICATION_CHANNEL_ID_TASKER);
-					startForeground(R.string.Cache_service_started, notification);
+					doStartForeground(R.string.Cache_service_started, notification);
 				} else {
 					// Show dummy notification with a text exlaining this can be hidden...
 					// According to google this should be done with an Intent Service. Half a year later it doesn't work
@@ -143,12 +140,20 @@ public class ForegroundService extends Service implements ICacheEndListener {
 					CharSequence ticker = getText(R.string.Cache_service_started);
 					CharSequence text = getText(R.string.Cache_service_text);
 					Notification notification = Utils.buildNotification(this, icon, ticker, dummytitle, text, true, new Intent(), Data.NOTIFICATION_CHANNEL_ID_TASKER);
-					startForeground(R.string.Cache_service_started, notification);
+					doStartForeground(R.string.Cache_service_started, notification);
 				}
 
 			}
 		}
 		return START_STICKY;
+	}
+
+	public void doStartForeground(int id, Notification notification) {
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+			startForeground(id, notification);
+		} else {
+			startForeground(id, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC);
+		}
 	}
 
 }

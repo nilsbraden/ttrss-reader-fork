@@ -26,6 +26,8 @@ import org.ttrssreader.controllers.ProgressBarManager;
 import org.ttrssreader.utils.PRNGFixes;
 
 import androidx.multidex.MultiDexApplication;
+import androidx.work.Configuration;
+import androidx.work.WorkManager;
 
 public class MyApplication extends MultiDexApplication {
 
@@ -39,6 +41,7 @@ public class MyApplication extends MultiDexApplication {
 		PRNGFixes.apply();
 		initSingletons();
 		Data.getInstance().notifyListeners(); // Notify once to make sure the handler is initialized
+		WorkManager.initialize(this, new Configuration.Builder().build());
 
 		//AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
 	}

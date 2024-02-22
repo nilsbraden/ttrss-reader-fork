@@ -108,4 +108,8 @@ dependencies {
 
     // Fix duplicate class errors
     implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.9.10"))
+
+    // F*** Google, lots of difficulties with permissions for starting services...
+    implementation 'androidx.work:work-runtime:2.9.0'
+    implementation 'com.google.guava:guava:27.0.1-android'
 }

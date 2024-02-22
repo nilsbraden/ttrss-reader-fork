@@ -19,9 +19,11 @@ package org.ttrssreader.gui;
 
 import android.content.Context;
 import android.content.Intent;
+
 import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.net.ConnectivityManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.TypedValue;
@@ -49,6 +51,7 @@ import org.ttrssreader.gui.interfaces.IDataChangedListener;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.imageCache.ForegroundService;
+import org.ttrssreader.imageCache.ForegroundWorker;
 import org.ttrssreader.model.updaters.IUpdatable;
 import org.ttrssreader.model.updaters.StateSynchronisationUpdater;
 import org.ttrssreader.model.updaters.Updater;
@@ -61,6 +64,9 @@ import org.ttrssreader.utils.Utils;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 
 import static org.ttrssreader.controllers.Controller.isTablet;
 
@@ -486,7 +492,19 @@ public abstract class MenuActivity extends MenuFlavorActivity implements IUpdate
 		intent.putExtra(ForegroundService.PARAM_NETWORK, networkState);
 		intent.setClass(this.getApplicationContext(), ForegroundService.class);
 
-		this.startService(intent);
+		// Also see PluginReceiver.java...
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+			Data data = new Data.Builder()
+					.putString(ForegroundService.PARAM_ACTION, ForegroundService.ACTION_LOAD_IMAGES)
+					.putInt(ForegroundService.PARAM_NETWORK, networkState)
+					.build();
+			OneTimeWorkRequest request = new OneTimeWorkRequest.Builder ( ForegroundWorker.class ).setInputData(data).addTag ( ForegroundWorker.TAG ).build ();
+			WorkManager.getInstance ( this ).enqueue ( request );
+		} else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			this.startForegroundService ( intent );
+		} else {
+			this.startService ( intent );
+		}
 	}
 
 	@Override
