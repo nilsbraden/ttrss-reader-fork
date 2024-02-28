@@ -25,9 +25,6 @@
     <!-- Necessary to be able to call the background update from Tasker/Locale plugin -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
-    <!-- Needed since sdk 34 (Android 14) for Foreground services -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" android:minSdkVersion="34" />
-
     <!-- Add features to extend range of Play Store supported devices to Android TV -->
     <uses-feature android:name="android.hardware.faketouch" />
     <uses-feature
