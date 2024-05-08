@@ -230,9 +230,9 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 
 		// Wrap webview inside another FrameLayout to avoid memory leaks as described here:
 		// http://stackoverflow.com/questions/3130654/memory-leak-in-webview
-		webContainer = getActivity().findViewById(R.id.article_webView_Container);
-		buttonPrev = getActivity().findViewById(R.id.article_buttonPrev);
-		buttonNext = getActivity().findViewById(R.id.article_buttonNext);
+		webContainer = getView().findViewById(R.id.article_webView_Container);
+		buttonPrev = getView().findViewById(R.id.article_buttonPrev);
+		buttonNext = getView().findViewById(R.id.article_buttonNext);
 		buttonPrev.setOnClickListener(onButtonPressedListener);
 		buttonNext.setOnClickListener(onButtonPressedListener);
 
@@ -289,7 +289,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 
 		registerForContextMenu(webView);
 
-		getActivity().findViewById(R.id.article_button_view).setVisibility(Controller.getInstance().showButtonsMode() == Constants.SHOW_BUTTONS_MODE_ALLWAYS ? View.VISIBLE : View.GONE);
+		getView().findViewById(R.id.article_button_view).setVisibility(Controller.getInstance().showButtonsMode() == Constants.SHOW_BUTTONS_MODE_ALLWAYS ? View.VISIBLE : View.GONE);
 
 		// Attach the WebView to its placeholder
 		if (webView.getParent() != null && webView.getParent() instanceof FrameLayout)
