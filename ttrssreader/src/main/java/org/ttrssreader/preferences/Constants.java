@@ -77,6 +77,7 @@ public class Constants {
 	public static final String HIDE_ACTIONBAR = "HideActionbarPreference";
 	public static final String ALLOW_TABLET_LAYOUT = "AllowTabletLayoutPreference";
 	public static final String HIDE_FEED_READ_BUTTONS = "HideFeedReadButtons";
+	public static final String SWIPE_ARTICLE_MARK_READ = "SwipeArticleMarkRead";
 	// Usage Default Values
 	public static final boolean OPEN_URL_EMPTY_ARTICLE_DEFAULT = false;
 	public static final boolean USE_VOLUME_KEYS_DEFAULT = false;
@@ -87,6 +88,7 @@ public class Constants {
 	public static final boolean HIDE_ACTIONBAR_DEFAULT = true;
 	public static final boolean ALLOW_TABLET_LAYOUT_DEFAULT = true;
 	public static final boolean HIDE_FEED_READ_BUTTONS_DEFAULT = false;
+	public static final boolean SWIPE_ARTICLE_MARK_READ_DEFAULT = false;
 
 	// Display
 	public static final String THEME = "DisplayThemePreferenceAuto";

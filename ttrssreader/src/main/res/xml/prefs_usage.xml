@@ -73,6 +73,11 @@
             android:key="HideFeedReadButtons"
             android:summary="@string/HideFeedReadButtonsSummary"
             android:title="@string/HideFeedReadButtonsTitle"/>
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="SwipeArticleMarkRead"
+            android:summary="@string/SwipeArticleMarkReadSummary"
+            android:title="@string/SwipeArticleMarkReadTitle"/>
     </PreferenceCategory>
 
 </PreferenceScreen>

@@ -314,11 +314,9 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
 				if (wm != null)
 					Controller.refreshDisplayMetrics(wm.getDefaultDisplay());
 			}
-
 			try {
 				if (Math.abs(e1.getY() - e2.getY()) > Controller.relSwipeMaxOffPath)
 					return false;
-
 				return super.onFling(e1, e2, velocityX, velocityY);
 			} catch (Exception e) {
 				// Empty!
@@ -328,16 +326,19 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
 
 		@Override
 		public boolean onSwipe(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-			int pos1 = getListView().pointToPosition((int)e1.getX(), (int)e1.getY());
-			int pos2 = getListView().pointToPosition((int)e2.getX(), (int)e2.getY());
-			if (pos1 == pos2 && pos1 >= 0 && e2.getX() > e1.getX()){
-				Article article = (Article)adapter.getItem(pos1);
-				new Updater(getActivity(), new ArticleReadStateUpdater(article, article.isUnread ? 0 : 1)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-				// https://stackoverflow.com/questions/4817770/android-listview-with-onitemclicklistener-and-gesturedetector
-				MotionEvent cancelEvent = MotionEvent.obtain(e2);
-				cancelEvent.setAction(MotionEvent.ACTION_CANCEL);
-				getListView().onTouchEvent(cancelEvent);
-				return true;
+			// What do we do, swipe or mark read?
+			if (Controller.getInstance().swipeArticleMarkRead()) {
+				int pos1 = getListView().pointToPosition((int) e1.getX(), (int) e1.getY());
+				int pos2 = getListView().pointToPosition((int) e2.getX(), (int) e2.getY());
+				if (pos1 == pos2 && pos1 >= 0 && e2.getX() > e1.getX()) {
+					Article article = (Article) adapter.getItem(pos1);
+					new Updater(getActivity(), new ArticleReadStateUpdater(article, article.isUnread ? 0 : 1)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+					// https://stackoverflow.com/questions/4817770/android-listview-with-onitemclicklistener-and-gesturedetector
+					MotionEvent cancelEvent = MotionEvent.obtain(e2);
+					cancelEvent.setAction(MotionEvent.ACTION_CANCEL);
+					getListView().onTouchEvent(cancelEvent);
+					return true;
+				}
 			}
 
 			int direction = e1.getX() > e2.getX() ? 1 : -1;

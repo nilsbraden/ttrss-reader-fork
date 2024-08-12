@@ -116,7 +116,7 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	private Boolean allowTabletLayout = null;
 	private Boolean displayFeedIcons = null;
 	private Boolean hideFeedReadButtons = null;
-
+	private Boolean swipeArticleMarkRead = null;
 	private Boolean animations = null;
 	private Integer textZoom = null;
 	private Boolean supportZoomControls = null;
@@ -832,6 +832,18 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 			hideFeedReadButtons = prefs.getBoolean(HIDE_FEED_READ_BUTTONS, HIDE_FEED_READ_BUTTONS_DEFAULT);
 
 		return hideFeedReadButtons;
+	}
+
+	public void setSwipeArticleMarkRead(boolean swipeArticleMarkRead) {
+		put(SWIPE_ARTICLE_MARK_READ, swipeArticleMarkRead);
+		this.swipeArticleMarkRead = swipeArticleMarkRead;
+	}
+
+	public boolean swipeArticleMarkRead() {
+		if (swipeArticleMarkRead == null)
+			swipeArticleMarkRead = prefs.getBoolean(SWIPE_ARTICLE_MARK_READ, SWIPE_ARTICLE_MARK_READ_DEFAULT);
+
+		return swipeArticleMarkRead;
 	}
 
 	// ******* DISPLAY-Options ****************************
