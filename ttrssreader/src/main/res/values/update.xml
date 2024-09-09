@@ -17,6 +17,8 @@
 <resources>
 
     <string-array name="updates">
+	    <item>Version 1.97.5
+             * Updated libraries and API levels</item>
 	    <item>Version 1.97.4
              * Implement Worker for Android 14 compatibility</item>
 	    <item>Version 1.97.2
