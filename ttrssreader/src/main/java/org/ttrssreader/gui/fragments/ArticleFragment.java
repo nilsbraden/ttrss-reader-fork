@@ -969,7 +969,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 
 		@Override
 		public boolean onSwipe(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-			int direction = e1.getX() > e1.getY() ? 1 : -1;
+			int direction = e1.getX() > e2.getX() ? 1 : -1;
 
 			FeedHeadlineActivity fhActivity = (FeedHeadlineActivity) getActivity();
 			if (fhActivity != null)
