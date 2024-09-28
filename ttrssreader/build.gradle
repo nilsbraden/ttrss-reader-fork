@@ -50,7 +50,7 @@ android {
         targetCompatibility JavaVersion.VERSION_11
     }
 
-    flavorDimensions "version"
+    flavorDimensions = ["version"]
     productFlavors {
         play {
             dimension "version"
@@ -102,8 +102,8 @@ dependencies {
     implementation 'com.squareup.okhttp3:logging-interceptor:3.12.12'
 
     // Strange duplicate dependency error:
-    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.8.5'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.5'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.8.6'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.6'
 
     // Fix duplicate class errors
     implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.9.10"))
