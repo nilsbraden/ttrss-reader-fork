@@ -17,6 +17,9 @@
 <resources>
 
     <string-array name="updates">
+	    <item>Version 1.97.6
+             * Fix swiping in article view #474 (thanks to c-ren for implementing a fix!)
+             * Updated libraries and API levels</item>
 	    <item>Version 1.97.5
              * Updated libraries and API levels
              * Raised minApiLevel accordingly (to 21, Android 5)</item>
