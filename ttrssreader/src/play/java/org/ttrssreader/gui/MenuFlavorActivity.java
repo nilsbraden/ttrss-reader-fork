@@ -42,6 +42,9 @@ public abstract class MenuFlavorActivity extends AppCompatActivity implements Pr
 
 	@Override
 	protected void onCreate(Bundle instance) {
+		// Call before the DecorView is accessed in setContentView, see https://medium.com/androiddevelopers/insets-handling-tips-for-android-15s-edge-to-edge-enforcement-872774e8839b
+		getTheme().applyStyle(R.style.OptOutEdgeToEdgeEnforcement, /* force */ false);
+
 		super.onCreate(instance);
 		if (Controller.getInstance().useProviderInstaller())
 			ProviderInstaller.installIfNeededAsync(this, this);

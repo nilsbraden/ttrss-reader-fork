@@ -23,6 +23,7 @@ import android.view.View;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.gui.MenuFlavorActivity;
 import org.ttrssreader.preferences.fragments.PreferencesFragment;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.PostMortemReportExceptionHandler;
@@ -38,7 +39,7 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 
-public class PreferencesActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
+public class PreferencesActivity extends MenuFlavorActivity implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
 
 	//	private static final String TAG = PreferencesActivity.class.getSimpleName();
 

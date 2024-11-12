@@ -27,7 +27,7 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 
-public class MediaPlayerActivity extends Activity {
+public class MediaPlayerActivity extends MenuFlavorActivity {
 
 	//	private static final String TAG = MediaPlayerActivity.class.getSimpleName();
 

@@ -36,8 +36,12 @@ public final class EditPluginActivity extends AbstractPluginActivity {
 
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
 		setTheme(Controller.getInstance().getThemeResource());
+
+		// Call before the DecorView is accessed in setContentView, see https://medium.com/androiddevelopers/insets-handling-tips-for-android-15s-edge-to-edge-enforcement-872774e8839b
+		getTheme().applyStyle(R.style.OptOutEdgeToEdgeEnforcement, /* force */ false);
+
+		super.onCreate(savedInstanceState);
 		Controller.getInstance().initializeThemeMode();
 		mDamageReport.initialize();
 		setContentView(R.layout.localeplugin);

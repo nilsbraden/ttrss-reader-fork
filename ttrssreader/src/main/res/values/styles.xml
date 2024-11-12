@@ -28,5 +28,7 @@
         <item name="android:windowBackground">@drawable/splash</item>
     </style>
 
+    <style name="OptOutEdgeToEdgeEnforcement">
+    </style>
 
 </resources>

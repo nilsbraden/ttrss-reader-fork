@@ -34,7 +34,7 @@ import java.util.Date;
 
 import static org.ttrssreader.R.id.AboutActivity_ThanksText;
 
-public class AboutActivity extends Activity {
+public class AboutActivity extends MenuFlavorActivity {
 
 	//	private static final String TAG = AboutActivity.class.getSimpleName();
 
