@@ -17,7 +17,7 @@
 <resources>
 
     <string-array name="updates">
-	    <item>Version 1.97.7
+	    <item>Version 1.97.8
              * Quick fix for #477 \"Rendering under status bar in Android 15\": disable edge-to-ege display for now</item>
 	    <item>Version 1.97.6
              * Fix swiping in article view #474 (thanks to c-ren for implementing a fix!)
