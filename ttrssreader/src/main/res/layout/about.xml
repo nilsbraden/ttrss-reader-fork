@@ -130,6 +130,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1.0"
+            android:textColor="#53524c"
             android:text="@string/AboutActivity_CloseBtn" />
 
         <Button
@@ -137,6 +138,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1.0"
+            android:textColor="#53524c"
             android:text="@string/AboutActivity_DonateBtn" />
     </LinearLayout>
 
