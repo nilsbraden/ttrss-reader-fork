@@ -41,6 +41,7 @@
         android:layout_height="wrap_content"
         android:layout_alignEnd="@+id/subscribe_url"
         android:layout_below="@+id/subscribe_url"
+        android:textColor="#504f48"
         android:text="@string/Subscribe_Paste" />
 
     <TextView
@@ -66,6 +67,7 @@
         android:layout_below="@+id/subscribe_categories"
         android:layout_margin="20dp"
         android:text="@string/Subscribe_ok_button"
+        android:textColor="#504f48"
         tools:ignore="ButtonOrder" />
 
 </RelativeLayout>
