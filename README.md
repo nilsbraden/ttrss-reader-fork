@@ -1,5 +1,5 @@
 # TTRSS-Reader
-TTRSS-Reader (or ttrss-reader-fork) is a fork of the original Project from [ttrss-reader](https://code.google.com/p/ttrss-reader/). I took the sourcecode and continued the development because the original owner didn't reply to any messages back then (and has not done so as of today).
+TTRSS-Reader (or ttrss-reader-fork) is a fork of the original Project from [Tiny Tiny RSS Android client](https://github.com/tt-rss/tt-rss-android). I took the sourcecode and continued the development because the original owner didn't reply to any messages back then (and has not done so as of today).
 
 It is a client application for the RSS-Reader [Tiny Tiny RSS](http://tt-rss.org/), a PHP-based online feedreader which runs on your own webspace. It is accessible with any browser and even supports keyboard shortcuts through javascript.
 Download
@@ -44,7 +44,7 @@ Since [F-Droid](https://f-droid.org/repository/browse/?fdid=org.ttrssreader) is 
 Please follow this [link](https://github.com/nilsbraden/ttrss-reader-fork/wiki/Changelog)
 
 # Contact
-Please feel free to contact me via E-Mail (ttrss /at/ nilsbraden.de) or via the Bugtracker (Issues). If you have questions specifically about Tiny Tiny RSS you may ask me or visit the [Tiny-Tiny-RSS-Forum](http://tt-rss.org/forum/) or #tt-rss at irc.tt-rss.org. If I don't answer fast enough or am not willing to implement your suggestion please keep in mind that this is only a hobby for me and I'm unwilling to implement every little feature just beacuse you suggested I do so. You may implement it and send me pull-requests so I can include the features but I can't guarantee I will do this for every thing you want to have.
+Please feel free to contact me via E-Mail (ttrss /at/ nilsbraden.de) or via the Bugtracker (Issues). If you have questions specifically about Tiny Tiny RSS you may ask me or visit the [TT-RSS Discussion page](https://github.com/tt-rss/tt-rss/discussions). If I don't answer fast enough or am not willing to implement your suggestion please keep in mind that this is only a hobby for me and I'm unwilling to implement every little feature just beacuse you suggested I do so. You may implement it and send me pull-requests so I can include the features but I can't guarantee I will do this for every thing you want to have.
 
 # Donations
 If you would like to support my work and the further developement of TTRSS-reader you may submit a donation via Paypal here:
