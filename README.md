@@ -1,7 +1,7 @@
 # TTRSS-Reader
 TTRSS-Reader (or ttrss-reader-fork) is a fork of the original Project from [Tiny Tiny RSS Android client](https://github.com/tt-rss/tt-rss-android). I took the sourcecode and continued the development because the original owner didn't reply to any messages back then (and has not done so as of today).
 
-It is a client application for the RSS-Reader [Tiny Tiny RSS](http://tt-rss.org/), a PHP-based online feedreader which runs on your own webspace. It is accessible with any browser and even supports keyboard shortcuts through javascript.
+It is a client application for the RSS-Reader [Tiny Tiny RSS](https://tt-rss.org/), a PHP-based online feedreader which runs on your own webspace. It is accessible with any browser and even supports keyboard shortcuts through javascript.
 Download
 
 Since google announced that the downloads from google-code will not be available after January 14th, 2014 I started to move all downloads to google-drive. The commentary with the current changelog will be removed in the process but the full changelog can be viewed in the Wiki.
@@ -53,15 +53,15 @@ If you would like to support my work and the further developement of TTRSS-reade
 For more information you may want to visit [Donations](https://github.com/nilsbraden/ttrss-reader-fork/wiki/Donations).
 
 # Screenshots
-![Screenshot 1](http://nilsbraden.de/android/screenshots/small/device-2014-01-02-163718_1.png)
-![Screenshot 2](http://nilsbraden.de/android/screenshots/small/device-2014-01-02-163709_1.png)
-![Screenshot 3](http://nilsbraden.de/android/screenshots/small/device-2014-01-02-163755_1.png)
-![Screenshot 4](http://nilsbraden.de/android/screenshots/small/device-2014-01-02-163740_1.png)
-![Screenshot 5](http://nilsbraden.de/android/screenshots/small/Screenshot_2014-01-02-16-34-03_1.png)
-![Screenshot 6](http://nilsbraden.de/android/screenshots/small/Screenshot_2014-01-02-16-34-16_1.png)
-![Screenshot 7](http://nilsbraden.de/android/screenshots/small/Screenshot_2014-01-02-16-34-39_1.png)
-![Screenshot 8](http://nilsbraden.de/android/screenshots/small/Screenshot_2014-01-02-16-35-11_1.png)
-![Screenshot 9](http://nilsbraden.de/android/screenshots/small/Screenshot_2014-01-02-16-35-30_1.png)
+![Screenshot 1](https://nilsbraden.de/android/screenshots/small/device-2014-01-02-163718_1.png)
+![Screenshot 2](https://nilsbraden.de/android/screenshots/small/device-2014-01-02-163709_1.png)
+![Screenshot 3](https://nilsbraden.de/android/screenshots/small/device-2014-01-02-163755_1.png)
+![Screenshot 4](https://nilsbraden.de/android/screenshots/small/device-2014-01-02-163740_1.png)
+![Screenshot 5](https://nilsbraden.de/android/screenshots/small/Screenshot_2014-01-02-16-34-03_1.png)
+![Screenshot 6](https://nilsbraden.de/android/screenshots/small/Screenshot_2014-01-02-16-34-16_1.png)
+![Screenshot 7](https://nilsbraden.de/android/screenshots/small/Screenshot_2014-01-02-16-34-39_1.png)
+![Screenshot 8](https://nilsbraden.de/android/screenshots/small/Screenshot_2014-01-02-16-35-11_1.png)
+![Screenshot 9](https://nilsbraden.de/android/screenshots/small/Screenshot_2014-01-02-16-35-30_1.png)
 
 [1]: https://nilsbraden.de/android/tt-rss/btn_donateCC_LG.gif
 [2]: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SD4AN4APNW6B4
